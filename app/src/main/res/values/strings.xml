@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FurView2</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_tags">Список тэгов</string>
+    <string name="search_text">Поиск</string>
+    <string name="toast_text">Активирован элемент</string>
+    <string name="toast_to_fullscreen">, переход в полноэкранный режим. Реализовано по касанию.</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+
+
+
+</resources>
