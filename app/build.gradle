@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "comingvarjackalfurview2.github.furview2"
+        applicationId "ru.furry.furview2"
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1

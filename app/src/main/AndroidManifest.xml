@@ -25,7 +25,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.furry.furview2.MainActivity" />
             <intent-filter>
-                <action android:name="comingvarjackalfurview2.github.furview2.fullscreen" />
+                <action android:name="ru.furry.furview2.fullscreen" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

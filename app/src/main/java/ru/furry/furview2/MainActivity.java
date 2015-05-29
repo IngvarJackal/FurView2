@@ -3,6 +3,8 @@ package ru.furry.furview2;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -11,6 +13,19 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Iterator;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import ru.furry.furview2.drivers.e926.DriverE926;
+import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
+import ru.furry.furview2.images.RemoteFurImage;
 
 
 public class MainActivity extends Activity implements View.OnClickListener{
@@ -46,6 +61,30 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mWebView3.setOnClickListener(this);
         mWebView4.setOnClickListener(this);
         **/
+        
+        // FOR DEBUG
+//        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(policy);
+//
+//        DriverE926 driver = new DriverE926();
+//        try {
+//            Iterator<RemoteFurImageE926> posts = driver.search("fox");
+//            Log.v(MainActivity.class.getSimpleName(), "hi");
+//            int i = 0;
+//            while (posts.hasNext() && i < 70) {
+//                i++;
+//                RemoteFurImage image = posts.next();
+//                Log.v("fgsfds", image.getFileUrl());
+//            }
+//        } catch (IOException | ParserConfigurationException | SAXException e) {
+//            StringWriter sw = new StringWriter();
+//            e.printStackTrace(new PrintWriter(sw));
+//            String exceptionAsString = sw.toString();
+//            Log.e("furry error", exceptionAsString);
+//        }
+
+        //
+
 
         mWebView1.loadUrl(url);
         mWebView2.loadUrl(url2);
