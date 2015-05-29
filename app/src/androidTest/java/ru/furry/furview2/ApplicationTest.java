@@ -1,4 +1,4 @@
-package comingvarjackalfurview2.github.furview2;
+package ru.furry.furview2;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -1,4 +1,4 @@
-package ru.furry.furwiev2;
+package ru.furry.furview2;
 
 public enum Rating {
     SAFE,

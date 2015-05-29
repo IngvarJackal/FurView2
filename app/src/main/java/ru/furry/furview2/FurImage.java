@@ -1,4 +1,4 @@
-package ru.furry.furwiev2;
+package ru.furry.furview2;
 
 import java.math.BigInteger;
 import java.net.URL;
@@ -44,7 +44,7 @@ public class FurImage {
     private String description;
     private int score;
     private int local_score;
-    private Rating rating;
+    private ru.furry.furview2.Rating rating;
     private int parent_id;
     private List<Integer> children;
     private BigInteger md5;
