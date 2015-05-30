@@ -1,5 +1,7 @@
 package ru.furry.furview2.images;
 
+import org.joda.time.DateTime;
+
 import java.math.BigInteger;
 import java.net.URL;
 import java.util.GregorianCalendar;
@@ -7,7 +9,7 @@ import java.util.List;
 
 public class DownloadedFurImage extends FurImage {
     int id;
-    GregorianCalendar downloadedAt;
+    DateTime downloadedAt;
     List<String> localTags;
     int localScore;
     BigInteger md5;
@@ -28,11 +30,11 @@ public class DownloadedFurImage extends FurImage {
             String file_ext,
             String page_url,
             String author,
-            GregorianCalendar createdAt,
+            DateTime createdAt,
             List<String> sources,
             List<String> tags,
             List<String> artists,
-            GregorianCalendar downloadedAt,
+            DateTime downloadedAt,
             List<String> localTags,
             int localScore,
             BigInteger md5,
@@ -63,7 +65,7 @@ public class DownloadedFurImage extends FurImage {
         return id;
     }
 
-    public GregorianCalendar getDownloadedAt() {
+    public DateTime getDownloadedAt() {
         return downloadedAt;
     }
 

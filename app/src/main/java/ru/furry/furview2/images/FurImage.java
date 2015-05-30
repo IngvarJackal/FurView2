@@ -1,12 +1,16 @@
 package ru.furry.furview2.images;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
+import org.joda.time.DateTime;
+
 import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 public class FurImage extends RemoteFurImage {
     String author;
-    GregorianCalendar createdAt;
+    DateTime createdAt;
     List<String> sources;
     List<String> tags;
     List<String> artists;
@@ -19,7 +23,7 @@ public class FurImage extends RemoteFurImage {
             String file_ext,
             String page_url,
             String author,
-            GregorianCalendar createdAt,
+            DateTime createdAt,
             List<String> sources,
             List<String> tags,
             List<String> artists) {
@@ -36,7 +40,7 @@ public class FurImage extends RemoteFurImage {
         return author;
     }
 
-    public GregorianCalendar getCreatedAt() {
+    public DateTime getCreatedAt() {
         return createdAt;
     }
 
