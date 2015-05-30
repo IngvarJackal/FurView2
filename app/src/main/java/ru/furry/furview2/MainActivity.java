@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        DriverE926 driver = new DriverE926();
+        DriverE926 driver = new DriverE926();   
         try {
             Iterator<RemoteFurImageE926> posts = driver.search("fox");
             for (FurImage image : driver.download(posts, 5)) {
