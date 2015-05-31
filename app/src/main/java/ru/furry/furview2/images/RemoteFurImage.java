@@ -2,6 +2,9 @@ package ru.furry.furview2.images;
 
 import java.net.URL;
 
+/**
+ * Image class for not downloaded images for filtration
+ */
 public class RemoteFurImage {
 
     String searchQuery;
@@ -17,16 +20,16 @@ public class RemoteFurImage {
             String description,
             int score,
             Rating rating,
-            String file_url,
-            String file_ext,
-            String page_url) {
+            String fileUrl,
+            String fileExt,
+            String pageUrl) {
         this.searchQuery = searchQuery;
         this.description = description;
         this.score = score;
         this.rating = rating;
-        this.fileUrl = file_url;
-        this.fileExt = file_ext;
-        this.pageUrl = page_url;
+        this.fileUrl = fileUrl;
+        this.fileExt = fileExt;
+        this.pageUrl = pageUrl;
     }
 
     public String getSearchQuery() {

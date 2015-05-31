@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +19,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,8 +31,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import ru.furry.furview2.drivers.e926.DriverE926;
 import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
+import ru.furry.furview2.images.DownloadedFurImage;
 import ru.furry.furview2.images.FurImage;
-import ru.furry.furview2.images.RemoteFurImage;
+import ru.furry.furview2.system.Utils;
 
 
 public class MainActivity extends Activity implements View.OnClickListener{
@@ -73,18 +76,34 @@ public class MainActivity extends Activity implements View.OnClickListener{
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        DriverE926 driver = new DriverE926();   
+
+        String cacheStorage = getApplicationContext().getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES)
+                .getAbsolutePath();
+        String permanentStorage = getApplicationContext().getExternalFilesDir(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
+                .getAbsolutePath();
+
+        DriverE926 driver = null;
+        try {
+            driver = new DriverE926(permanentStorage, cacheStorage, 150, 150);
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
         try {
             Iterator<RemoteFurImageE926> posts = driver.search("fox");
-            for (FurImage image : driver.download(posts, 5)) {
+            ArrayList<FurImage> images = new ArrayList<>();
+            for (FurImage image : driver.fetch(posts, 5)) {
+                images.add(image);
                 Log.d("fgsfds", Arrays.toString(image.getArtists().toArray()) + Arrays.toString(image.getSources().toArray()) + image.getCreatedAt() + Arrays.toString(image.getTags().toArray()));
             }
+            for (DownloadedFurImage image : driver.download(images)) {
+                image.getPreview();
+                Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
+            }
 
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
-            String exceptionAsString = sw.toString();
-            Log.e("furry error", exceptionAsString);
+        } catch (Exception e) {
+            Utils.printError(e);
         }
 
         //

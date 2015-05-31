@@ -1,13 +1,12 @@
 package ru.furry.furview2.images;
 
-import net.danlew.android.joda.JodaTimeAndroid;
-
 import org.joda.time.DateTime;
 
-import java.net.URL;
-import java.util.GregorianCalendar;
 import java.util.List;
 
+/**
+ * Basic class for not downloaded images
+ */
 public class FurImage extends RemoteFurImage {
     String author;
     DateTime createdAt;
@@ -19,15 +18,15 @@ public class FurImage extends RemoteFurImage {
             String searchQuery,
             String description,
             int score, Rating rating,
-            String file_url,
-            String file_ext,
-            String page_url,
+            String fileUrl,
+            String fileExt,
+            String pageUrl,
             String author,
             DateTime createdAt,
             List<String> sources,
             List<String> tags,
             List<String> artists) {
-        super(searchQuery, description, score, rating, file_url, file_ext, page_url);
+        super(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl);
         this.author = author;
         this.createdAt = createdAt;
         this.sources = sources;
