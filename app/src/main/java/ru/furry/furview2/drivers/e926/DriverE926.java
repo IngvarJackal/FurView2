@@ -60,6 +60,15 @@ public class DriverE926 {
     protected int previewWidth;
     protected int previewHeight;
 
+    public DriverE926(String permanentStorage, String cacheStorage, Utils.Tuple<Integer, Integer> preview) throws IOException {
+        this.permanentStorage = permanentStorage;
+        this.cacheStorage = cacheStorage;
+        this.previewHeight = preview.x;
+        this.previewWidth = preview.y;
+        checkPathStructure(permanentStorage);
+        checkPathStructure(cacheStorage);
+    }
+
     public DriverE926(String permanentStorage, String cacheStorage, int previewWidth, int previewHeight) throws IOException {
         this.permanentStorage = permanentStorage;
         this.cacheStorage = cacheStorage;
