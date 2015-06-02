@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +37,7 @@ import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.Utils;
 
 
+
 public class MainActivity extends Activity implements View.OnClickListener{
 
     EditText mSearchField;
@@ -43,6 +45,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     WebView mWebView1, mWebView2, mWebView3, mWebView4;
     String url, url2;
     View.OnTouchListener mOnTouchListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +68,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mWebView3 = (WebView) findViewById(R.id.webView3);
         mWebView4 = (WebView) findViewById(R.id.webView4);
 
-        /**
-        mWebView1.setOnClickListener(this);
-        mWebView2.setOnClickListener(this);
-        mWebView3.setOnClickListener(this);
-        mWebView4.setOnClickListener(this);
-        **/
-        
         // FOR DEBUG
+
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
@@ -108,7 +105,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         //
 
-
         mWebView1.loadUrl(url);
         mWebView2.loadUrl(url2);
 
@@ -117,7 +113,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             public boolean onTouch(View v, MotionEvent event) {
                 String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
                 Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
-                Intent intent = new Intent("comingvarjackalfurview2.github.furview2.fullscreen");
+                Intent intent = new Intent("ru.furry.furview2.fullscreen");
                 intent.putExtra("target_url", url);
                 startActivity(intent);
                 return false;
@@ -180,11 +176,5 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     }
 
-/**
-    public void webView1Click(View view) {
-        Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" webView1",Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent("comingvarjackalfurview2.github.furview2.fullscreen");
-        startActivity(intent);
-    }
- **/
+
 }
