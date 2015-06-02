@@ -45,6 +45,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     WebView mWebView1, mWebView2, mWebView3, mWebView4;
     String url, url2;
     View.OnTouchListener mOnTouchListener;
+    GlobalData appPath;
 
 
     @Override
@@ -67,6 +68,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mWebView2 = (WebView) findViewById(R.id.webView2);
         mWebView3 = (WebView) findViewById(R.id.webView3);
         mWebView4 = (WebView) findViewById(R.id.webView4);
+
+        appPath = ((GlobalData)getApplicationContext());
+        appPath.setState("/mnt/sdcard/furview2");   //Example path
 
         // FOR DEBUG
 

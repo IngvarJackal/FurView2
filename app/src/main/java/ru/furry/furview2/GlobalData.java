@@ -1,21 +1,21 @@
-// Класс для хранения глобальной переменной
+// Class to store global variables
 package ru.furry.furview2;
 
 import android.app.Application;
 
 public class GlobalData extends Application{
-    private String mState;
+    private String appPath;
 
     public String getState(){
-        return mState;
+        return appPath;
     }
     public void setState(String s){
-        mState = s;
+        appPath = s;
     }
 }
 
     /*
-    *Пример использования:
-    *   GlobalData appState = ((GlobalData)getApplicationContext());
-    *   String s = appState.getState();
+    *Example of use:
+    *   GlobalData appPath = ((GlobalData)getApplicationContext());
+    *   String s = appPath.getState();
     */
