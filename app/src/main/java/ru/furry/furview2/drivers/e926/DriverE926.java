@@ -309,4 +309,12 @@ public class DriverE926 {
         return downloadedImages;
     }
 
+
+    /**
+     * unsafe operation -- it will broke DownloadedFurImage's links to pictures.
+     */
+    public void clearCache() {
+        Utils.deleteDirectory(new File(cacheStorage));
+    }
+
 }
