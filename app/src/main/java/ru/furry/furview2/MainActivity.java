@@ -44,6 +44,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     ImageButton mSearchButton;
     WebView mWebView1, mWebView2, mWebView3, mWebView4;
     String url, url2;
+    String mSearchQuery;
     View.OnTouchListener mOnTouchListener;
     GlobalData appPath;
 
@@ -60,6 +61,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         mSearchField.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
+
+        mSearchQuery = getIntent().getExtras().getString("SearchQuery");
+
+        mSearchField.setText(mSearchQuery);
+        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
 
         url = "http://freeicons.net.ru/wp-content/uploads/2013/08/catpurr_white.gif";
         url2 = "http://freeicons.net.ru/wp-content/uploads/2013/08/walkingcat_white.gif";
@@ -115,11 +121,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mOnTouchListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
-                Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
-                Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                intent.putExtra("target_url", url);
-                startActivity(intent);
+                if (event.getAction()==MotionEvent.ACTION_DOWN)
+                {
+                    String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
+                    Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent("ru.furry.furview2.fullscreen");
+                    intent.putExtra("target_url", url);
+                    startActivity(intent);
+                }
                 return false;
             }
         };
@@ -128,7 +137,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_OnDestroy), Toast.LENGTH_SHORT).show();
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

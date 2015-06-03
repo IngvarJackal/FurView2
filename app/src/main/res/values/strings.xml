@@ -2,15 +2,17 @@
 <resources>
 
     <string name="app_name">FurView2</string>
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="title_activity_initial_screen">FurView2</string>
+
     <string name="action_settings">Настройки</string>
     <string name="action_save">Сохранить</string>
     <string name="action_tags">Список тэгов</string>
     <string name="search_text">Поиск</string>
+
     <string name="toast_text">Активирован элемент</string>
     <string name="toast_to_fullscreen">, переход в полноэкранный режим. Реализовано по касанию.</string>
-
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
-
-
+    <string name="toast_to_mainscreen">Переход с экрана поиск в главный экран. Запрос помещён в строку поиска.</string>
+    <string name="toast_to_OnDestroy">Вызов OnDestroy. Очитка кэша.</string>
 
 </resources>
