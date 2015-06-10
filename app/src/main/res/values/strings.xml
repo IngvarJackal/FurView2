@@ -14,5 +14,6 @@
     <string name="toast_to_fullscreen">, переход в полноэкранный режим. Реализовано по касанию.</string>
     <string name="toast_to_mainscreen">Переход с экрана поиск в главный экран. Запрос помещён в строку поиска.</string>
     <string name="toast_to_OnDestroy">Вызов OnDestroy. Очитка кэша.</string>
+    <string name="use_proxy">Использовать прокси</string>
 
 </resources>

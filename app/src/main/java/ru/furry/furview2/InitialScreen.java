@@ -6,14 +6,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-
 
 public class InitialScreen extends Activity implements View.OnClickListener {
 
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
+    CheckBox mProxyBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +23,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
 
         mSearchButtonInitial = (ImageButton)findViewById(R.id.SearchButtonInitial);
         mSearchFieldInitial = (EditText)findViewById(R.id.SearchFieldInitial);
-
+        mProxyBox = (CheckBox)findViewById(R.id.proxyBox);
         mSearchButtonInitial.setOnClickListener(this);
     }
 
@@ -33,6 +34,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             Intent intent = new Intent("ru.furry.furview2.MainActivity");
             String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
             intent.putExtra("SearchQuery", mSearchQuery);
+            intent.putExtra("ProxyEnabled", ((Boolean)mProxyBox.isChecked()).toString());
             startActivity(intent);
         }
     }

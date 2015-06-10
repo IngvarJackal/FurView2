@@ -34,6 +34,7 @@ import ru.furry.furview2.drivers.e926.DriverE926;
 import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
 import ru.furry.furview2.images.DownloadedFurImage;
 import ru.furry.furview2.images.FurImage;
+import ru.furry.furview2.system.ProxySettings;
 import ru.furry.furview2.system.Utils;
 
 
@@ -45,6 +46,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     WebView mWebView1, mWebView2, mWebView3, mWebView4;
     String url, url2;
     String mSearchQuery;
+    String mProxyEnabled;
     View.OnTouchListener mOnTouchListener;
     GlobalData appPath;
 
@@ -63,6 +65,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mSearchButton.setOnClickListener(this);
 
         mSearchQuery = getIntent().getExtras().getString("SearchQuery");
+        mProxyEnabled = getIntent().getExtras().getString("ProxyEnabled");
 
         mSearchField.setText(mSearchQuery);
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
@@ -94,6 +97,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         DriverE926 driver = null;
         try {
             driver = new DriverE926(permanentStorage, cacheStorage, 150, 150);
+            Log.d("fgsfds", "Use proxy: " + mProxyEnabled);
+            if (mProxyEnabled.equals("true")) {
+                driver.setProxy(ProxySettings.getProxy());
+            }
         } catch (IOException e) {
             Utils.printError(e);
         }

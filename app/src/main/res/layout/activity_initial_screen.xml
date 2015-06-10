@@ -23,7 +23,6 @@
         android:layout_alignBottom="@+id/SearchButtonInitial"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/SearchButtonInitial"
         android:layout_toStartOf="@+id/SearchButtonInitial"
         android:singleLine="true" />
 
@@ -35,5 +34,15 @@
         android:layout_below="@+id/imageLabel"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/use_proxy"
+        android:id="@+id/proxyBox"
+        android:checked="false"
+        android:layout_below="@+id/SearchFieldInitial"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

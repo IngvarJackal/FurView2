@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class DriverE926 {
     protected String cacheStorage;
     protected int previewWidth;
     protected int previewHeight;
+    protected Proxy proxy;
 
     public DriverE926(String permanentStorage, String cacheStorage, Utils.Tuple<Integer, Integer> preview) throws IOException {
         this.permanentStorage = permanentStorage;
@@ -76,6 +78,13 @@ public class DriverE926 {
         this.previewWidth = previewWidth;
         checkPathStructure(permanentStorage);
         checkPathStructure(cacheStorage);
+    }
+
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
+        // FOR DEBUG
+        Log.d("fgsfds", "Proxy used: " + Utils.getIP(proxy));
+        //
     }
 
     class IteratorE926 implements Iterator {
@@ -190,7 +199,11 @@ public class DriverE926 {
     }
 
     HttpsURLConnection openPage(URL url) throws IOException {
-        return (HttpsURLConnection) url.openConnection();
+        if (proxy != null) {
+            return (HttpsURLConnection) url.openConnection(proxy);
+        } else {
+            return (HttpsURLConnection) url.openConnection();
+        }
     }
 
     private FurImage makeImage(HttpsURLConnection connection, RemoteFurImageE926 remoteImage) throws ParserConfigurationException, IOException, SAXException {
@@ -214,6 +227,7 @@ public class DriverE926 {
     }
 
     private FurImage getImage(RemoteFurImageE926 post) throws IOException, ParserConfigurationException, SAXException {
+        Log.d("fgsfds", String.format("%s?id=%s", SHOW_IMAGE_PATH, post.idE926));
         URL url = new URL(String.format("%s?id=%s", SHOW_IMAGE_PATH, post.idE926));
         HttpsURLConnection conn = openPage(url);
         return makeImage(conn, post);
