@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,23 +17,18 @@ import android.widget.Toast;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import org.xml.sax.SAXException;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import ru.furry.furview2.drivers.e926.DriverE926;
 import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
-import ru.furry.furview2.images.DownloadedFurImage;
 import ru.furry.furview2.images.FurImage;
+import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.ProxySettings;
+import ru.furry.furview2.system.TempClassForTest;
 import ru.furry.furview2.system.Utils;
 
 
@@ -46,7 +40,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
     WebView mWebView1, mWebView2, mWebView3, mWebView4;
     String url, url2;
     String mSearchQuery;
-    String mProxyEnabled;
+    String mProxy;
     View.OnTouchListener mOnTouchListener;
     GlobalData appPath;
 
@@ -65,7 +59,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mSearchButton.setOnClickListener(this);
 
         mSearchQuery = getIntent().getExtras().getString("SearchQuery");
-        mProxyEnabled = getIntent().getExtras().getString("ProxyEnabled");
+        mProxy = getIntent().getExtras().getString("Proxy");
 
         mSearchField.setText(mSearchQuery);
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
@@ -87,32 +81,31 @@ public class MainActivity extends Activity implements View.OnClickListener{
         StrictMode.setThreadPolicy(policy);
 
 
-        String cacheStorage = getApplicationContext().getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES)
-                .getAbsolutePath();
         String permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
         DriverE926 driver = null;
         try {
-            driver = new DriverE926(permanentStorage, cacheStorage, 150, 150);
-            Log.d("fgsfds", "Use proxy: " + mProxyEnabled);
-            if (mProxyEnabled.equals("true")) {
-                driver.setProxy(ProxySettings.getProxy());
+            driver = new DriverE926(permanentStorage, 150, 150);
+            if (mProxy != null) {
+                Proxy proxy = ProxySettings.getLastProxy();
+                Log.d("fgsfds", "Use proxy: " + mProxy);
+                driver.setProxy(proxy);
             }
         } catch (IOException e) {
             Utils.printError(e);
         }
         try {
             Iterator<RemoteFurImageE926> posts = driver.search("fox");
-            ArrayList<FurImage> images = new ArrayList<>();
-            for (FurImage image : driver.fetch(posts, 5)) {
-                images.add(image);
-                Log.d("fgsfds", Arrays.toString(image.getArtists().toArray()) + Arrays.toString(image.getSources().toArray()) + image.getCreatedAt() + Arrays.toString(image.getTags().toArray()));
+            ArrayList<RemoteFurImageE926> images = new ArrayList<>();
+            ArrayList<TempClassForTest> listeners = new ArrayList<>();
+            for (int i = 0; i < 6 && posts.hasNext(); i++) {
+                images.add(posts.next());
+                listeners.add(new TempClassForTest());
             }
-            for (DownloadedFurImage image : driver.download(images)) {
-                image.getPreview();
+
+            for (FurImage image : driver.download(images, listeners, 5)) {
                 Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
             }
 

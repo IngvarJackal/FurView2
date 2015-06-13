@@ -2,6 +2,7 @@ package ru.furry.furview2.images;
 
 import org.joda.time.DateTime;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public class FurImageBuilder {
@@ -17,6 +18,15 @@ public class FurImageBuilder {
     private List<String> sources;
     private List<String> tags;
     private List<String> artists;
+    private DateTime downloadedAt;
+    private BigInteger md5;
+    private String fileName;
+    private int fileSize;
+    private int fileWidth;
+    private int fileHeight;
+    private int previewWidth;
+    private int previewHeight;
+    private String rootPath;
 
     public FurImageBuilder setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
@@ -78,19 +88,62 @@ public class FurImageBuilder {
         return this;
     }
 
-    public FurImageBuilder makeFromRemoteFurImage(RemoteFurImage image) {
-        return (this
-                .setSearchQuery(image.getSearchQuery())
-                .setDescription(image.getDescription())
-                .setScore(image.getScore())
-                .setRating(image.getRating())
-                .setFileUrl(image.getFileUrl())
-                .setFileExt(image.getFileExt())
-                .setPageUrl(image.getPageUrl())
-        );
+    public FurImageBuilder setDownloadedAt(DateTime downloadedAt) {
+        this.downloadedAt = downloadedAt;
+        return this;
+    }
+
+    public FurImageBuilder setMd5(BigInteger md5) {
+        this.md5 = md5;
+        return this;
+    }
+
+    public FurImageBuilder setFileName(String fileName) {
+        this.fileName = fileName;
+        return this;
+    }
+
+    public FurImageBuilder setFileSize(int fileSize) {
+        this.fileSize = fileSize;
+        return this;
+    }
+
+    public FurImageBuilder setFileWidth(int fileWidth) {
+        this.fileWidth = fileWidth;
+        return this;
+    }
+
+    public FurImageBuilder setFileHeight(int fileHeight) {
+        this.fileHeight = fileHeight;
+        return this;
+    }
+
+    public FurImageBuilder setPreviewWidth(int previewWidth) {
+        this.previewWidth = previewWidth;
+        return this;
+    }
+
+    public FurImageBuilder setPreviewHeight(int previewHeight) {
+        this.previewHeight = previewHeight;
+        return this;
+    }
+
+    public FurImageBuilder setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+        return this;
+    }
+
+    public FurImageBuilder makeFromRemoteFurImage(RemoteFurImage remoteImage) {
+        this.searchQuery = remoteImage.getSearchQuery();
+        this.description = remoteImage.getDescription();
+        this.rating = remoteImage.getRating();
+        this.fileUrl = remoteImage.getFileUrl();
+        this.fileExt = remoteImage.getFileExt();
+        this.pageUrl = remoteImage.getPageUrl();
+        return this;
     }
 
     public FurImage createFurImage() {
-        return new FurImage(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl, author, createdAt, sources, tags, artists);
+        return new FurImage(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl, author, createdAt, sources, tags, artists, downloadedAt, md5, fileName, fileSize, fileWidth, fileHeight, previewWidth, previewHeight, rootPath);
     }
 }

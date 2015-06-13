@@ -3,7 +3,6 @@ package ru.furry.furview2.images;
 public class RemoteFurImageBuilder {
     private String searchQuery;
     private String description;
-    private int score;
     private Rating rating;
     private String fileUrl;
     private String fileExt;
@@ -16,11 +15,6 @@ public class RemoteFurImageBuilder {
 
     public RemoteFurImageBuilder setDescription(String description) {
         this.description = description;
-        return this;
-    }
-
-    public RemoteFurImageBuilder setScore(int score) {
-        this.score = score;
         return this;
     }
 
@@ -45,6 +39,6 @@ public class RemoteFurImageBuilder {
     }
 
     public RemoteFurImage createRemoteFurImage() {
-        return new RemoteFurImage(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl);
+        return new RemoteFurImage(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
     }
 }

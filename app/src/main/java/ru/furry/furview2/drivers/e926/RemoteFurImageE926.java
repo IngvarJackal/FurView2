@@ -1,14 +1,83 @@
 package ru.furry.furview2.drivers.e926;
 
+import org.joda.time.DateTime;
+
+import java.math.BigInteger;
+import java.util.List;
+
 import ru.furry.furview2.images.Rating;
 import ru.furry.furview2.images.RemoteFurImage;
 
 public class RemoteFurImageE926 extends RemoteFurImage {
 
-    public final int idE926;
+    private final int idE926;
+    private String author;
+    private DateTime createdAt;
+    private List<String> sources;
+    private List<String> tags;
+    private List<String> artists;
+    private int score;
+    private BigInteger md5;
+    private int fileSize;
+    private int fileWidth;
+    private int fileHeight;
 
-    public RemoteFurImageE926(String searchQuery, String description, int score, Rating rating, String file_url, String file_ext, String page_url, int idE926) {
-        super(searchQuery, description, score, rating, file_url, file_ext, page_url);
+    public RemoteFurImageE926(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE926, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight) {
+        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
         this.idE926 = idE926;
+        this.author = author;
+        this.createdAt = createdAt;
+        this.sources = sources;
+        this.tags = tags;
+        this.artists = artists;
+        this.score = score;
+        this.md5 = md5;
+        this.fileSize = fileSize;
+        this.fileWidth = fileWidth;
+        this.fileHeight = fileHeight;
+    }
+
+    public int getIdE926() {
+        return idE926;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public DateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public List<String> getSources() {
+        return sources;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public List<String> getArtists() {
+        return artists;
+    }
+
+    public BigInteger getMd5() {
+        return md5;
+    }
+
+    public int getFileSize() {
+        return fileSize;
+    }
+
+    public int getFileWidth() {
+        return fileWidth;
+    }
+
+    public int getFileHeight() {
+        return fileHeight;
+    }
+
+    public int getScore() {
+        return score;
     }
 }
