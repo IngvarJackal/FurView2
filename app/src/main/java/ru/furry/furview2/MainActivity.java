@@ -20,13 +20,11 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import ru.furry.furview2.drivers.e926.DriverE926;
 import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
 import ru.furry.furview2.images.FurImage;
-import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.ProxySettings;
 import ru.furry.furview2.system.TempClassForTest;
 import ru.furry.furview2.system.Utils;
@@ -97,6 +95,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             Utils.printError(e);
         }
         try {
+            Log.d("fgsfds", "Searching...");
             Iterator<RemoteFurImageE926> posts = driver.search("fox");
             ArrayList<RemoteFurImageE926> images = new ArrayList<>();
             ArrayList<TempClassForTest> listeners = new ArrayList<>();
@@ -105,7 +104,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 listeners.add(new TempClassForTest());
             }
 
-            for (FurImage image : driver.download(images, listeners, 5)) {
+            for (FurImage image : driver.download(images, listeners)) {
                 Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
             }
 

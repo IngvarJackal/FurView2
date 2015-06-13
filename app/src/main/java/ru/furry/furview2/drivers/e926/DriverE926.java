@@ -2,9 +2,11 @@ package ru.furry.furview2.drivers.e926;
 
 import android.util.Log;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.w3c.dom.Document;
@@ -41,7 +43,6 @@ import ru.furry.furview2.system.Utils;
 public class DriverE926 {
 
     private final String SEARCH_PATH = "https://e926.net/post/index.xml";
-    private final String SHOW_IMAGE_PATH = "https://e926.net/post/show.xml";
     private final String CHARSET = "UTF-8";
 
     protected final int SEARCH_LIMIT = 50;
@@ -49,6 +50,10 @@ public class DriverE926 {
     protected final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     protected final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
     protected final ImageLoader imageLoader = ImageLoader.getInstance();
+    protected final DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .build();
 
     protected String permanentStorage;
     protected int previewWidth;
@@ -132,7 +137,7 @@ public class DriverE926 {
                         .setPageUrl(null)
                         .setIdE926(Integer.parseInt(element.getAttribute("id")))
                         .setAuthor(element.getAttribute("author"))
-                        .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at")))
+                        .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
                         .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                         .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
                         .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
@@ -208,6 +213,7 @@ public class DriverE926 {
                 .setFileSize(remoteImage.getFileSize())
                 .setFileWidth(remoteImage.getFileWidth())
                 .setFileHeight(remoteImage.getFileHeight())
+                .setDownloadedAt(new DateTime())
                 .createFurImage();
     }
 
@@ -234,8 +240,9 @@ public class DriverE926 {
         }
     }
 
-    private FurImage downloadImage(RemoteFurImageE926 remoteImage, ImageLoadingListener listener) throws IOException {
-        imageLoader.loadImage(remoteImage.getFileUrl(), listener);
+    private FurImage downloadImage(RemoteFurImageE926 remoteImage, ImageAware listener) throws IOException {
+        Log.d("fgsfds", remoteImage.getFileUrl());
+        imageLoader.displayImage(remoteImage.getFileUrl(), listener, displayOptions);
         return remoteFurImagetoFurImageE926(remoteImage);
     }
 
@@ -243,17 +250,9 @@ public class DriverE926 {
         return new IteratorE926(SEARCH_PATH, searchQuery);
     }
 
-    public List<FurImage> download(List<RemoteFurImageE926> images, List<ImageLoadingListener> listeners) throws IOException {
+    public List<FurImage> download(List<RemoteFurImageE926> images, List<? extends ImageAware> listeners) throws IOException {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));
-        }
-        return downloadedImages;
-    }
-
-    public List<FurImage> download(List<RemoteFurImageE926> images, List<? extends ImageLoadingListener> listeners, int limit) throws IOException {
-        List<FurImage> downloadedImages = new ArrayList<>(images.size());
-        for (int i = 0; i < images.size() && i < limit; i++) {
             downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));
         }
         return downloadedImages;

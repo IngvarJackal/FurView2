@@ -1,30 +1,51 @@
 package ru.furry.furview2.system;
 
 import android.graphics.Bitmap;
-import android.util.Log;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.ViewScaleType;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
-public class TempClassForTest implements ImageLoadingListener {
+public class TempClassForTest implements ImageAware {
+
     @Override
-    public void onLoadingStarted(String imageUri, View view) {
-        Log.d("fgsfds", "onLoadingStarted " + imageUri);
+    public int getWidth() {
+        return 0;
     }
 
     @Override
-    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-        Log.d("fgsfds", "onLoadingFailed " + imageUri);
+    public int getHeight() {
+        return 0;
     }
 
     @Override
-    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-        Log.d("fgsfds", "onLoadingComplete " + imageUri);
+    public ViewScaleType getScaleType() {
+        return null;
     }
 
     @Override
-    public void onLoadingCancelled(String imageUri, View view) {
-        Log.d("fgsfds", "onLoadingCancelled " + imageUri);
+    public View getWrappedView() {
+        return null;
+    }
+
+    @Override
+    public boolean isCollected() {
+        return false;
+    }
+
+    @Override
+    public int getId() {
+        return 0;
+    }
+
+    @Override
+    public boolean setImageDrawable(Drawable drawable) {
+        return false;
+    }
+
+    @Override
+    public boolean setImageBitmap(Bitmap bitmap) {
+        return false;
     }
 }

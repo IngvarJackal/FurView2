@@ -11,27 +11,23 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
-import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiskCache;
-import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.Proxy;
 
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
 import ru.furry.furview2.system.ProxySettings;
-import ru.furry.furview2.system.Utils;
 
 public class InitialScreen extends Activity implements View.OnClickListener {
 
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
     CheckBox mProxyBox;
+
+    Proxy proxy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +38,26 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         mSearchFieldInitial = (EditText)findViewById(R.id.SearchFieldInitial);
         mProxyBox = (CheckBox)findViewById(R.id.proxyBox);
         mSearchButtonInitial.setOnClickListener(this);
+
+        // proxy init; force by now.
+        //proxy = mProxyBox.isChecked() ? ProxySettings.getProxy() : null;
+
+        //proxy = ProxySettings.getProxy();
+        proxy = null;
+
+        // UIL initialization
+        String cacheStorage = getApplicationContext().getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES)
+                .getAbsolutePath();
+        ImageLoaderConfiguration uilConfig = null;
+        uilConfig = new ImageLoaderConfiguration.Builder(this)
+                .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
+
+                .build();
+
+        ImageLoader.getInstance().init(uilConfig);
     }
 
     @Override
@@ -52,22 +68,9 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
             intent.putExtra("SearchQuery", mSearchQuery);
 
-            // proxy init
-            Proxy proxy = mProxyBox.isChecked() ? ProxySettings.getProxy() : null;
-            intent.putExtra("Proxy", proxy.toString());
 
-            // UIL initialization
-            String cacheStorage = getApplicationContext().getExternalFilesDir(
-                    Environment.DIRECTORY_PICTURES)
-                    .getAbsolutePath();
-            ImageLoaderConfiguration uilConfig = null;
-            uilConfig = new ImageLoaderConfiguration.Builder(this)
-                    .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                    .diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                    .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
-                    .build();
+            intent.putExtra("Proxy", (proxy != null) ? proxy.toString() : null);
 
-            ImageLoader.getInstance().init(uilConfig);
             startActivity(intent);
         }
     }
