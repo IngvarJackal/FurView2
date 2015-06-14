@@ -1,28 +1,34 @@
 package ru.furry.furview2;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
 public class FullscreenActivity extends Activity {
 
-    String url;
-    WebView mwebViewFullscreen;
+    ImageView mPictureImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        url = getIntent().getExtras().getString("target_url");
+        mPictureImageView = (ImageView)findViewById(R.id.pictureImageView);
 
-        mwebViewFullscreen = (WebView)findViewById(R.id.webViewFullscreen);
+        Bundle extras = getIntent().getExtras();
+        byte[] b = extras.getByteArray("image");
 
-        mwebViewFullscreen.loadUrl(url);
+        Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
+        ImageView image = (ImageView) findViewById(R.id.pictureImageView);
+
+        image.setImageBitmap(bmp);
 
     }
 

@@ -60,14 +60,14 @@ public class DriverE926 {
     protected int previewHeight;
     protected Proxy proxy;
 
-    public DriverE926(String permanentStorage, Utils.Tuple<Integer, Integer> preview) throws IOException {
+    public DriverE926(String permanentStorage, Utils.Tuple<Integer, Integer> preview) {
         this.permanentStorage = permanentStorage;
         this.previewHeight = preview.x;
         this.previewWidth = preview.y;
         checkPathStructure(permanentStorage);
     }
 
-    public DriverE926(String permanentStorage, int previewWidth, int previewHeight) throws IOException {
+    public DriverE926(String permanentStorage, int previewWidth, int previewHeight) {
         this.permanentStorage = permanentStorage;
         this.previewHeight = previewHeight;
         this.previewWidth = previewWidth;
@@ -143,8 +143,8 @@ public class DriverE926 {
                         .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                         .setMd5(new BigInteger(element.getAttribute("md5"), 16))
                         .setFileSize(Integer.parseInt(element.getAttribute("file_size")))
-                        .setFileWidth(Integer.parseInt(element.getAttribute("width")))
-                        .setFileHeight(Integer.parseInt(element.getAttribute("height")))
+//                        .setFileWidth(Integer.parseInt(element.getAttribute("width"))) // WTF??? iSN'T PRESENT IN SOME POSTS!!!
+//                        .setFileHeight(Integer.parseInt(element.getAttribute("height"))) // WTF???
                         .createRemoteFurImageE926());
             }
 
@@ -225,10 +225,14 @@ public class DriverE926 {
         }
     }
 
-    private void checkPathStructure(String path) throws IOException {
-        checkDir(new File(path));
-        checkDir(new File(String.format("%s/%s", path, Files.IMAGES)));
-        checkDir(new File(String.format("%s/%s", path, Files.THUMBS)));
+    private void checkPathStructure(String path) {
+        try {
+            checkDir(new File(path));
+            checkDir(new File(String.format("%s/%s", path, Files.IMAGES)));
+            checkDir(new File(String.format("%s/%s", path, Files.THUMBS)));
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
     }
 
     private void checkDir(File path) throws IOException {

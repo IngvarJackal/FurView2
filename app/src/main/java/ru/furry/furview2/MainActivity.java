@@ -2,6 +2,9 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -10,23 +13,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import ru.furry.furview2.drivers.e926.DriverE926;
 import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.ProxySettings;
-import ru.furry.furview2.system.TempClassForTest;
 import ru.furry.furview2.system.Utils;
 
 
@@ -35,17 +42,22 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     EditText mSearchField;
     ImageButton mSearchButton;
-    WebView mWebView1, mWebView2, mWebView3, mWebView4;
-    String url, url2;
+    ImageView mImageView1, mImageView2, mImageView3, mImageView4;
     String mSearchQuery;
     String mProxy;
-    View.OnTouchListener mOnTouchListener;
+    View.OnTouchListener mOnTouchImageViewListener;
+    View.OnTouchListener mOnSearchButtonListener;
     GlobalData appPath;
+    List<ImageViewAware> imageViewListeners;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         setContentView(R.layout.activity_main);
 
         JodaTimeAndroid.init(this);
@@ -62,62 +74,36 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mSearchField.setText(mSearchQuery);
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
 
-        url = "http://freeicons.net.ru/wp-content/uploads/2013/08/catpurr_white.gif";
-        url2 = "http://freeicons.net.ru/wp-content/uploads/2013/08/walkingcat_white.gif";
+        mImageView1 = (ImageView) findViewById(R.id.imageView1);
+        mImageView2 = (ImageView) findViewById(R.id.imageView2);
+        mImageView3 = (ImageView) findViewById(R.id.imageView3);
+        mImageView4 = (ImageView) findViewById(R.id.imageView4);
 
-        mWebView1 = (WebView) findViewById(R.id.webView1);
-        mWebView2 = (WebView) findViewById(R.id.webView2);
-        mWebView3 = (WebView) findViewById(R.id.webView3);
-        mWebView4 = (WebView) findViewById(R.id.webView4);
+        final DriverE926 driver;
+        final List<ImageViewAware> imageViewListeners = new ArrayList<ImageViewAware>(Arrays.asList(
+                new ImageViewAware(mImageView1),
+                new ImageViewAware(mImageView2),
+                new ImageViewAware(mImageView3),
+                new ImageViewAware(mImageView4)
+        ));
 
         appPath = ((GlobalData)getApplicationContext());
         appPath.setState("/mnt/sdcard/furview2");   //Example path
-
-        // FOR DEBUG
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
 
         String permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        DriverE926 driver = null;
-        try {
-            driver = new DriverE926(permanentStorage, 150, 150);
-            if (mProxy != null) {
-                Proxy proxy = ProxySettings.getLastProxy();
-                Log.d("fgsfds", "Use proxy: " + mProxy);
-                driver.setProxy(proxy);
-            }
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
-        try {
-            Log.d("fgsfds", "Searching...");
-            Iterator<RemoteFurImageE926> posts = driver.search("fox");
-            ArrayList<RemoteFurImageE926> images = new ArrayList<>();
-            ArrayList<TempClassForTest> listeners = new ArrayList<>();
-            for (int i = 0; i < 6 && posts.hasNext(); i++) {
-                images.add(posts.next());
-                listeners.add(new TempClassForTest());
-            }
-
-            for (FurImage image : driver.download(images, listeners)) {
-                Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
-            }
-
-        } catch (Exception e) {
-            Utils.printError(e);
+        driver = new DriverE926(permanentStorage, 150, 150);
+        if (mProxy != null) {
+            Proxy proxy = ProxySettings.getLastProxy();
+            Log.d("fgsfds", "Use proxy: " + mProxy);
+            driver.setProxy(proxy);
         }
 
-        //
+        searchE926(driver, mSearchField.getText().toString(), imageViewListeners);
 
-        mWebView1.loadUrl(url);
-        mWebView2.loadUrl(url2);
-
-        mOnTouchListener = new View.OnTouchListener() {
+        mOnTouchImageViewListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction()==MotionEvent.ACTION_DOWN)
@@ -125,15 +111,57 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
                     Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
                     Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                    intent.putExtra("target_url", url);
+                    Bitmap bitmap = ((BitmapDrawable)((ImageView)v).getDrawable()).getBitmap();
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] bitmapdata = stream.toByteArray();
+                    intent.putExtra("image", bitmapdata);
                     startActivity(intent);
                 }
                 return false;
             }
         };
 
-        mWebView1.setOnTouchListener(mOnTouchListener);
+        mOnSearchButtonListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        searchE926(driver, mSearchField.getText().toString(), imageViewListeners);
+                    }
+                return false;
+                }
+        };
 
+        mImageView1.setOnTouchListener(mOnTouchImageViewListener);
+        mImageView2.setOnTouchListener(mOnTouchImageViewListener);
+        mImageView3.setOnTouchListener(mOnTouchImageViewListener);
+        mImageView4.setOnTouchListener(mOnTouchImageViewListener);
+
+        mSearchButton.setOnTouchListener(mOnSearchButtonListener);
+
+    }
+
+    private List<FurImage> searchE926(DriverE926 driver, String query, List<ImageViewAware> listeners) {
+        List<FurImage> result = null;
+        try {
+            Log.d("fgsfds", "Searching " + query);
+            Iterator<RemoteFurImageE926> posts = driver.search(query);
+            List<RemoteFurImageE926> images = new ArrayList<>();
+
+            for (int i = 0; i < 4 && posts.hasNext(); i++) {
+                images.add(posts.next());
+            }
+
+            result = driver.download(images, listeners);
+
+            for (FurImage image : result) {
+                Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
+            }
+
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+        return result;
     }
 
     @Override
@@ -166,13 +194,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
         int id = v.getId();
 
         switch (id) {
-            case R.id.SearchButton:
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " SearchButton", Toast.LENGTH_SHORT).show();
-                break;
             case R.id.SearchField:
                 Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" SearchField",Toast.LENGTH_SHORT).show();
                 break;
             /**
+            case R.id.SearchButton:
+                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " SearchButton", Toast.LENGTH_SHORT).show();
+                 break;
             case R.id.webView1:
                 Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" webView1",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent("comingvarjackalfurview2.github.furview2.fullscreen");
