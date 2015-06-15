@@ -43,6 +43,7 @@ import ru.furry.furview2.system.Utils;
 public class DriverE926 {
 
     private final String SEARCH_PATH = "https://e926.net/post/index.xml";
+    private final String NO_WEBM_SWF = " -type: -type:swf";
     private final String CHARSET = "UTF-8";
 
     protected final int SEARCH_LIMIT = 50;
@@ -127,7 +128,12 @@ public class DriverE926 {
                 Node post = nList.item(postNumber);
                 Element element = (Element) post;
 
-                images.add(new RemoteFurImageE926Builder()
+                // Let's ignore swf and webm
+                if (element.getAttribute("file_ext").equals("webm") ||
+                        element.getAttribute("file_ext").equals("swf"))
+                    continue;
+                else
+                    images.add(new RemoteFurImageE926Builder()
                         .setSearchQuery(searchQuery)
                         .setDescription(element.getAttribute("description"))
                         .setScore(Integer.parseInt(element.getAttribute("score")))
@@ -143,8 +149,8 @@ public class DriverE926 {
                         .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                         .setMd5(new BigInteger(element.getAttribute("md5"), 16))
                         .setFileSize(Integer.parseInt(element.getAttribute("file_size")))
-//                        .setFileWidth(Integer.parseInt(element.getAttribute("width"))) // WTF??? iSN'T PRESENT IN SOME POSTS!!!
-//                        .setFileHeight(Integer.parseInt(element.getAttribute("height"))) // WTF???
+                        .setFileWidth(Integer.parseInt(element.getAttribute("width")))
+                        .setFileHeight(Integer.parseInt(element.getAttribute("height")))
                         .createRemoteFurImageE926());
             }
 
@@ -156,7 +162,7 @@ public class DriverE926 {
             try {
                 String query = String.format("%s?tags=%s&page=%s&limit=%s",
                     searchURL,
-                    URLEncoder.encode(searchQuery, CHARSET),
+                    URLEncoder.encode(searchQuery + NO_WEBM_SWF, CHARSET),
                     page,
                     limit);
                 url = new URL(query);
