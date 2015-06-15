@@ -46,9 +46,6 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         proxy = null;
 
         // UIL initialization
-        String cacheStorage = getApplicationContext().getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES)
-                .getAbsolutePath();
         ImageLoaderConfiguration uilConfig = null;
         uilConfig = new ImageLoaderConfiguration.Builder(this)
                 .memoryCache(new LruMemoryCache(50 * 1024 * 1024))

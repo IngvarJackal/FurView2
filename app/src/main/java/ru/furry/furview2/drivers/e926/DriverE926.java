@@ -42,11 +42,10 @@ import ru.furry.furview2.system.Utils;
 
 public class DriverE926 {
 
-    private final String SEARCH_PATH = "https://e926.net/post/index.xml";
-    private final String NO_WEBM_SWF = " -type: -type:swf";
-    private final String CHARSET = "UTF-8";
+    private static final String SEARCH_PATH = "https://e926.net/post/index.xml";
+    private static final String CHARSET = "UTF-8";
 
-    protected final int SEARCH_LIMIT = 50;
+    protected static final int SEARCH_LIMIT = 50;
 
     protected final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     protected final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
@@ -162,7 +161,7 @@ public class DriverE926 {
             try {
                 String query = String.format("%s?tags=%s&page=%s&limit=%s",
                     searchURL,
-                    URLEncoder.encode(searchQuery + NO_WEBM_SWF, CHARSET),
+                    URLEncoder.encode(searchQuery, CHARSET),
                     page,
                     limit);
                 url = new URL(query);

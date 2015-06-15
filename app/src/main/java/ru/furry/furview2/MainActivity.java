@@ -48,7 +48,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
     GlobalData appPath;
-    List<ImageViewAware> imageViewListeners;
 
 
     @Override
