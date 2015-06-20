@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.net.Proxy;
 
+import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
 import ru.furry.furview2.system.ProxySettings;
 
@@ -44,6 +46,11 @@ public class InitialScreen extends Activity implements View.OnClickListener {
 
         //proxy = ProxySettings.getProxy();
         proxy = null;
+
+        // db init
+        FurryDatabase.init(this);
+        Log.d("fgsfds", FurryDatabase.getDbHelper().isReady().toString());
+        Log.d("fgsfds", FurryDatabase.getWritableDatabase().getPath());
 
         // UIL initialization
         ImageLoaderConfiguration uilConfig = null;
