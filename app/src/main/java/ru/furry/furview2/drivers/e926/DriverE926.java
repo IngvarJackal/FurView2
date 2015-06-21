@@ -44,10 +44,10 @@ import ru.furry.furview2.system.Utils;
 
 public class DriverE926 {
 
-    private static final String SEARCH_PATH = "https://e926.net/post/index.xml";
+    private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
     private static final String CHARSET = "UTF-8";
 
-    protected static final int SEARCH_LIMIT = 50;
+    protected static final int SEARCH_LIMIT = 2;
 
     protected final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     protected final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
@@ -119,7 +119,7 @@ public class DriverE926 {
             return rating;
         }
 
-        class ReadImages extends AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE926>> {
+        class ReadingImages extends AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE926>> {
 
             @Override
             protected List<RemoteFurImageE926> doInBackground(HttpsURLConnection... httpsURLConnections) {
@@ -189,8 +189,8 @@ public class DriverE926 {
         }
 
         private void startReadingImages(HttpsURLConnection page) {
-            readImagesTask = new ReadImages().execute(page);
             readedImages = null;
+            readImagesTask = new ReadingImages().execute(page);
         }
 
         private List<RemoteFurImageE926> readImages() {
@@ -225,6 +225,11 @@ public class DriverE926 {
                 image = getReadedImages().get(0);
             } else {
                 currentPage += 1;
+                try {
+                    startReadingImages(openPage(makeURL(searchUrl, searchQuery, currentPage, SEARCH_LIMIT)));
+                } catch (IOException e) {
+                    Utils.printError(e);
+                }
                 if (getReadedImages().size() > 0) {
                     image = getReadedImages().get(0);
                 }
