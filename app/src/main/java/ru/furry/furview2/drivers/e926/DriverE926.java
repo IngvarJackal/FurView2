@@ -161,7 +161,7 @@ public class DriverE926 {
                                 .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                                 .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
                                 .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
-                                .setMd5(new BigInteger(element.getAttribute("md5"), 16))
+                                .setMd5(new BigInteger(element.getAttribute("md5"), 36))
                                 .setFileSize(Integer.parseInt(element.getAttribute("file_size")))
                                 .setFileWidth(Integer.parseInt(element.getAttribute("width")))
                                 .setFileHeight(Integer.parseInt(element.getAttribute("height")))

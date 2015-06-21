@@ -3,8 +3,6 @@ package ru.furry.furview2;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +10,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -21,7 +18,6 @@ import java.net.Proxy;
 
 import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
-import ru.furry.furview2.system.ProxySettings;
 
 public class InitialScreen extends Activity implements View.OnClickListener {
 
@@ -54,9 +50,8 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         ImageLoaderConfiguration uilConfig = null;
         uilConfig = new ImageLoaderConfiguration.Builder(this)
                 .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
-
                 .build();
 
         ImageLoader.getInstance().init(uilConfig);

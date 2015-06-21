@@ -33,7 +33,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
     }
 
     protected static void initDatabase(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("create table images (imageId integer primary key autoincrement," +
+        sqLiteDatabase.execSQL("create table images (imageId integer primary key," +
                 "searchQuery text," +
                 "description text," +
                 "score integer," +
@@ -49,10 +49,12 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
                 "fileName text," +
                 "fileSize integer," +
                 "fileWidth integer," +
-                "fileHeight integer" +
+                "fileHeight integer," +
+                "filePath String," +
+                "unique (imageId) on conflict replace" +
                 ");");
-        sqLiteDatabase.execSQL("create table tags (tagId integer primary key autoincrement, tagName text);");
-        sqLiteDatabase.execSQL("create table taggings (imageId integer, tagId integer, primary key(imageId, tagId));");
+        sqLiteDatabase.execSQL("create table tags (tagId integer primary key, tagName text, unique (tagId) on conflict ignore);");
+        sqLiteDatabase.execSQL("create table taggings (imageId integer, tagId integer, primary key(imageId, tagId), unique (imageId, tagId) on conflict ignore));");
         sqLiteDatabase.execSQL("create table logins (loginId integer primary key autoincrement, resource text, login text, password text);");
     }
 

@@ -14,12 +14,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
 
 public class Utils {
 
     private static MessageDigest md5;
+    private static ByteBuffer buffer = ByteBuffer.allocate(8);
 
     static {
         try {
@@ -33,6 +37,16 @@ public class Utils {
     public static BigInteger getMD5(byte[] file) {
         md5.update(file, 0, file.length);
         return new BigInteger(1, md5.digest());
+    }
+
+    public static long bytesToLong(byte[] bytes) {
+        buffer.put(bytes, 0, bytes.length);
+        buffer.flip();//need flip
+        return buffer.getLong();
+    }
+
+    public static long reduceMD5(BigInteger integer) {
+        return bytesToLong(Arrays.copyOfRange(integer.toByteArray(), 0, 8));
     }
 
     public static class Tuple<X, Y> {
@@ -106,5 +120,15 @@ public class Utils {
     public static String convertStreamToString(java.io.InputStream is) {
         java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
+    }
+
+    public static String joinList(List<? extends Object> list, String separator) {
+        StringBuilder sb = new StringBuilder();
+        for (Object element : list.subList(0, list.size()-2)) {
+            sb.append(element.toString());
+            sb.append(separator);
+        }
+        sb.append(list.get(list.size()-1));
+        return sb.toString();
     }
 }
