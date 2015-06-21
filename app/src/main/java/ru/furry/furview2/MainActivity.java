@@ -29,7 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.e926.DriverE926;
 import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
 import ru.furry.furview2.images.FurImage;
@@ -53,6 +55,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            Log.d("fgsfds", FurryDatabase.getDbHelper().isReady().toString());
+        } catch (ExecutionException | InterruptedException e) {
+            Utils.printError(e);
+        }
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);

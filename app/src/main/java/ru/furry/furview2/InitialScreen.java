@@ -49,8 +49,6 @@ public class InitialScreen extends Activity implements View.OnClickListener {
 
         // db init
         FurryDatabase.init(this);
-        Log.d("fgsfds", FurryDatabase.getDbHelper().isReady().toString());
-        Log.d("fgsfds", FurryDatabase.getWritableDatabase().getPath());
 
         // UIL initialization
         ImageLoaderConfiguration uilConfig = null;
