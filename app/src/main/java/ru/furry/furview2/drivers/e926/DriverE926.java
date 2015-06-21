@@ -1,5 +1,6 @@
 package ru.furry.furview2.drivers.e926;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
@@ -87,14 +89,15 @@ public class DriverE926 {
         private int currentPage = 1;
         private HttpsURLConnection page;
         private String searchQuery;
-        private List<RemoteFurImageE926> readedImages;
+        private AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE926>> readImagesTask;
+        private List<RemoteFurImageE926> readedImages = null;
 
         public IteratorE926(String searchUrl, String searchQuery) throws IOException, SAXException, ParserConfigurationException {
             this.searchUrl = searchUrl;
             this.searchQuery = searchQuery;
             URL query = makeURL(searchUrl, searchQuery, currentPage, SEARCH_LIMIT);
             page = openPage(query);
-            readedImages = readImages(page);
+            startReadingImages(page);
         }
 
         private Rating makeRating(String sRating) {
@@ -116,45 +119,59 @@ public class DriverE926 {
             return rating;
         }
 
-        private List<RemoteFurImageE926> readImages(HttpsURLConnection connection) throws ParserConfigurationException, IOException, SAXException {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(connection.getInputStream());
-            doc.getDocumentElement().normalize();
-            NodeList nList = doc.getElementsByTagName("post");
+        class ReadImages extends AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE926>> {
 
-            ArrayList<RemoteFurImageE926> images = new ArrayList<>(SEARCH_LIMIT);
-            for (int postNumber = 0; postNumber < nList.getLength(); postNumber++) {
-                Node post = nList.item(postNumber);
-                Element element = (Element) post;
+            @Override
+            protected List<RemoteFurImageE926> doInBackground(HttpsURLConnection... httpsURLConnections) {
 
-                // Let's ignore swf and webm
-                if (element.getAttribute("file_ext").equals("webm") ||
-                        element.getAttribute("file_ext").equals("swf"))
-                    continue;
-                else
-                    images.add(new RemoteFurImageE926Builder()
-                        .setSearchQuery(searchQuery)
-                        .setDescription(element.getAttribute("description"))
-                        .setScore(Integer.parseInt(element.getAttribute("score")))
-                        .setRating(makeRating(element.getAttribute("rating")))
-                        .setFileUrl(element.getAttribute("file_url"))
-                        .setFileExt(element.getAttribute("file_ext"))
-                        .setPageUrl(null)
-                        .setIdE926(Integer.parseInt(element.getAttribute("id")))
-                        .setAuthor(element.getAttribute("author"))
-                        .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
-                        .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
-                        .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
-                        .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
-                        .setMd5(new BigInteger(element.getAttribute("md5"), 16))
-                        .setFileSize(Integer.parseInt(element.getAttribute("file_size")))
-                        .setFileWidth(Integer.parseInt(element.getAttribute("width")))
-                        .setFileHeight(Integer.parseInt(element.getAttribute("height")))
-                        .createRemoteFurImageE926());
+                HttpsURLConnection connection = httpsURLConnections[0];
+
+                Document doc = null;
+                try {
+                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                    doc = dBuilder.parse(connection.getInputStream());
+                } catch (ParserConfigurationException | IOException | SAXException e) {
+                    Utils.printError(e);
+                }
+
+                doc.getDocumentElement().normalize();
+                NodeList nList = doc.getElementsByTagName("post");
+
+                ArrayList<RemoteFurImageE926> images = new ArrayList<>(SEARCH_LIMIT);
+                for (int postNumber = 0; postNumber < nList.getLength(); postNumber++) {
+                    Node post = nList.item(postNumber);
+                    Element element = (Element) post;
+
+                    // Let's ignore swf and webm
+                    if (element.getAttribute("file_ext").equals("webm") ||
+                            element.getAttribute("file_ext").equals("swf"))
+                        continue;
+                    else
+                        images.add(new RemoteFurImageE926Builder()
+                                .setSearchQuery(searchQuery)
+                                .setDescription(element.getAttribute("description"))
+                                .setScore(Integer.parseInt(element.getAttribute("score")))
+                                .setRating(makeRating(element.getAttribute("rating")))
+                                .setFileUrl(element.getAttribute("file_url"))
+                                .setFileExt(element.getAttribute("file_ext"))
+                                .setPageUrl(null)
+                                .setIdE926(Integer.parseInt(element.getAttribute("id")))
+                                .setAuthor(element.getAttribute("author"))
+                                .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
+                                .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
+                                .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
+                                .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
+                                .setMd5(new BigInteger(element.getAttribute("md5"), 16))
+                                .setFileSize(Integer.parseInt(element.getAttribute("file_size")))
+                                .setFileWidth(Integer.parseInt(element.getAttribute("width")))
+                                .setFileHeight(Integer.parseInt(element.getAttribute("height")))
+                                .createRemoteFurImageE926());
+                }
+
+                return images;
+
             }
-
-            return images;
-            }
+        }
 
         private URL makeURL(String searchURL, String searchQuery, int page, int limit) throws MalformedURLException {
             URL url = null;
@@ -171,21 +188,45 @@ public class DriverE926 {
             return url;
         }
 
+        private void startReadingImages(HttpsURLConnection page) {
+            readImagesTask = new ReadImages().execute(page);
+            readedImages = null;
+        }
+
+        private List<RemoteFurImageE926> readImages() {
+            readImagesTask = null;
+            readedImages = null;
+            try {
+                startReadingImages(openPage(makeURL(searchUrl, searchQuery, currentPage, SEARCH_LIMIT)));
+            } catch (IOException e) {
+                Utils.printError(e);
+            }
+            try {
+                readedImages = readImagesTask.get();
+            } catch (InterruptedException | ExecutionException e) {
+                Utils.printError(e);
+            }
+            return readedImages;
+        }
+
+        private List<RemoteFurImageE926> getReadedImages() {
+            if (readedImages == null) {
+                return readImages();
+            } else {
+                return readedImages;
+            }
+        }
+
         @Override
         public boolean hasNext() {
             RemoteFurImage image = null;
 
-            if (readedImages.size() > 0) {
-                image = readedImages.get(0);
+            if (getReadedImages().size() > 0) {
+                image = getReadedImages().get(0);
             } else {
                 currentPage += 1;
-                try {
-                    readedImages = readImages(openPage(makeURL(searchUrl, searchQuery, currentPage, SEARCH_LIMIT)));
-                } catch (ParserConfigurationException | IOException | SAXException e) {
-                    Utils.printError(e);
-                }
-                if (readedImages.size() > 0) {
-                    image = readedImages.get(0);
+                if (getReadedImages().size() > 0) {
+                    image = getReadedImages().get(0);
                 }
             }
 
@@ -194,14 +235,14 @@ public class DriverE926 {
 
         @Override
         public RemoteFurImage next() {
-            RemoteFurImageE926 image = readedImages.get(0);
-            readedImages.remove(0);
+            RemoteFurImageE926 image = getReadedImages().get(0);
+            getReadedImages().remove(0);
             return image;
         }
 
         @Override
         public void remove() {
-            readedImages.remove(0);
+            getReadedImages().remove(0);
         }
     }
 
