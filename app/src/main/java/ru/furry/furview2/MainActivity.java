@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mProxy = getIntent().getExtras().getString("Proxy");
 
         mSearchField.setText(mSearchQuery);
-        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
+        Log.d("fgsfds", "The transition from the InitialScreen to MainActivity");
 
         mImageView1 = (ImageView) findViewById(R.id.imageView1);
         mImageView2 = (ImageView) findViewById(R.id.imageView2);

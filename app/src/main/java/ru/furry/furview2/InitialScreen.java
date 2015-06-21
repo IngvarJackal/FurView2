@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -17,8 +19,11 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.net.Proxy;
+import java.util.List;
 
+import ru.furry.furview2.system.GetProxyList;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
+import ru.furry.furview2.system.ProxyItem;
 import ru.furry.furview2.system.ProxySettings;
 
 public class InitialScreen extends Activity implements View.OnClickListener {
@@ -44,6 +49,9 @@ public class InitialScreen extends Activity implements View.OnClickListener {
 
         //proxy = ProxySettings.getProxy();
         proxy = null;
+
+        new GetProxyList(this).execute("http://api.foxtools.ru/v2/Proxy.xml");
+        Log.d("fgsfds", "Start GetProxyList");
 
         // UIL initialization
         ImageLoaderConfiguration uilConfig = null;
@@ -94,6 +102,15 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void ProxiList(List<ProxyItem> proxyElements) {
+        ProxyItem result = proxyElements.get(0);
+
+        Log.d("fgsfds", "Result proxy IP: " + result.getIp());
+        Log.d("fgsfds", "Result proxy Port: " + result.getPort());
+
+
     }
 
 }
