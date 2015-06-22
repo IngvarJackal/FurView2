@@ -47,7 +47,7 @@ public class DriverE926 {
     private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
     private static final String CHARSET = "UTF-8";
 
-    protected static final int SEARCH_LIMIT = 2;
+    protected static final int SEARCH_LIMIT = 95;
 
     protected final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     protected final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");

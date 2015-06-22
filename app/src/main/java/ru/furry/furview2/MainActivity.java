@@ -162,8 +162,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
             result = driver.download(images, listeners);
 
             for (FurImage image : result) {
-                Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
+                Log.d("fgsfds", image.toString());
             }
+
+            FurryDatabase.create(result.get(0));
+            Log.d("fgsfds", "------------------------------------------------------------");
+            Log.d("fgsfds", FurryDatabase.searchByMD5(result.get(0).getMd5()).get().toString());
 
         } catch (Exception e) {
             Utils.printError(e);

@@ -31,7 +31,6 @@ public class FurImage extends RemoteFurImage {
     private int localScore;
 
     private String filePath;
-    private String previewPath;
 
     public FurImage(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, DateTime downloadedAt, BigInteger md5, String fileName, int fileSize, int fileWidth, int fileHeight, int previewWidth, int previewHeight, String rootPath) {
         super(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
@@ -50,6 +49,29 @@ public class FurImage extends RemoteFurImage {
         this.previewWidth = previewWidth;
         this.previewHeight = previewHeight;
         this.rootPath = rootPath;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + (new StringBuilder().append("\ngetAuthor ")
+                .append(this.getAuthor()).append("\n getCreatedAt ")
+                .append(this.getCreatedAt()).append("\ngetDownloadedAt ")
+                .append(this.getDownloadedAt()).append("\ngetArtists ")
+                .append(this.getArtists()).append("\ngetSources ")
+                .append(this.getSources()).append("\ngetScore ")
+                .append(this.getScore()).append("\ngetRating ")
+                .append(this.getRating()).append("\ngetTags ")
+                .append(this.getTags()).append("\ngetFileName ")
+                .append(this.getFileName()).append("\ngetFileHeight ")
+                .append(this.getFileHeight()).append("\ngetFileWidth ")
+                .append(this.getFileWidth()).append("\ngetFileSize ")
+                .append(this.getFileSize()).append("\ngetMd5 ")
+                .append(this.getMd5().toString(36)).append("\ngetFilePath ")
+                .append(this.getFilePath()).append("\ngetID ")
+                .append(this.getID()).append("\ngetLocalScore ")
+                .append(this.getLocalScore()).append("\ngetLocalTags ")
+                .append(this.getLocalTags()).append("\n")
+                .toString());
     }
 
     public String getAuthor() {
@@ -108,27 +130,44 @@ public class FurImage extends RemoteFurImage {
         return rootPath;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public List<String> getLocalTags() {
         return localTags;
+    }
+
+    public FurImage setLocalTags(List<String> localTags) {
+        this.localTags = localTags;
+        return this;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public int getLocalScore() {
         return localScore;
     }
 
+    public FurImage setLocalScore(int localScore) {
+        this.localScore = localScore;
+        return this;
+    }
+
     public String getFilePath() {
         return filePath;
     }
 
-    public String getPreviewPath() {
-        return previewPath;
+    public FurImage setFilePath(String filePath) {
+        this.filePath = filePath;
+        return this;
     }
 
-    public int getScore() {
-        return score;
+    public int getID() {
+        return id;
     }
+
+    public FurImage setID(int id) {
+        this.id = id;
+        return this;
+    }
+
 }

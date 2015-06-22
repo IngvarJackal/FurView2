@@ -29,6 +29,17 @@ public class RemoteFurImage {
         this.pageUrl = pageUrl;
     }
 
+    @Override
+    public String toString() {
+        return  new StringBuilder().append("getFileUrl ")
+                .append(this.getFileUrl()).append("\ngetFileExt ")
+                .append(this.getFileExt()).append("\ngetRating ")
+                .append(this.getRating()).append("\n getSearchQuery ")
+                .append(this.getSearchQuery()).append("\n getPageUrl ")
+                .append(this.getPageUrl()).append("\n getDescription ")
+                .append(this.getDescription()).toString();
+    }
+
     public String getSearchQuery() {
         return searchQuery;
     }

@@ -23,7 +23,7 @@ import java.util.List;
 public class Utils {
 
     private static MessageDigest md5;
-    private static ByteBuffer buffer = ByteBuffer.allocate(8);
+    private static ByteBuffer buffer = ByteBuffer.allocateDirect(8);
 
     static {
         try {
@@ -39,14 +39,8 @@ public class Utils {
         return new BigInteger(1, md5.digest());
     }
 
-    public static long bytesToLong(byte[] bytes) {
-        buffer.put(bytes, 0, bytes.length);
-        buffer.flip();//need flip
-        return buffer.getLong();
-    }
-
     public static long reduceMD5(BigInteger integer) {
-        return bytesToLong(Arrays.copyOfRange(integer.toByteArray(), 0, 8));
+        return integer.longValue();
     }
 
     public static class Tuple<X, Y> {
@@ -123,12 +117,17 @@ public class Utils {
     }
 
     public static String joinList(List<? extends Object> list, String separator) {
-        StringBuilder sb = new StringBuilder();
-        for (Object element : list.subList(0, list.size()-2)) {
-            sb.append(element.toString());
-            sb.append(separator);
+        switch (list.size()) {
+            case 0: return "";
+            case 1: return list.get(0).toString();
+            default:
+                StringBuilder sb = new StringBuilder();
+                for (Object element : list.subList(0, list.size() - 1)) {
+                    sb.append(element.toString());
+                    sb.append(separator);
+                }
+                sb.append(list.get(list.size() - 1));
+                return sb.toString();
         }
-        sb.append(list.get(list.size()-1));
-        return sb.toString();
     }
 }

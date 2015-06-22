@@ -33,10 +33,12 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
     }
 
     protected static void initDatabase(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("create table images (imageId integer primary key," +
+        sqLiteDatabase.execSQL("create table images (imageId integer primary key on conflict replace," +
                 "searchQuery text," +
                 "description text," +
+                "artists text," +
                 "score integer," +
+                "localScore integer," +
                 "rating text," +
                 "fileUrl text," +
                 "fileExt text," +
@@ -50,11 +52,13 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
                 "fileSize integer," +
                 "fileWidth integer," +
                 "fileHeight integer," +
-                "filePath String," +
-                "unique (imageId) on conflict replace" +
+                "filePath text," +
+                "tags text," +
+                "localTags text," +
+                "unique (imageId)" +
                 ");");
-        sqLiteDatabase.execSQL("create table tags (tagId integer primary key, tagName text, unique (tagId) on conflict ignore);");
-        sqLiteDatabase.execSQL("create table taggings (imageId integer, tagId integer, primary key(imageId, tagId), unique (imageId, tagId) on conflict ignore));");
+        sqLiteDatabase.execSQL("create table tags (tagId integer primary key on conflict ignore, tagName text, unique (tagId));");
+        sqLiteDatabase.execSQL("create table taggings (imageId integer, tagId integer, primary key(imageId, tagId) on conflict ignore, unique (imageId, tagId));");
         sqLiteDatabase.execSQL("create table logins (loginId integer primary key autoincrement, resource text, login text, password text);");
     }
 
