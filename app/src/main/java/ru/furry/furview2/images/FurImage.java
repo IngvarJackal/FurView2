@@ -5,6 +5,8 @@ import org.joda.time.DateTime;
 import java.math.BigInteger;
 import java.util.List;
 
+import ru.furry.furview2.system.Utils;
+
 /**
  * Basic class for downloaded images
  */
@@ -22,13 +24,17 @@ public class FurImage extends RemoteFurImage {
     private int fileSize;
     private int fileWidth;
     private int fileHeight;
+
+    @Deprecated
     private int previewWidth;
+    @Deprecated
     private int previewHeight;
+    @Deprecated
     private String rootPath;
 
-    private int id;
+    private long id;
     private List<String> localTags;
-    private int localScore;
+    private Integer localScore;
 
     private String filePath;
 
@@ -49,6 +55,7 @@ public class FurImage extends RemoteFurImage {
         this.previewWidth = previewWidth;
         this.previewHeight = previewHeight;
         this.rootPath = rootPath;
+        this.id = Utils.reduceMD5(md5);
     }
 
     @Override
@@ -72,6 +79,23 @@ public class FurImage extends RemoteFurImage {
                 .append(this.getLocalScore()).append("\ngetLocalTags ")
                 .append(this.getLocalTags()).append("\n")
                 .toString());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!obj.getClass().equals(this.getClass())) {
+            return false;
+        }
+        if (this.getMd5().equals(((FurImage)obj).getMd5())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getMd5().intValue();
     }
 
     public String getAuthor() {
@@ -118,10 +142,12 @@ public class FurImage extends RemoteFurImage {
         return fileHeight;
     }
 
+    @Deprecated
     public int getPreviewWidth() {
         return previewWidth;
     }
 
+    @Deprecated
     public int getPreviewHeight() {
         return previewHeight;
     }
@@ -143,11 +169,11 @@ public class FurImage extends RemoteFurImage {
         return score;
     }
 
-    public int getLocalScore() {
+    public Integer getLocalScore() {
         return localScore;
     }
 
-    public FurImage setLocalScore(int localScore) {
+    public FurImage setLocalScore(Integer localScore) {
         this.localScore = localScore;
         return this;
     }
@@ -161,13 +187,8 @@ public class FurImage extends RemoteFurImage {
         return this;
     }
 
-    public int getID() {
+    public long getID() {
         return id;
-    }
-
-    public FurImage setID(int id) {
-        this.id = id;
-        return this;
     }
 
 }

@@ -42,7 +42,7 @@ import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.Files;
 import ru.furry.furview2.system.Utils;
 
-public class DriverE926 {
+public class DriverE621 {
 
     private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
     private static final String CHARSET = "UTF-8";
@@ -62,14 +62,14 @@ public class DriverE926 {
     protected int previewHeight;
     protected Proxy proxy;
 
-    public DriverE926(String permanentStorage, Utils.Tuple<Integer, Integer> preview) {
+    public DriverE621(String permanentStorage, Utils.Tuple<Integer, Integer> preview) {
         this.permanentStorage = permanentStorage;
         this.previewHeight = preview.x;
         this.previewWidth = preview.y;
         checkPathStructure(permanentStorage);
     }
 
-    public DriverE926(String permanentStorage, int previewWidth, int previewHeight) {
+    public DriverE621(String permanentStorage, int previewWidth, int previewHeight) {
         this.permanentStorage = permanentStorage;
         this.previewHeight = previewHeight;
         this.previewWidth = previewWidth;
@@ -89,8 +89,8 @@ public class DriverE926 {
         private int currentPage = 1;
         private HttpsURLConnection page;
         private String searchQuery;
-        private AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE926>> readImagesTask;
-        private List<RemoteFurImageE926> readedImages = null;
+        private AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE621>> readImagesTask;
+        private List<RemoteFurImageE621> readedImages = null;
 
         public IteratorE926(String searchUrl, String searchQuery) throws IOException, SAXException, ParserConfigurationException {
             this.searchUrl = searchUrl;
@@ -119,10 +119,10 @@ public class DriverE926 {
             return rating;
         }
 
-        class ReadingImages extends AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE926>> {
+        class ReadingImages extends AsyncTask<HttpsURLConnection, Void, List<RemoteFurImageE621>> {
 
             @Override
-            protected List<RemoteFurImageE926> doInBackground(HttpsURLConnection... httpsURLConnections) {
+            protected List<RemoteFurImageE621> doInBackground(HttpsURLConnection... httpsURLConnections) {
 
                 HttpsURLConnection connection = httpsURLConnections[0];
 
@@ -137,7 +137,7 @@ public class DriverE926 {
                 doc.getDocumentElement().normalize();
                 NodeList nList = doc.getElementsByTagName("post");
 
-                ArrayList<RemoteFurImageE926> images = new ArrayList<>(SEARCH_LIMIT);
+                ArrayList<RemoteFurImageE621> images = new ArrayList<>(SEARCH_LIMIT);
                 for (int postNumber = 0; postNumber < nList.getLength(); postNumber++) {
                     Node post = nList.item(postNumber);
                     Element element = (Element) post;
@@ -147,7 +147,7 @@ public class DriverE926 {
                             element.getAttribute("file_ext").equals("swf"))
                         continue;
                     else
-                        images.add(new RemoteFurImageE926Builder()
+                        images.add(new RemoteFurImageE621Builder()
                                 .setSearchQuery(searchQuery)
                                 .setDescription(element.getAttribute("description"))
                                 .setScore(Integer.parseInt(element.getAttribute("score")))
@@ -193,7 +193,7 @@ public class DriverE926 {
             readImagesTask = new ReadingImages().execute(page);
         }
 
-        private List<RemoteFurImageE926> readImages() {
+        private List<RemoteFurImageE621> readImages() {
             readImagesTask = null;
             readedImages = null;
             try {
@@ -209,7 +209,7 @@ public class DriverE926 {
             return readedImages;
         }
 
-        private List<RemoteFurImageE926> getReadedImages() {
+        private List<RemoteFurImageE621> getReadedImages() {
             if (readedImages == null) {
                 return readImages();
             } else {
@@ -240,7 +240,7 @@ public class DriverE926 {
 
         @Override
         public RemoteFurImage next() {
-            RemoteFurImageE926 image = getReadedImages().get(0);
+            RemoteFurImageE621 image = getReadedImages().get(0);
             getReadedImages().remove(0);
             return image;
         }
@@ -251,7 +251,7 @@ public class DriverE926 {
         }
     }
 
-    private FurImage remoteFurImagetoFurImageE926(RemoteFurImageE926 remoteImage) {
+    private FurImage remoteFurImagetoFurImageE926(RemoteFurImageE621 remoteImage) {
         return new FurImageBuilder()
                 .makeFromRemoteFurImage(remoteImage)
                 .setScore(remoteImage.getScore())
@@ -295,17 +295,17 @@ public class DriverE926 {
         }
     }
 
-    private FurImage downloadImage(RemoteFurImageE926 remoteImage, ImageAware listener) throws IOException {
+    private FurImage downloadImage(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
         Log.d("fgsfds", remoteImage.getFileUrl());
         imageLoader.displayImage(remoteImage.getFileUrl(), listener, displayOptions);
         return remoteFurImagetoFurImageE926(remoteImage);
     }
 
-    public Iterator<RemoteFurImageE926> search(String searchQuery) throws IOException, ParserConfigurationException, SAXException {
+    public Iterator<RemoteFurImageE621> search(String searchQuery) throws IOException, ParserConfigurationException, SAXException {
         return new IteratorE926(SEARCH_PATH, searchQuery);
     }
 
-    public List<FurImage> download(List<RemoteFurImageE926> images, List<? extends ImageAware> listeners) throws IOException {
+    public List<FurImage> download(List<RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
             downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));

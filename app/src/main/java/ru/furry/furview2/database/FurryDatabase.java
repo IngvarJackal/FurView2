@@ -101,7 +101,7 @@ public class FurryDatabase {
     private static ContentValues codeImage(FurImage image) {
         ContentValues values = new ContentValues();
 
-        values.put("imageID", reduceMD5(image.getMd5()));
+        values.put("imageId", image.getID());
         values.put("searchQuery", image.getSearchQuery());
         values.put("description", image.getDescription());
         values.put("score", image.getScore());
@@ -149,24 +149,23 @@ public class FurryDatabase {
                 .setFileHeight(cursor.getInt(cursor.getColumnIndex("fileHeight")))
                 .setTags(Arrays.asList(cursor.getString(cursor.getColumnIndex("tags")).split(SEPARATOR)))
                 .createFurImage()
-                .setID(cursor.getInt(cursor.getColumnIndex("imageId")))
                 .setFilePath(cursor.getString(cursor.getColumnIndex("filePath")))
                 .setLocalScore(cursor.getInt(cursor.getColumnIndex("localScore")))
                 .setLocalTags(Arrays.asList(cursor.getString(cursor.getColumnIndex("localTags")).split(SEPARATOR)));
     }
 
-    private static void insertTags(List<String> tags, long imageID) {
+    private static void insertTags(List<String> tags, long imageId) {
         for (String tag : tags) {
-            long tagID = reduceMD5(Utils.getMD5(tag.getBytes(Charset.forName("UTF-8"))));
+            long tagId = reduceMD5(Utils.getMD5(tag.getBytes(Charset.forName("UTF-8"))));
 
             ContentValues values = new ContentValues();
-            values.put("tagId", tagID);
+            values.put("tagId", tagId);
             values.put("tagName", tag);
             db.insert("tags", null, values);
 
             ContentValues values2 = new ContentValues();
-            values2.put("tagId", tagID);
-            values2.put("imageId", imageID);
+            values2.put("tagId", tagId);
+            values2.put("imageId", imageId);
             db.insert("taggings", null, values2);
         }
     }
@@ -182,6 +181,11 @@ public class FurryDatabase {
     }
 
     private static Utils.Tuple<String, String[]> constructQuery(String query) {
+        query = query.replaceAll("\\s", " ");
+        if (query.replace(" ", "").equals("")) {
+            return new Utils.Tuple<>("select * from images", new String[0]);
+        }
+
         String[] tags = query.split(" ");
         List<String> arguments = new ArrayList<>(tags.length);
 
@@ -200,60 +204,69 @@ public class FurryDatabase {
         }
 
         StringBuilder sqlQuery = new StringBuilder();
-        sqlQuery.append("select i.*");
+        sqlQuery.append("select i.* ");
         sqlQuery.append("from images i, tags t, taggings tg ");
         sqlQuery.append("where tg.tagId == t.tagId and tg.imageId == i.imageId ");
 
-        // NOT
-        sqlQuery.append("and i.tagID not in (");
-        sqlQuery.append("select ii.tagID from images ii, tags tt, taggings tgtg ");
-        sqlQuery.append("where tgtg.tagId == tt.tagId and tgtgtg.imageId == ii.imageId ");
-        sqlQuery.append("and (tt.tagName in ('");
-        if (not.size()-2 > 0) {
-            for (String tag : not.subList(0, not.size() - 1)) {
-                arguments.add(tag);
-                sqlQuery.append("?', '");
+        if (not.size() > 0) {
+            // NOT
+            sqlQuery.append("and i.imageId not in (");
+            sqlQuery.append("select ii.imageId from images ii, tags tt, taggings tgtg ");
+            sqlQuery.append("where tgtg.tagId == tt.tagId and tgtg.imageId == ii.imageId ");
+            sqlQuery.append("and (tt.tagName in (");
+            if (not.size() - 2 > 0) {
+                for (String tag : not.subList(0, not.size() - 1)) {
+                    arguments.add(tag);
+                    sqlQuery.append("?, '");
+                }
+                arguments.add(not.get(not.size() - 1));
+                sqlQuery.append("?))) ");
+            } else {
+                arguments.add(not.get(0));
+                sqlQuery.append("?))) ");
             }
-            arguments.add(not.get(not.size() - 1));
-            sqlQuery.append("?'))) ");
-        } else {
-            arguments.add(not.get(0));
-            sqlQuery.append("?'))) ");
         }
 
-        // OR
-        sqlQuery.append("and i.tagID in (");
-        sqlQuery.append("select iii.tagID from images iii, tags ttt, taggings tgtgtg ");
-        sqlQuery.append("where tgtgtg.tagId == ttt.tagId and tgtgtgtg.imageId == iii.imageId ");
-        sqlQuery.append("and (ttt.tagName in ('");
-        if (or.size()-2 > 0) {
-            for (String tag : or.subList(0, or.size() - 1)) {
-                arguments.add(tag);
-                sqlQuery.append("?', '");
+
+        if (or.size() > 0) {
+            // OR
+            sqlQuery.append("and i.imageId in (");
+            sqlQuery.append("select iii.imageId from images iii, tags ttt, taggings tgtgtg ");
+            sqlQuery.append("where tgtgtg.tagId == ttt.tagId and tgtgtg.imageId == iii.imageId ");
+            sqlQuery.append("and (ttt.tagName in (");
+            if (or.size() - 2 > 0) {
+                for (String tag : or.subList(0, or.size() - 1)) {
+                    arguments.add(tag);
+                    sqlQuery.append("?, '");
+                }
+                arguments.add(or.get(or.size() - 1));
+                sqlQuery.append("?))) ");
+            } else {
+                arguments.add(or.get(0));
+                sqlQuery.append("?))) ");
             }
-            arguments.add(or.get(or.size()-1));
-            sqlQuery.append("?'))) ");
-        } else {
-            arguments.add(or.get(0));
-            sqlQuery.append("?'))) ");
         }
 
-        // AND
-        sqlQuery.append("and (t.tagName in ('");
-        if (and.size()-2 > 0) {
-            for (String tag : and.subList(0, and.size() - 1)) {
-                arguments.add(tag);
-                sqlQuery.append("?', '");
+        if (and.size() > 0) {
+            // AND
+            sqlQuery.append("and (t.tagName in (");
+            if (and.size() - 2 > 0) {
+                for (String tag : and.subList(0, and.size() - 1)) {
+                    arguments.add(tag);
+                    sqlQuery.append("?, '");
+                }
+                arguments.add(and.get(and.size() - 1));
+                sqlQuery.append("?)) ");
+            } else {
+                arguments.add(and.get(0));
+                sqlQuery.append("?)) ");
             }
-            arguments.add(and.get(and.size()-1));
-            sqlQuery.append("?')) ");
+            sqlQuery.append("group by i.imageId ");
+            sqlQuery.append("having count (t.tagId) = ").append(and.size());
         } else {
-            arguments.add(and.get(0));
-            sqlQuery.append("?')) ");
+            sqlQuery.append("group by i.imageId");
         }
 
-        sqlQuery.append("group by i.imageID ");
-        sqlQuery.append("having count (").append(and.size()).append(")");
 
         return new Utils.Tuple<>(sqlQuery.toString(), arguments.toArray(new String[arguments.size()]));
     }

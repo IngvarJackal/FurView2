@@ -8,7 +8,7 @@ import java.util.List;
 import ru.furry.furview2.images.Rating;
 import ru.furry.furview2.images.RemoteFurImage;
 
-public class RemoteFurImageE926 extends RemoteFurImage {
+public class RemoteFurImageE621 extends RemoteFurImage {
 
     private final int idE926;
     private String author;
@@ -23,7 +23,7 @@ public class RemoteFurImageE926 extends RemoteFurImage {
     private int fileHeight;
     private String filePath;
 
-    public RemoteFurImageE926(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE926, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight, String filePath) {
+    public RemoteFurImageE621(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE926, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight, String filePath) {
         super(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
         this.idE926 = idE926;
         this.author = author;
