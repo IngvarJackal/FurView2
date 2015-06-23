@@ -14,12 +14,16 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
 
 public class Utils {
 
     private static MessageDigest md5;
+    private static ByteBuffer buffer = ByteBuffer.allocateDirect(8);
 
     static {
         try {
@@ -33,6 +37,10 @@ public class Utils {
     public static BigInteger getMD5(byte[] file) {
         md5.update(file, 0, file.length);
         return new BigInteger(1, md5.digest());
+    }
+
+    public static long reduceMD5(BigInteger integer) {
+        return integer.longValue();
     }
 
     public static class Tuple<X, Y> {
@@ -106,5 +114,20 @@ public class Utils {
     public static String convertStreamToString(java.io.InputStream is) {
         java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
+    }
+
+    public static String joinList(List<? extends Object> list, String separator) {
+        switch (list.size()) {
+            case 0: return "";
+            case 1: return list.get(0).toString();
+            default:
+                StringBuilder sb = new StringBuilder();
+                for (Object element : list.subList(0, list.size() - 1)) {
+                    sb.append(element.toString());
+                    sb.append(separator);
+                }
+                sb.append(list.get(list.size() - 1));
+                return sb.toString();
+        }
     }
 }

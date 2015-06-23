@@ -3,7 +3,6 @@ package ru.furry.furview2;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,15 +22,16 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import ru.furry.furview2.drivers.e926.DriverE926;
-import ru.furry.furview2.drivers.e926.RemoteFurImageE926;
+import ru.furry.furview2.database.FurryDatabase;
+import ru.furry.furview2.drivers.e926.DriverE621;
+import ru.furry.furview2.drivers.e926.RemoteFurImageE621;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.ProxySettings;
 import ru.furry.furview2.system.Utils;
@@ -53,6 +53,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        try {
+            Log.d("fgsfds", FurryDatabase.getDbHelper().isReady().toString());
+        } catch (ExecutionException | InterruptedException e) {
+            Utils.printError(e);
+        }
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -78,7 +84,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mImageView3 = (ImageView) findViewById(R.id.imageView3);
         mImageView4 = (ImageView) findViewById(R.id.imageView4);
 
-        final DriverE926 driver;
+        final DriverE621 driver;
         final List<ImageViewAware> imageViewListeners = new ArrayList<ImageViewAware>(Arrays.asList(
                 new ImageViewAware(mImageView1),
                 new ImageViewAware(mImageView2),
@@ -93,7 +99,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        driver = new DriverE926(permanentStorage, 150, 150);
+        driver = new DriverE621(permanentStorage, 150, 150);
         if (mProxy != null) {
             Proxy proxy = ProxySettings.getLastProxy();
             Log.d("fgsfds", "Use proxy: " + mProxy);
@@ -140,12 +146,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     }
 
-    private List<FurImage> searchE926(DriverE926 driver, String query, List<ImageViewAware> listeners) {
+    private List<FurImage> searchE926(DriverE621 driver, String query, List<ImageViewAware> listeners) {
         List<FurImage> result = null;
         try {
             Log.d("fgsfds", "Searching " + query);
-            Iterator<RemoteFurImageE926> posts = driver.search(query);
-            List<RemoteFurImageE926> images = new ArrayList<>();
+            Iterator<RemoteFurImageE621> posts = driver.search(query);
+            List<RemoteFurImageE621> images = new ArrayList<>();
 
             for (int i = 0; i < 4 && posts.hasNext(); i++) {
                 images.add(posts.next());
@@ -154,8 +160,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
             result = driver.download(images, listeners);
 
             for (FurImage image : result) {
-                Log.d("fgsfds", image.getRootPath() + image.getFileName() + image.getMd5() + image.getDownloadedAt() + image.getFileSize());
+                Log.d("fgsfds", image.toString());
             }
+
+            FurryDatabase.create(result.get(0));
+            Log.d("fgsfds", "------------------------------------------------------------");
+            Log.d("fgsfds", FurryDatabase.searchByMD5(result.get(0).getMd5()).get().toString());
 
         } catch (Exception e) {
             Utils.printError(e);

@@ -24,8 +24,11 @@ public class FurImageBuilder {
     private int fileSize;
     private int fileWidth;
     private int fileHeight;
+    @Deprecated
     private int previewWidth;
+    @Deprecated
     private int previewHeight;
+    @Deprecated
     private String rootPath;
 
     public FurImageBuilder setSearchQuery(String searchQuery) {
@@ -118,16 +121,19 @@ public class FurImageBuilder {
         return this;
     }
 
+    @Deprecated
     public FurImageBuilder setPreviewWidth(int previewWidth) {
         this.previewWidth = previewWidth;
         return this;
     }
 
+    @Deprecated
     public FurImageBuilder setPreviewHeight(int previewHeight) {
         this.previewHeight = previewHeight;
         return this;
     }
 
+    @Deprecated
     public FurImageBuilder setRootPath(String rootPath) {
         this.rootPath = rootPath;
         return this;

@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -24,4 +28,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'net.danlew:android.joda:2.7.2'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+    testCompile 'junit:junit:4.12'
 }
