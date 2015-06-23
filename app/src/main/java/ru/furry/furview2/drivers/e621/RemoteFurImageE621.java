@@ -1,4 +1,4 @@
-package ru.furry.furview2.drivers.e926;
+package ru.furry.furview2.drivers.e621;
 
 import org.joda.time.DateTime;
 

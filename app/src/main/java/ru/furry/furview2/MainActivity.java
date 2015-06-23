@@ -22,23 +22,26 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import ru.furry.furview2.database.FurryDatabase;
-import ru.furry.furview2.drivers.e926.DriverE621;
-import ru.furry.furview2.drivers.e926.RemoteFurImageE621;
+import ru.furry.furview2.drivers.e621.DriverE621;
+import ru.furry.furview2.drivers.e621.RemoteFurImageE621;
 import ru.furry.furview2.images.FurImage;
+import ru.furry.furview2.images.RemoteFurImage;
+import ru.furry.furview2.system.AsyncImageHandlerGUI;
+import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.ProxySettings;
 import ru.furry.furview2.system.Utils;
 
 
 
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends Activity implements View.OnClickListener, AsyncRemoteImageHandlerGUI {
 
     EditText mSearchField;
     ImageButton mSearchButton;
@@ -48,7 +51,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
     GlobalData appPath;
-
+    List<ImageViewAware> imageViewListeners;
+    List<RemoteFurImageE621> remoteImagesE621 = new ArrayList<>();
+    List<FurImage> downloadedImages = new ArrayList<>();
+    DriverE621 driver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +90,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         mImageView3 = (ImageView) findViewById(R.id.imageView3);
         mImageView4 = (ImageView) findViewById(R.id.imageView4);
 
-        final DriverE621 driver;
-        final List<ImageViewAware> imageViewListeners = new ArrayList<ImageViewAware>(Arrays.asList(
+        imageViewListeners= new ArrayList<ImageViewAware>(Arrays.asList(
                 new ImageViewAware(mImageView1),
                 new ImageViewAware(mImageView2),
                 new ImageViewAware(mImageView3),
@@ -99,14 +104,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        driver = new DriverE621(permanentStorage, 150, 150);
+        driver = new DriverE621(permanentStorage, 150, 150, this);
         if (mProxy != null) {
             Proxy proxy = ProxySettings.getLastProxy();
             Log.d("fgsfds", "Use proxy: " + mProxy);
             driver.setProxy(proxy);
         }
-
-        searchE926(driver, mSearchField.getText().toString(), imageViewListeners);
 
         mOnTouchImageViewListener = new View.OnTouchListener() {
             @Override
@@ -131,7 +134,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        searchE926(driver, mSearchField.getText().toString(), imageViewListeners);
+                        searchE926(mSearchField.getText().toString());
                     }
                 return false;
                 }
@@ -144,33 +147,20 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         mSearchButton.setOnTouchListener(mOnSearchButtonListener);
 
+
+
+
+
+        searchE926(mSearchField.getText().toString());
     }
 
-    private List<FurImage> searchE926(DriverE621 driver, String query, List<ImageViewAware> listeners) {
-        List<FurImage> result = null;
+    private void searchE926(String query) {
+        Log.d("fgsfds", "Search: " + query);
         try {
-            Log.d("fgsfds", "Searching " + query);
-            Iterator<RemoteFurImageE621> posts = driver.search(query);
-            List<RemoteFurImageE621> images = new ArrayList<>();
-
-            for (int i = 0; i < 4 && posts.hasNext(); i++) {
-                images.add(posts.next());
-            }
-
-            result = driver.download(images, listeners);
-
-            for (FurImage image : result) {
-                Log.d("fgsfds", image.toString());
-            }
-
-            FurryDatabase.create(result.get(0));
-            Log.d("fgsfds", "------------------------------------------------------------");
-            Log.d("fgsfds", FurryDatabase.searchByMD5(result.get(0).getMd5()).get().toString());
-
-        } catch (Exception e) {
+            driver.search(query);
+        } catch (IOException e) {
             Utils.printError(e);
         }
-        return result;
     }
 
     @Override
@@ -206,28 +196,29 @@ public class MainActivity extends Activity implements View.OnClickListener{
             case R.id.SearchField:
                 Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" SearchField",Toast.LENGTH_SHORT).show();
                 break;
-            /**
-            case R.id.SearchButton:
-                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " SearchButton", Toast.LENGTH_SHORT).show();
-                 break;
-            case R.id.webView1:
-                Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" webView1",Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent("comingvarjackalfurview2.github.furview2.fullscreen");
-                startActivity(intent);
-                break;
-            case R.id.webView2:
-                Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" webView2",Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.webView3:
-                Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" webView3",Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.webView4:
-                Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" webView4",Toast.LENGTH_SHORT).show();
-                break;
-             **/
         }
 
     }
 
+    @Override
+    public void blockInterfaceForRemoteImages() {
 
+    }
+
+    @Override
+    public void unblockInterfaceForRemoteImages() {
+
+    }
+
+    @Override
+    public void retrieveRemoteRemoteImages(List<? extends RemoteFurImage> images) {
+        Log.d("fgsfds", "Recieved remote pictures");
+        List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
+        remoteImagesE621.addAll(e621Images);
+        try {
+            downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
+    }
 }
