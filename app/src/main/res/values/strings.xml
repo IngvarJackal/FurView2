@@ -16,5 +16,9 @@
     <string name="toast_to_OnDestroy">Вызов OnDestroy. Очитка кэша.</string>
     <string name="use_proxy">Использовать прокси</string>
     <string name="imageName">Рисунок</string>
+	<string name="no_connect_proxy">Проверьте подключение к Интернету</string>
+    <string name="yes_connect_proxy">Прокси найден</string>
+    <string name="disable_proxy">Прокси отключён</string>
+    <string name="searching_proxy">Поиск прокси...</string>
 
 </resources>
