@@ -34,14 +34,14 @@ import ru.furry.furview2.drivers.e621.DriverE621;
 import ru.furry.furview2.drivers.e621.RemoteFurImageE621;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.RemoteFurImage;
-import ru.furry.furview2.system.AsyncImageHandlerGUI;
+import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.ProxySettings;
 import ru.furry.furview2.system.Utils;
 
 
 
-public class MainActivity extends Activity implements View.OnClickListener, AsyncRemoteImageHandlerGUI {
+public class MainActivity extends Activity implements View.OnClickListener, AsyncRemoteImageHandlerGUI, AsyncDatabaseResponseHandlerGUI {
 
     EditText mSearchField;
     ImageButton mSearchButton;
@@ -55,13 +55,16 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
     List<RemoteFurImageE621> remoteImagesE621 = new ArrayList<>();
     List<FurImage> downloadedImages = new ArrayList<>();
     DriverE621 driver;
+    FurryDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        database = new FurryDatabase(this, this.getApplicationContext());
+
         try {
-            Log.d("fgsfds", FurryDatabase.getDbHelper().isReady().toString());
+            Log.d("fgsfds", database.getDbHelper().isReady().toString()); // blocking
         } catch (ExecutionException | InterruptedException e) {
             Utils.printError(e);
         }
@@ -211,7 +214,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
     }
 
     @Override
-    public void retrieveRemoteRemoteImages(List<? extends RemoteFurImage> images) {
+    public void retrieveRemoteImages(List<? extends RemoteFurImage> images) {
         Log.d("fgsfds", "Recieved remote pictures");
         List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
         remoteImagesE621.addAll(e621Images);
@@ -220,5 +223,20 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         } catch (IOException e) {
             Utils.printError(e);
         }
+    }
+
+    @Override
+    public void blockInterfaceForDBResponse() {
+
+    }
+
+    @Override
+    public void unblockInterfaceForDBResponse() {
+
+    }
+
+    @Override
+    public void retrieveDBResponse(List<FurImage> images) {
+
     }
 }

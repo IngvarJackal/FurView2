@@ -7,5 +7,5 @@ import ru.furry.furview2.images.RemoteFurImage;
 public interface AsyncRemoteImageHandlerGUI {
     void blockInterfaceForRemoteImages();
     void unblockInterfaceForRemoteImages();
-    void retrieveRemoteRemoteImages(List<? extends RemoteFurImage> images);
+    void retrieveRemoteImages(List<? extends RemoteFurImage> images);
 }

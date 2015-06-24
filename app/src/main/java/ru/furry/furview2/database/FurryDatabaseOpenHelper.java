@@ -21,6 +21,13 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
         super(context, name, factory, version);
     }
 
+    /**
+     * This is thread-blocking method!
+     *
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public Boolean isReady() throws ExecutionException, InterruptedException {
         if (!dbReady) {
             if (initDB != null) {

@@ -43,9 +43,6 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         //proxy = ProxySettings.getProxy();
         proxy = null;
 
-        // db init
-        FurryDatabase.init(this);
-
         // UIL initialization
         ImageLoaderConfiguration uilConfig = null;
         uilConfig = new ImageLoaderConfiguration.Builder(this)

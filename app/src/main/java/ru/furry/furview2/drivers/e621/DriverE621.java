@@ -247,7 +247,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
 
     @Override
     public void processRemoteImages(List<? extends RemoteFurImage> images) {
-        ((AsyncRemoteImageHandlerGUI)parentActivity).retrieveRemoteRemoteImages(images);
+        ((AsyncRemoteImageHandlerGUI)parentActivity).retrieveRemoteImages(images);
         ((AsyncRemoteImageHandlerGUI)parentActivity).unblockInterfaceForRemoteImages();
     }
 
