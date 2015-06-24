@@ -61,17 +61,15 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             {
                 // UIL initialization
                 Log.d("fgsfds", "UIL initialization");
-                if (mPort==0){proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));}
                 ImageLoaderConfiguration uilConfig = null;
                 uilConfig = new ImageLoaderConfiguration.Builder(this)
                         .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
                                 //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
                         .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
                         .build();
-
                 ImageLoader.getInstance().init(uilConfig);
 
-
+                //Starting MainActivity
                 Intent intent = new Intent("ru.furry.furview2.MainActivity");
                 Log.d("fgsfds", "Put extras to Intent for transfer to MainActivity");
                 String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
@@ -86,7 +84,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             case (R.id.proxyBox):
             {
                 if (mProxyBox.isChecked()) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.searching_proxy), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.searching_proxy),Toast.LENGTH_LONG).show();
                     mSearchButtonInitial.setClickable(false);
                     mSearchFieldInitial.setClickable(false);
                     new GetProxyList(this).execute();}
@@ -94,6 +92,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
                     Toast.makeText(getApplicationContext(),getString(R.string.disable_proxy),Toast.LENGTH_SHORT).show();
                     mProxy = "";
                     mPort = 0;
+                    proxy = null;
                 }
                 break;
             }
@@ -131,6 +130,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             Toast.makeText(getApplicationContext(),getString(R.string.yes_connect_proxy),Toast.LENGTH_SHORT).show();
             mProxy = result.getIp();
             mPort = result.getPort();
+            proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));
         }
         else {
             Log.d("fgsfds", "FurView2 can't find proxy. May be Internet is offline");
@@ -138,6 +138,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             mProxyBox.setChecked(false);
             mProxy = "";
             mPort = 0;
+            proxy = null;
         }
         mSearchButtonInitial.setClickable(true);
         mSearchFieldInitial.setClickable(true);
