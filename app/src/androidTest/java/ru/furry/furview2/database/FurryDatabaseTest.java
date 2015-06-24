@@ -1,16 +1,14 @@
-package ru.furry.furview2;
+package ru.furry.furview2.database;
 
 import android.test.AndroidTestCase;
 
 import org.joda.time.DateTime;
 
-import java.lang.Override;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
@@ -39,11 +37,8 @@ public class FurryDatabaseTest extends AndroidTestCase {
             .setFileSize(1024)
             .setFileWidth(800)
             .setFileHeight(600)
-            .setPreviewWidth(300)
-            .setPreviewHeight(400)
-            .setRootPath("/")
             .createFurImage()
-            .setFilePath("/ingvarjackal.jpeg")
+            .setFilePath(null)
             .setLocalScore(21)
             .setLocalTags(new ArrayList<String>(Arrays.asList("localtag1", "localtag2", "localtag3")));
 
@@ -75,47 +70,53 @@ public class FurryDatabaseTest extends AndroidTestCase {
         assertTrue(img1.getLocalTags() == img2.getLocalTags() || img1.getLocalTags().equals(img2.getLocalTags()));
     }
 
-//    @Override
-//    public void setUp() throws Exception {
-//        super.setUp();
-//        database = new FurryDatabase(new AsyncDatabaseResponseHandlerGUI() {
-//            @Override
-//            public void blockInterfaceForDBResponse() {
-//
-//            }
-//
-//            @Override
-//            public void unblockInterfaceForDBResponse() {
-//
-//            }
-//
-//            @Override
-//            public void retrieveDBResponse(List<FurImage> images) {
-//
-//            }
-//        }, this.getContext());
-//        database.create(testImage);
-//    }
-//
-//    public void testSearchByTags() throws Exception {
-//        List<FurImage> images = database.getImages("tag10", database.getWritableDatabase());
-//        assertTrue(images.size() == 0);
-//        images = database.searchByTags("").get();
-//        assertTrue(images.size() == 1);
-//        images = database.searchByTags("-tag10").get();
-//        assertTrue(images.size() == 1);
-//        images = database.searchByTags("~tag1").get();
-//        assertTrue(images.size() == 1);
-//        images = database.searchByTags("~tag1 ~tag2 -tag10 tag3").get();
-//        assertTrue(images.size() == 1);
-//    }
-//
-//    public void testSearchByMD5() throws Exception {
-//        FurImage image = FurryDatabase.searchByMD5(testImage.getMd5()).get();
-//        testImageEquality(image, testImage);
-//    }
-//
-//    public void testUpdate() throws Exception {
-//        //TODO: write test case
-//    }
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        database = new FurryDatabase(new AsyncDatabaseResponseHandlerGUI() {
+            @Override
+            public void blockInterfaceForDBResponse() {
+
+            }
+
+            @Override
+            public void unblockInterfaceForDBResponse() {
+
+            }
+
+            @Override
+            public void retrieveDBResponse(List<FurImage> images) {
+
+            }
+        }, this.getContext());
+        database.create(testImage);
+    }
+
+    public void testSearch() throws Exception {
+        List<FurImage> images = database.getImages("tag10", database.getWritableDatabase());
+        assertTrue(images.size() == 0);
+        images = database.getImages("", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+        images = database.getImages("-tag10", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+        images = database.getImages("~tag1", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+        images = database.getImages("~tag1 ~tag2 -tag10 tag3", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+        images = database.getImages("~tag1 ~tag2 -tag10 tag3 rating:s", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+        images = database.getImages("~tag1 ~tag2 -tag10 tag3 -rating:s", database.getWritableDatabase());
+        assertTrue(images.size() == 0);
+        images = database.getImages("~tag1 ~tag2 -tag10 tag3 -rating:e", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+    }
+
+    public void testSearchByMD5() throws Exception {
+        List<FurImage> images = database.getImageByMD5(testImage.getMd5(), database.getWritableDatabase());
+        testImageEquality(images.get(0), testImage);
+    }
+
+    public void testUpdate() throws Exception {
+        //TODO: write test case
+    }
 }

@@ -16,13 +16,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ru.furry.furview2.drivers.e621.RemoteFurImageE621;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
 import ru.furry.furview2.system.AsyncDatabaseResponseHandler;
 import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
-import ru.furry.furview2.system.AsyncRemoteImageHandler;
 import ru.furry.furview2.system.Utils;
 
 import static ru.furry.furview2.system.Utils.joinList;
@@ -194,9 +192,12 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         List<String> not = new ArrayList<>();
         List<String> or = new ArrayList<>();
         List<String> and = new ArrayList<>();
+        SpecialTags specTags = new SpecialTags();
 
         for (String tag : tags) {
-            if (tag.startsWith("-")) {
+            if (tag.contains("rating:")) {
+                specTags.rating = tag;
+            } else if (tag.startsWith("-")) {
                 not.add(tag.substring(1));
             } else if (tag.startsWith("~")) {
                 or.add(tag.substring(1));
@@ -210,8 +211,18 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         sqlQuery.append("from images i, tags t, taggings tg ");
         sqlQuery.append("where tg.tagId == t.tagId and tg.imageId == i.imageId ");
 
+        // SPECIAL TAGS
+        if (specTags.rating != null) {
+            sqlQuery.append("and i.rating ");
+            if (specTags.rating.startsWith("-"))
+                sqlQuery.append("not");
+            sqlQuery.append(" in (?) ");
+            arguments.add(specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
+        }
+
+
+        // NOT
         if (not.size() > 0) {
-            // NOT
             sqlQuery.append("and i.imageId not in (");
             sqlQuery.append("select ii.imageId from images ii, tags tt, taggings tgtg ");
             sqlQuery.append("where tgtg.tagId == tt.tagId and tgtg.imageId == ii.imageId ");
@@ -230,8 +241,8 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         }
 
 
+        // OR
         if (or.size() > 0) {
-            // OR
             sqlQuery.append("and i.imageId in (");
             sqlQuery.append("select iii.imageId from images iii, tags ttt, taggings tgtgtg ");
             sqlQuery.append("where tgtgtg.tagId == ttt.tagId and tgtgtg.imageId == iii.imageId ");
@@ -249,8 +260,8 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
             }
         }
 
+        // AND
         if (and.size() > 0) {
-            // AND
             sqlQuery.append("and (t.tagName in (");
             if (and.size() - 2 > 0) {
                 for (String tag : and.subList(0, and.size() - 1)) {
@@ -312,8 +323,8 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         }
     }
 
-    public void searchByTags(String query) {
-        // TODO add search by: rating, width, height, score, localscore, downloaddate, creationdate
+    public void search(String query) {
+        // TODO add search by: rating, score, localscore, downloaddate, creationdate, artist
         parentThread.blockInterfaceForDBResponse();
         new AsyncSearchTags().execute(new Utils.Tuple<String, AsyncDatabaseResponseHandler>(query, this));
     }
