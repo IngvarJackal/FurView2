@@ -8,6 +8,7 @@ import android.view.View;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import org.joda.time.DateTime;
@@ -291,6 +292,12 @@ public class DriverE621 implements AsyncRemoteImageHandler{
             downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));
         }
         return downloadedImages;
+    }
+
+    public void loadFromStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
+        for (int i = 0; i < images.size(); i++) {
+            imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions);
+        }
     }
 
     public void save(FurImage image, FurryDatabase database) {
