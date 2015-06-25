@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -30,7 +31,7 @@ import static ru.furry.furview2.system.Utils.reduceMD5;
 public class FurryDatabase implements AsyncDatabaseResponseHandler {
 
     private static String DB_NAME = "furryDB";
-    private static int DB_VERSION = 22;
+    private static int DB_VERSION = 25;
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final String SEPARATOR = "qpzao";
     private static final int RADIX = 36;
@@ -310,7 +311,7 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         if (cursor.moveToNext()) {
             image = decodeImage(cursor);
         }
-        return new ArrayList<>(Arrays.asList(image));
+        return (image != null) ? new ArrayList<>(Arrays.asList(image)) : new ArrayList<FurImage>();
     }
 
     public void create(FurImage image) {
@@ -414,6 +415,25 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
      */
     public void deleteByMd5(BigInteger md5) {
         new DeleteImage().execute(md5);
+    }
+
+    public String getTableAsString(String tableName) {
+        Log.d("fgsfds", "getTableAsString called");
+        String tableString = String.format("Table %s:\n", tableName);
+        Cursor allRows  = database.rawQuery("SELECT * FROM " + tableName, null);
+        if (allRows.moveToFirst() ){
+            String[] columnNames = allRows.getColumnNames();
+            do {
+                for (String name: columnNames) {
+                    tableString += String.format("%s: %s\n", name,
+                            allRows.getString(allRows.getColumnIndex(name)));
+                }
+                tableString += "\n";
+
+            } while (allRows.moveToNext());
+        }
+
+        return tableString;
     }
 
 }
