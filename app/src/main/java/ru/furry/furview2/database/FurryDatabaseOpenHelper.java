@@ -62,6 +62,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
                 "filePath text," +
                 "tags text," +
                 "localTags text," +
+                "deleted text," +
                 "unique (imageId)" +
                 ");");
         sqLiteDatabase.execSQL("create table tags (tagId integer primary key on conflict ignore, tagName text, unique (tagId));");

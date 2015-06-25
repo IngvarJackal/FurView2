@@ -1,6 +1,7 @@
 package ru.furry.furview2.database;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import org.joda.time.DateTime;
 
@@ -89,7 +90,7 @@ public class FurryDatabaseTest extends AndroidTestCase {
 
             }
         }, this.getContext());
-        database.create(testImage);
+        database.storeImage(testImage, database.getWritableDatabase());
     }
 
     public void testSearch() throws Exception {
@@ -114,6 +115,13 @@ public class FurryDatabaseTest extends AndroidTestCase {
     public void testSearchByMD5() throws Exception {
         List<FurImage> images = database.getImageByMD5(testImage.getMd5(), database.getWritableDatabase());
         testImageEquality(images.get(0), testImage);
+    }
+
+    public void testDeletion() throws Exception {
+        database.deleteImage(testImage.getMd5(), database.getWritableDatabase());
+        List<FurImage> images = database.getImageByMD5(testImage.getMd5(), database.getWritableDatabase());
+        assertTrue(images.size() == 0);
+        database.storeImage(testImage, database.getWritableDatabase());
     }
 
     public void testUpdate() throws Exception {

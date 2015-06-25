@@ -1,11 +1,14 @@
 package ru.furry.furview2.drivers.e621;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -17,6 +20,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -33,6 +37,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
@@ -56,6 +61,9 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private final ImageLoader imageLoader = ImageLoader.getInstance();
     private final DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .build();
+    private final DisplayImageOptions downloadOptions = new DisplayImageOptions.Builder()
             .cacheOnDisk(true)
             .build();
 
@@ -162,7 +170,6 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         try {
             checkDir(new File(path));
             checkDir(new File(String.format("%s/%s", path, Files.IMAGES)));
-            checkDir(new File(String.format("%s/%s", path, Files.THUMBS)));
         } catch (IOException e) {
             Utils.printError(e);
         }
@@ -284,6 +291,43 @@ public class DriverE621 implements AsyncRemoteImageHandler{
             downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));
         }
         return downloadedImages;
+    }
+
+    public void save(FurImage image, FurryDatabase database) {
+        image.setFilePath(String.format("%s/%s/", permanentStorage, Files.IMAGES) + image.getMd5() + "." + image.getFileExt());
+        database.create(image);
+        final String imagePath = image.getFilePath();
+        imageLoader.loadImage(image.getFileUrl(), downloadOptions, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(imagePath);
+                    loadedImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+                } catch (Exception e) {
+                    Utils.printError(e);
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        Utils.printError(e);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Deletes image only from storage, not from database
+     * @param image
+     * @param database
+     */
+    public void delete(FurImage image, FurryDatabase database) {
+        database.deleteByMd5(image.getMd5());
+        File file = new File(image.getFilePath());
+        file.delete();
     }
 
 }
