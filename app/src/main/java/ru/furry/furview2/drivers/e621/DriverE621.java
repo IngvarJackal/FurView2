@@ -8,7 +8,6 @@ import android.view.View;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import org.joda.time.DateTime;
@@ -156,6 +155,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                 .setFileWidth(remoteImage.getFileWidth())
                 .setFileHeight(remoteImage.getFileHeight())
                 .setDownloadedAt(new DateTime())
+                .setPageUrl("https://e621.net/post/show/" + remoteImage.getIdE621())
                 .createFurImage();
     }
 
@@ -170,7 +170,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private void checkPathStructure(String path) {
         try {
             checkDir(new File(path));
-            checkDir(new File(String.format("%s/%s", path, Files.IMAGES)));
+            checkDir(new File(String.format("%s/%s", path, Files.E621_IMAGES)));
         } catch (IOException e) {
             Utils.printError(e);
         }
@@ -301,7 +301,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     }
 
     public void save(FurImage image, FurryDatabase database) {
-        image.setFilePath(String.format("%s/%s/", permanentStorage, Files.IMAGES) + image.getMd5() + "." + image.getFileExt());
+        image.setFilePath(String.format("%s/%s/", permanentStorage, Files.E621_IMAGES) + image.getMd5() + "." + image.getFileExt());
         database.create(image);
         final String imagePath = image.getFilePath();
         imageLoader.loadImage(image.getFileUrl(), downloadOptions, new SimpleImageLoadingListener() {
