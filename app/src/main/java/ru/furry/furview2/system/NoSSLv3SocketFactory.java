@@ -11,6 +11,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -96,9 +98,9 @@ public class NoSSLv3SocketFactory extends SSLSocketFactory{
                 List<String> enabledProtocols = new ArrayList<String>(Arrays.asList(delegate.getEnabledProtocols()));
                 if (enabledProtocols.size() > 1) {
                     enabledProtocols.remove("SSLv3");
-                    System.out.println("Removed SSLv3 from enabled protocols");
+                    Log.d("fgsfds", "Removed SSLv3 from enabled protocols; protocols avaliable: " + enabledProtocols);
                 } else {
-                    System.out.println("SSL stuck with protocol available for " + String.valueOf(enabledProtocols));
+                    Log.d("fgsfds", "SSL stuck with protocol available for " + String.valueOf(enabledProtocols));
                 }
                 protocols = enabledProtocols.toArray(new String[enabledProtocols.size()]);
             }
