@@ -133,6 +133,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     }
 
     private URL makeURL(String searchURL, String searchQuery, int page, int limit) throws MalformedURLException {
+        HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
         URL url = null;
         try {
             String query = String.format("%s?tags=%s&page=%s&limit=%s",
@@ -166,10 +167,8 @@ public class DriverE621 implements AsyncRemoteImageHandler{
 
     HttpsURLConnection openPage(URL url) throws IOException {
         if (proxy != null) {
-            HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
             return (HttpsURLConnection) url.openConnection(proxy);
         } else {
-            HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
             return (HttpsURLConnection) url.openConnection();
         }
     }
