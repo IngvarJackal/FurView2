@@ -46,9 +46,6 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         mSearchButtonInitial.setOnClickListener(this);
         mProxyBox.setOnClickListener(this);
 
-        // proxy init; force by now.
-        //proxy = mProxyBox.isChecked() ? ProxySettings.getProxy() : null;
-
         //proxy = ProxySettings.getProxy();
         proxy = null;
     }

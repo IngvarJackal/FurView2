@@ -111,7 +111,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 .getAbsolutePath();
 
         driver = new DriverE621(permanentStorage, 150, 150, this);
-        if (mProxy != "") {
+        if (mProxy.equals("")) {
+            Log.d("fgsfds", "Proxy is not using");
+        } else {
             //Proxy proxy = ProxySettings.getLastProxy();
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));
             Log.d("fgsfds", "Set proxy "+mProxy+" port "+mPort);
