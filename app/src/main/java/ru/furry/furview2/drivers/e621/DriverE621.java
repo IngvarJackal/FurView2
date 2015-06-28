@@ -24,15 +24,11 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,7 +40,6 @@ import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncRemoteImageHandler;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.Files;
-import ru.furry.furview2.system.NoSSLv3SocketFactory;
 import ru.furry.furview2.system.Utils;
 
 public class DriverE621 implements AsyncRemoteImageHandler{
@@ -57,9 +52,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private static final int SEARCH_LIMIT = 95;
 
     private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
-    private SSLSocketFactory NoSSLv3Factory;
-
+    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM dd kk:mm:ss Z yyyy");
     private final ImageLoader imageLoader = ImageLoader.getInstance();
     private final DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
@@ -76,27 +69,20 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private HttpsURLConnection page;
     private String searchQuery;
 
-    private void init() throws NoSuchAlgorithmException, KeyManagementException {
-        checkPathStructure(permanentStorage);
-        SSLContext sslcontext = SSLContext.getInstance("TLSv1");
-        sslcontext.init(null, null, null);
-        NoSSLv3Factory = new NoSSLv3SocketFactory(sslcontext.getSocketFactory());
-    }
-
-    public DriverE621(String permanentStorage, Utils.Tuple<Integer, Integer> preview, AsyncRemoteImageHandlerGUI parentActivity) throws NoSuchAlgorithmException, KeyManagementException {
+    public DriverE621(String permanentStorage, Utils.Tuple<Integer, Integer> preview, AsyncRemoteImageHandlerGUI parentActivity) {
+        this.parentActivity = parentActivity;
+        this.permanentStorage = permanentStorage;
         this.previewHeight = preview.x;
         this.previewWidth = preview.y;
-        this.parentActivity = parentActivity;
-        this.permanentStorage = permanentStorage;
-        init();
+        checkPathStructure(permanentStorage);
     }
 
-    public DriverE621(String permanentStorage, int previewWidth, int previewHeight, AsyncRemoteImageHandlerGUI parentActivity) throws NoSuchAlgorithmException, KeyManagementException {
-        this.previewHeight = previewHeight;
-        this.previewWidth = previewWidth;
+    public DriverE621(String permanentStorage, int previewWidth, int previewHeight, AsyncRemoteImageHandlerGUI parentActivity) {
         this.parentActivity = parentActivity;
         this.permanentStorage = permanentStorage;
-        init();
+        this.previewHeight = previewHeight;
+        this.previewWidth = previewWidth;
+        checkPathStructure(permanentStorage);
     }
 
     private <T extends AsyncRemoteImageHandlerGUI, AsyncImageHandlerGUI> void setParent(T val) {
@@ -133,7 +119,6 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     }
 
     private URL makeURL(String searchURL, String searchQuery, int page, int limit) throws MalformedURLException {
-        HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
         URL url = null;
         try {
             String query = String.format("%s?tags=%s&page=%s&limit=%s",
@@ -238,7 +223,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                             .setPageUrl(null)
                             .setIdE926(Integer.parseInt(element.getAttribute("id")))
                             .setAuthor(element.getAttribute("author"))
-                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00:", " 24:")))
+                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
                             .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                             .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
                             .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
