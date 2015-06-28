@@ -225,7 +225,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
         remoteImagesE621.addAll(e621Images);
         try {
-            downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
+            downloadedImages.addAll(driver.download(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners));
         } catch (IOException e) {
             Utils.printError(e);
         }

@@ -223,7 +223,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                             .setPageUrl(null)
                             .setIdE926(Integer.parseInt(element.getAttribute("id")))
                             .setAuthor(element.getAttribute("author"))
-                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
+                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00:", " 24:")))
                             .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                             .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
                             .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
