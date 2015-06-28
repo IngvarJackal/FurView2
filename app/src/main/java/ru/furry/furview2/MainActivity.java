@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -110,7 +112,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        driver = new DriverE621(permanentStorage, 150, 150, this);
+        try {
+            driver = new DriverE621(permanentStorage, 150, 150, this);
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            Utils.printError(e);
+        }
         if (mProxy.equals("")) {
             Log.d("fgsfds", "Proxy is not using");
         } else {
