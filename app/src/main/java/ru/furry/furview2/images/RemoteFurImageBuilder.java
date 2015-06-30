@@ -7,6 +7,7 @@ public class RemoteFurImageBuilder {
     private String fileUrl;
     private String fileExt;
     private String pageUrl;
+    private String previewUrl;
 
     public RemoteFurImageBuilder setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
@@ -39,6 +40,10 @@ public class RemoteFurImageBuilder {
     }
 
     public RemoteFurImage createRemoteFurImage() {
-        return new RemoteFurImage(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
+        return new RemoteFurImage(searchQuery, description, rating, fileUrl, fileExt, pageUrl, previewUrl);
+    }
+
+    public void setPreviewUrl(String previewUrl) {
+        this.previewUrl = previewUrl;
     }
 }

@@ -26,6 +26,7 @@ public class RemoteFurImageE621Builder {
     private int fileWidth;
     private int fileHeight;
     private String filePath;
+    private String previewUrl;
 
     public RemoteFurImageE621Builder setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
@@ -117,7 +118,12 @@ public class RemoteFurImageE621Builder {
         return this;
     }
 
+    public RemoteFurImageE621Builder setPreviewUrl(String previewUrl) {
+        this.previewUrl = previewUrl;
+        return this;
+    }
+
     public RemoteFurImageE621 createRemoteFurImageE926() {
-        return new RemoteFurImageE621(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl, idE926, author, createdAt, sources, tags, artists, md5, fileSize, fileWidth, fileHeight, filePath);
+        return new RemoteFurImageE621(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl, idE926, author, createdAt, sources, tags, artists, md5, fileSize, fileWidth, fileHeight, filePath, previewUrl);
     }
 }

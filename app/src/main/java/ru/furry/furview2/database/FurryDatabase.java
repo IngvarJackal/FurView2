@@ -31,7 +31,7 @@ import static ru.furry.furview2.system.Utils.reduceMD5;
 public class FurryDatabase implements AsyncDatabaseResponseHandler {
 
     private static String DB_NAME = "furryDB";
-    private static int DB_VERSION = 25;
+    private static int DB_VERSION = 26;
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final String SEPARATOR = "qpzao";
     private static final int RADIX = 36;

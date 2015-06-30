@@ -23,8 +23,8 @@ public class RemoteFurImageE621 extends RemoteFurImage {
     private int fileHeight;
     private String filePath;
 
-    public RemoteFurImageE621(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE621, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight, String filePath) {
-        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
+    public RemoteFurImageE621(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE621, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight, String filePath, String previewUrl) {
+        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl, previewUrl);
         this.idE621 = idE621;
         this.author = author;
         this.createdAt = createdAt;

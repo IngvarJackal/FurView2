@@ -58,8 +58,8 @@ public class DriverE621 implements AsyncRemoteImageHandler{
 
     private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
-    private final ImageLoader imageLoader = ImageLoader.getInstance();
-    private final DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+    private final static ImageLoader imageLoader = ImageLoader.getInstance();
+    private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
             .cacheOnDisk(true)
             .build();
@@ -141,7 +141,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         return url;
     }
 
-    private FurImage remoteFurImagetoFurImageE926(RemoteFurImageE621 remoteImage) {
+    private static FurImage remoteFurImagetoFurImageE926(RemoteFurImageE621 remoteImage) {
         return new FurImageBuilder()
                 .makeFromRemoteFurImage(remoteImage)
                 .setScore(remoteImage.getScore())
@@ -227,6 +227,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                             .setScore(Integer.parseInt(element.getAttribute("score")))
                             .setRating(makeRating(element.getAttribute("rating")))
                             .setFileUrl(element.getAttribute("file_url"))
+                            .setPreviewUrl(element.getAttribute("preview_url"))
                             .setFileExt(element.getAttribute("file_ext"))
                             .setPageUrl(null)
                             .setIdE926(Integer.parseInt(element.getAttribute("id")))
@@ -281,20 +282,37 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         return hasImages;
     }
 
-    private FurImage downloadImage(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
-        imageLoader.displayImage(remoteImage.getFileUrl(), listener, displayOptions);
+    private static void fetchImage(String url, ImageAware listener) throws IOException {
+        imageLoader.displayImage(url, listener, displayOptions);
+    }
+
+    private static FurImage downloadPreviews(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
+        imageLoader.displayImage(remoteImage.getPreviewUrl(), listener, displayOptions);
         return remoteFurImagetoFurImageE926(remoteImage);
     }
 
-    public List<FurImage> download(List<RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
+    public static List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));
+            fetchImage(images.get(i).getFileUrl(), listeners.get(i));
+            downloadedImages.add(remoteFurImagetoFurImageE926(images.get(i)));
         }
         return downloadedImages;
     }
 
-    public void loadFromStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
+    public static void downloadImage(String imageUrl, ImageAware listener) throws IOException {
+        fetchImage(imageUrl, listener);
+    }
+
+    public static List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
+        List<FurImage> downloadedImages = new ArrayList<>(images.size());
+        for (int i = 0; i < images.size(); i++) {
+            downloadedImages.add(downloadPreviews(images.get(i), listeners.get(i)));
+        }
+        return downloadedImages;
+    }
+
+    public static void loadFromStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
         for (int i = 0; i < images.size(); i++) {
             imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions);
         }
