@@ -28,6 +28,8 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,7 +60,8 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private static final int SEARCH_LIMIT = 95;
 
     private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
+    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM dd kk:mm:ss Z yyyy");
+    private final SimpleDateFormat alt_formatter = new SimpleDateFormat("EEE MMM dd kk:mm:ss Z yyyy"); // dirty hack
     private final static ImageLoader imageLoader = ImageLoader.getInstance();
     private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
@@ -222,7 +225,20 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                 if (element.getAttribute("file_ext").equals("webm") ||
                         element.getAttribute("file_ext").equals("swf"))
                     continue;
-                else
+                else {
+                    // DIRTY HACK
+                    DateTime date = null;
+                    try {
+                        date = formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24"));
+                    } catch (IllegalArgumentException e) {
+                        try {
+                            date = new DateTime(alt_formatter.parse(element.getAttribute("created_at").replace(" 00", " 24")));
+                        } catch (ParseException e1) {
+                            throw new RuntimeException(e1);
+                        }
+                    }
+                    // 
+
                     images.add(new RemoteFurImageE621Builder()
                             .setSearchQuery(searchQuery)
                             .setDescription(element.getAttribute("description"))
@@ -234,7 +250,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                             .setPageUrl(null)
                             .setIdE926(Integer.parseInt(element.getAttribute("id")))
                             .setAuthor(element.getAttribute("author"))
-                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
+                            .setCreatedAt(date)
                             .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                             .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
                             .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
@@ -243,6 +259,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                             .setFileWidth(Integer.parseInt(element.getAttribute("width")))
                             .setFileHeight(Integer.parseInt(element.getAttribute("height")))
                             .createRemoteFurImageE926());
+                }
             }
             return images;
         }
