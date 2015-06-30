@@ -45,6 +45,7 @@ import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncRemoteImageHandler;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.Files;
+import ru.furry.furview2.system.NoSSLv3Factory;
 import ru.furry.furview2.system.Utils;
 
 public class DriverE621 implements AsyncRemoteImageHandler{
@@ -160,6 +161,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     }
 
     HttpsURLConnection openPage(URL url) throws IOException {
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
         if (proxy != null) {
             return (HttpsURLConnection) url.openConnection(proxy);
         } else {
