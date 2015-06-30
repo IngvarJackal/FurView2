@@ -23,6 +23,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
     DataImageView mImageView1, mImageView2, mImageView3, mImageView4;
     List<DataImageView> imageViews;
     String mSearchQuery;
-    String mProxy;
+    String mProxy="";
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
     GlobalData appPath;
@@ -58,6 +59,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
     List<FurImage> downloadedImages = new ArrayList<>();
     DriverE621 driver;
     FurryDatabase database;
+    int mPort;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +89,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         mSearchButton.setOnClickListener(this);
 
         mSearchQuery = getIntent().getExtras().getString("SearchQuery");
-        mProxy = getIntent().getExtras().getString("Proxy");
+        mProxy = getIntent().getExtras().getString("mProxy");
+        mPort = getIntent().getExtras().getInt("mPort");
 
         mSearchField.setText(mSearchQuery);
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
@@ -119,9 +122,12 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 .getAbsolutePath();
 
         driver = new DriverE621(permanentStorage, 150, 150, this);
-        if (mProxy != null) {
-            Proxy proxy = ProxySettings.getLastProxy();
-            Log.d("fgsfds", "Use proxy: " + mProxy);
+        if (mProxy.equals("")) {
+            Log.d("fgsfds", "Proxy is not using");
+        } else {
+            //Proxy proxy = ProxySettings.getLastProxy();
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));
+            Log.d("fgsfds", "Set proxy "+mProxy+" port "+mPort);
             driver.setProxy(proxy);
         }
 
