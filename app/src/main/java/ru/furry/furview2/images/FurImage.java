@@ -38,8 +38,8 @@ public class FurImage extends RemoteFurImage {
 
     private String filePath;
 
-    public FurImage(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, DateTime downloadedAt, BigInteger md5, String fileName, int fileSize, int fileWidth, int fileHeight, int previewWidth, int previewHeight, String rootPath) {
-        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
+    public FurImage(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, DateTime downloadedAt, BigInteger md5, String fileName, int fileSize, int fileWidth, int fileHeight, int previewWidth, int previewHeight, String rootPath, String previewUrl) {
+        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl, previewUrl);
         this.author = author;
         this.createdAt = createdAt;
         this.score = score;

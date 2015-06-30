@@ -1,11 +1,14 @@
 package ru.furry.furview2.drivers.e621;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -17,6 +20,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -33,6 +37,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
@@ -40,6 +45,7 @@ import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncRemoteImageHandler;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.Files;
+import ru.furry.furview2.system.NoSSLv3Factory;
 import ru.furry.furview2.system.Utils;
 
 public class DriverE621 implements AsyncRemoteImageHandler{
@@ -52,10 +58,13 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private static final int SEARCH_LIMIT = 95;
 
     private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM dd kk:mm:ss Z yyyy");
-    private final ImageLoader imageLoader = ImageLoader.getInstance();
-    private final DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
+    private final static ImageLoader imageLoader = ImageLoader.getInstance();
+    private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .build();
+    private final DisplayImageOptions downloadOptions = new DisplayImageOptions.Builder()
             .cacheOnDisk(true)
             .build();
 
@@ -133,7 +142,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         return url;
     }
 
-    private FurImage remoteFurImagetoFurImageE926(RemoteFurImageE621 remoteImage) {
+    private static FurImage remoteFurImagetoFurImageE926(RemoteFurImageE621 remoteImage) {
         return new FurImageBuilder()
                 .makeFromRemoteFurImage(remoteImage)
                 .setScore(remoteImage.getScore())
@@ -147,10 +156,12 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                 .setFileWidth(remoteImage.getFileWidth())
                 .setFileHeight(remoteImage.getFileHeight())
                 .setDownloadedAt(new DateTime())
+                .setPageUrl("https://e621.net/post/show/" + remoteImage.getIdE621())
                 .createFurImage();
     }
 
     HttpsURLConnection openPage(URL url) throws IOException {
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
         if (proxy != null) {
             return (HttpsURLConnection) url.openConnection(proxy);
         } else {
@@ -161,8 +172,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private void checkPathStructure(String path) {
         try {
             checkDir(new File(path));
-            checkDir(new File(String.format("%s/%s", path, Files.IMAGES)));
-            checkDir(new File(String.format("%s/%s", path, Files.THUMBS)));
+            checkDir(new File(String.format("%s/%s", path, Files.E621_IMAGES)));
         } catch (IOException e) {
             Utils.printError(e);
         }
@@ -219,6 +229,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
                             .setScore(Integer.parseInt(element.getAttribute("score")))
                             .setRating(makeRating(element.getAttribute("rating")))
                             .setFileUrl(element.getAttribute("file_url"))
+                            .setPreviewUrl(element.getAttribute("preview_url"))
                             .setFileExt(element.getAttribute("file_ext"))
                             .setPageUrl(null)
                             .setIdE926(Integer.parseInt(element.getAttribute("id")))
@@ -273,17 +284,77 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         return hasImages;
     }
 
-    private FurImage downloadImage(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
-        imageLoader.displayImage(remoteImage.getFileUrl(), listener, displayOptions);
+    private static void fetchImage(String url, ImageAware listener) throws IOException {
+        imageLoader.displayImage(url, listener, displayOptions);
+    }
+
+    private static FurImage downloadPreviews(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
+        imageLoader.displayImage(remoteImage.getPreviewUrl(), listener, displayOptions);
         return remoteFurImagetoFurImageE926(remoteImage);
     }
 
-    public List<FurImage> download(List<RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
+    public static List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            downloadedImages.add(downloadImage(images.get(i), listeners.get(i)));
+            fetchImage(images.get(i).getFileUrl(), listeners.get(i));
+            downloadedImages.add(remoteFurImagetoFurImageE926(images.get(i)));
         }
         return downloadedImages;
+    }
+
+    public static void downloadImage(String imageUrl, ImageAware listener) throws IOException {
+        fetchImage(imageUrl, listener);
+    }
+
+    public static List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
+        List<FurImage> downloadedImages = new ArrayList<>(images.size());
+        for (int i = 0; i < images.size(); i++) {
+            downloadedImages.add(downloadPreviews(images.get(i), listeners.get(i)));
+        }
+        return downloadedImages;
+    }
+
+    public static void loadFromStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
+        for (int i = 0; i < images.size(); i++) {
+            imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions);
+        }
+    }
+
+    public void save(FurImage image, FurryDatabase database) {
+        image.setFilePath(String.format("%s/%s/", permanentStorage, Files.E621_IMAGES) + image.getMd5() + "." + image.getFileExt());
+        database.create(image);
+        final String imagePath = image.getFilePath();
+        imageLoader.loadImage(image.getFileUrl(), downloadOptions, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(imagePath);
+                    loadedImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+                } catch (Exception e) {
+                    Utils.printError(e);
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        Utils.printError(e);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Deletes image only from storage, not from database
+     * @param image
+     * @param database
+     */
+    public void delete(FurImage image, FurryDatabase database) {
+        database.deleteByMd5(image.getMd5());
+        File file = new File(image.getFilePath());
+        file.delete();
     }
 
 }

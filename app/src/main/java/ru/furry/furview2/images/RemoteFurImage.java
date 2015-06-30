@@ -14,25 +14,29 @@ public class RemoteFurImage {
     private String fileExt;
     private String pageUrl;
 
+    private String previewUrl;
+
     public RemoteFurImage(
             String searchQuery,
             String description,
             Rating rating,
             String fileUrl,
             String fileExt,
-            String pageUrl) {
+            String pageUrl, String previewUrl) {
         this.searchQuery = searchQuery;
         this.description = description;
         this.rating = rating;
         this.fileUrl = fileUrl;
         this.fileExt = fileExt;
         this.pageUrl = pageUrl;
+        this.previewUrl = previewUrl;
     }
 
     @Override
     public String toString() {
         return  new StringBuilder().append("getFileUrl ")
-                .append(this.getFileUrl()).append("\ngetFileExt ")
+                .append(this.getFileUrl()).append("\ngetPreviewUrl ")
+                .append(this.getPreviewUrl()).append("\ngetFileExt ")
                 .append(this.getFileExt()).append("\ngetRating ")
                 .append(this.getRating()).append("\n getSearchQuery ")
                 .append(this.getSearchQuery()).append("\n getPageUrl ")
@@ -62,5 +66,9 @@ public class RemoteFurImage {
 
     public String getPageUrl() {
         return pageUrl;
+    }
+
+    public String getPreviewUrl() {
+        return previewUrl;
     }
 }

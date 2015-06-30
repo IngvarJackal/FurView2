@@ -10,7 +10,7 @@ import ru.furry.furview2.images.RemoteFurImage;
 
 public class RemoteFurImageE621 extends RemoteFurImage {
 
-    private final int idE926;
+    private final int idE621;
     private String author;
     private DateTime createdAt;
     private List<String> sources;
@@ -23,9 +23,9 @@ public class RemoteFurImageE621 extends RemoteFurImage {
     private int fileHeight;
     private String filePath;
 
-    public RemoteFurImageE621(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE926, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight, String filePath) {
-        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl);
-        this.idE926 = idE926;
+    public RemoteFurImageE621(String searchQuery, String description, int score, Rating rating, String fileUrl, String fileExt, String pageUrl, int idE621, String author, DateTime createdAt, List<String> sources, List<String> tags, List<String> artists, BigInteger md5, int fileSize, int fileWidth, int fileHeight, String filePath, String previewUrl) {
+        super(searchQuery, description, rating, fileUrl, fileExt, pageUrl, previewUrl);
+        this.idE621 = idE621;
         this.author = author;
         this.createdAt = createdAt;
         this.sources = sources;
@@ -39,8 +39,8 @@ public class RemoteFurImageE621 extends RemoteFurImage {
         this.filePath = filePath;
     }
 
-    public int getIdE926() {
-        return idE926;
+    public int getIdE621() {
+        return idE621;
     }
 
     public String getAuthor() {

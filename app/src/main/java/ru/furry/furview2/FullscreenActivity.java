@@ -10,10 +10,26 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+
+import java.io.IOException;
+
+import ru.furry.furview2.drivers.e621.DriverE621;
+import ru.furry.furview2.system.Utils;
+
 
 public class FullscreenActivity extends Activity {
 
     ImageView mPictureImageView;
+
+    private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .build();
+
+    private final static ImageLoader imageLoader = ImageLoader.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,13 +39,15 @@ public class FullscreenActivity extends Activity {
         mPictureImageView = (ImageView)findViewById(R.id.pictureImageView);
 
         Bundle extras = getIntent().getExtras();
-        byte[] b = extras.getByteArray("image");
+        String imageUrl = extras.getString("imageUrl");
 
-        Bitmap bmp = BitmapFactory.decodeByteArray(b, 0, b.length);
         ImageView image = (ImageView) findViewById(R.id.pictureImageView);
 
-        image.setImageBitmap(bmp);
-
+        try {
+            DriverE621.downloadImage(imageUrl, new ImageViewAware(image));
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
     }
 
     @Override

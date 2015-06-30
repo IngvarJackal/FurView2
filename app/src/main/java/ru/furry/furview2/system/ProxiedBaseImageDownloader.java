@@ -16,6 +16,8 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public class ProxiedBaseImageDownloader extends BaseImageDownloader {
 
     protected final Proxy proxy;
@@ -32,6 +34,7 @@ public class ProxiedBaseImageDownloader extends BaseImageDownloader {
 
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
         String encodedUrl = Uri.encode(url, ALLOWED_URI_CHARS);
         HttpURLConnection conn;
         if (proxy != null) {

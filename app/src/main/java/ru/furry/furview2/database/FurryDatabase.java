@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -123,6 +125,7 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         values.put("filePath", image.getFilePath());
         values.put("tags", ((image.getTags() != null) && (image.getTags().size()>0)) ? joinList(image.getTags(), SEPARATOR) : "");
         values.put("localTags", ((image.getLocalTags() != null) && (image.getLocalTags().size()>0)) ? joinList(image.getLocalTags(), SEPARATOR) : "");
+        values.put("deleted", "FALSE");
 
         return values;
     }
@@ -210,6 +213,7 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         sqlQuery.append("select i.* ");
         sqlQuery.append("from images i, tags t, taggings tg ");
         sqlQuery.append("where tg.tagId == t.tagId and tg.imageId == i.imageId ");
+        sqlQuery.append("and i.deleted == 'FALSE' ");
 
         // SPECIAL TAGS
         if (specTags.rating != null) {
@@ -302,12 +306,12 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
     }
 
     protected static List<FurImage> getImageByMD5(BigInteger md5, SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("select * from images where imageId == ?", new String[] {Long.toString(Utils.reduceMD5(md5))});
+        Cursor cursor = db.rawQuery("select * from images where imageId = ? and deleted == 'FALSE'", new String[] {Long.toString(Utils.reduceMD5(md5))});
         FurImage image = null;
         if (cursor.moveToNext()) {
             image = decodeImage(cursor);
         }
-        return new ArrayList<>(Arrays.asList(image));
+        return (image != null) ? new ArrayList<>(Arrays.asList(image)) : new ArrayList<FurImage>();
     }
 
     public void create(FurImage image) {
@@ -379,6 +383,57 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
      */
     public void update(FurImage image) {
         create(image);
+    }
+
+
+    protected static void deleteImage(BigInteger md5, SQLiteDatabase database) {
+        ContentValues values = new ContentValues();
+        values.put("deleted", "TRUE");
+        database.update("images", values, "imageId = ?", new String[] {Long.toString(reduceMD5(md5))});
+    }
+
+    class DeleteImage extends AsyncTask<BigInteger, Void, Void> {
+
+        @Override
+        protected Void doInBackground(BigInteger... bigIntegers) {
+            deleteImage(bigIntegers[0], database);
+            return null;
+        }
+    }
+
+    /**
+     * Doesn't deletes actually image from DB
+     * @param image
+     */
+    public void delete(FurImage image) {
+        deleteByMd5(image.getMd5());
+    }
+
+    /**
+     * Doesn't deletes actually image from DB
+     * @param md5
+     */
+    public void deleteByMd5(BigInteger md5) {
+        new DeleteImage().execute(md5);
+    }
+
+    public String getTableAsString(String tableName) {
+        Log.d("fgsfds", "getTableAsString called");
+        String tableString = String.format("Table %s:\n", tableName);
+        Cursor allRows  = database.rawQuery("SELECT * FROM " + tableName, null);
+        if (allRows.moveToFirst() ){
+            String[] columnNames = allRows.getColumnNames();
+            do {
+                for (String name: columnNames) {
+                    tableString += String.format("%s: %s\n", name,
+                            allRows.getString(allRows.getColumnIndex(name)));
+                }
+                tableString += "\n";
+
+            } while (allRows.moveToNext());
+        }
+
+        return tableString;
     }
 
 }
