@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
@@ -58,7 +59,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private static final int SEARCH_LIMIT = 95;
 
     private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("MMM dd kk:mm:ss Z yyyy");
+    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("MMM dd kk:mm:ss Z yyyy").withLocale(new Locale("en", "US"));
     private final static ImageLoader imageLoader = ImageLoader.getInstance();
     private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
