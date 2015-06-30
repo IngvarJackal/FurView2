@@ -112,11 +112,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        try {
-            driver = new DriverE621(permanentStorage, 150, 150, this);
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            Utils.printError(e);
-        }
+        driver = new DriverE621(permanentStorage, 150, 150, this);
         if (mProxy.equals("")) {
             Log.d("fgsfds", "Proxy is not using");
         } else {

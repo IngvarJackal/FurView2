@@ -19,27 +19,15 @@ import javax.net.ssl.SSLSocketFactory;
 public class ProxiedBaseImageDownloader extends BaseImageDownloader {
 
     protected final Proxy proxy;
-    protected SSLSocketFactory NoSSLv3Factory;
 
     public ProxiedBaseImageDownloader(Context context) {
         super(context);
         this.proxy = null;
     }
 
-    private void init() throws NoSuchAlgorithmException, KeyManagementException {
-        SSLContext sslcontext = SSLContext.getInstance("TLSv1");
-        sslcontext.init(null, null, null);
-        NoSSLv3Factory = new NoSSLv3SocketFactory(sslcontext.getSocketFactory());
-    }
-
     public ProxiedBaseImageDownloader(Context context, Proxy proxy) {
         super(context);
         this.proxy = proxy;
-        try {
-            init();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            Utils.printError(e);
-        }
     }
 
     @Override
@@ -47,11 +35,9 @@ public class ProxiedBaseImageDownloader extends BaseImageDownloader {
         String encodedUrl = Uri.encode(url, ALLOWED_URI_CHARS);
         HttpURLConnection conn;
         if (proxy != null) {
-            HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
             conn = (HttpURLConnection) new URL(encodedUrl).openConnection(proxy);
         }
         else {
-            HttpsURLConnection.setDefaultSSLSocketFactory(NoSSLv3Factory);
             conn = (HttpURLConnection) new URL(encodedUrl).openConnection();
         }
         conn.setConnectTimeout(connectTimeout);
