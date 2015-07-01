@@ -31,9 +31,9 @@ import static ru.furry.furview2.system.Utils.reduceMD5;
 public class FurryDatabase implements AsyncDatabaseResponseHandler {
 
     private static String DB_NAME = "furryDB";
-    private static int DB_VERSION = 26;
+    private static int DB_VERSION = 27;
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final String SEPARATOR = "qpzao";
+    private static final String SEPARATOR = "q#za0"; // just random string
     private static final int RADIX = 36;
 
     private FurryDatabaseOpenHelper dbHelper;
@@ -123,6 +123,7 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
         values.put("fileWidth", image.getFileWidth());
         values.put("fileHeight", image.getFileHeight());
         values.put("filePath", image.getFilePath());
+        values.put("previewUrl", image.getPreviewUrl());
         values.put("tags", ((image.getTags() != null) && (image.getTags().size()>0)) ? joinList(image.getTags(), SEPARATOR) : "");
         values.put("localTags", ((image.getLocalTags() != null) && (image.getLocalTags().size()>0)) ? joinList(image.getLocalTags(), SEPARATOR) : "");
         values.put("deleted", "FALSE");
@@ -138,6 +139,7 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
                 .setRating(decodeRating(cursor.getString(cursor.getColumnIndex("rating"))))
                 .setFileUrl(cursor.getString(cursor.getColumnIndex("fileUrl")))
                 .setFileName(cursor.getString(cursor.getColumnIndex("fileName")))
+                .setPreviewUrl(cursor.getString(cursor.getColumnIndex("previewUrl")))
                 .setFileExt(cursor.getString(cursor.getColumnIndex("fileExt")))
                 .setPageUrl(cursor.getString(cursor.getColumnIndex("pageUrl")))
                 .setAuthor(cursor.getString(cursor.getColumnIndex("author")))

@@ -228,7 +228,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         try {
             //downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
             int i = 0;
-            for (FurImage img : driver.downloadPreview(e621Images.subList(0,4), imageViewListeners)) {
+            for (FurImage img : driver.downloadPreview(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners)) {
                 downloadedImages.add(img);
                 imageViews.get(i++).setImage(img);
             }

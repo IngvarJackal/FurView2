@@ -48,6 +48,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
                 "localScore integer," +
                 "rating text," +
                 "fileUrl text," +
+                "previewUrl text," +
                 "fileExt text," +
                 "pageUrl text," +
                 "author text," +
