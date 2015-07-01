@@ -12,8 +12,7 @@
         android:id="@+id/imageLabel"
         android:src="@drawable/fl320"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="99dp" />
+        android:layout_centerHorizontal="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -24,7 +23,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_toStartOf="@+id/SearchButtonInitial"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:layout_toLeftOf="@+id/SearchButtonInitial" />
 
     <ImageButton
         android:layout_width="52dp"
@@ -44,5 +44,36 @@
         android:layout_below="@+id/SearchFieldInitial"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/waitingForProxyView"
+        android:layout_alignRight="@+id/SearchButtonInitial"
+        android:layout_alignEnd="@+id/SearchButtonInitial"
+        android:layout_alignBottom="@+id/imageLabel"
+        android:layout_below="@+id/sfwSwitch"
+        android:layout_alignLeft="@+id/SearchButtonInitial"
+        android:layout_alignStart="@+id/SearchButtonInitial" />
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listOfDrivers"
+        android:choiceMode="singleChoice"
+        android:smoothScrollbar="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/sfwSwitch" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SWF"
+        android:id="@+id/sfwSwitch"
+        android:layout_below="@+id/proxyBox"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:checked="false" />
 
 </RelativeLayout>
