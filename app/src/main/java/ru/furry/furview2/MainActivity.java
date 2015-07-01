@@ -42,7 +42,7 @@ import ru.furry.furview2.system.Utils;
 
 
 
-public class MainActivity extends Activity implements View.OnClickListener, AsyncRemoteImageHandlerGUI, AsyncDatabaseResponseHandlerGUI {
+public class MainActivity extends Activity implements View.OnClickListener  {
 
     EditText mSearchField;
     ImageButton mSearchButton;
@@ -58,23 +58,58 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
     List<FurImage> downloadedImages = new ArrayList<>();
     DriverE621 driver;
     FurryDatabase database;
+    AsyncRemoteImageHandlerGUI remoteImageHandler;
+    AsyncDatabaseResponseHandlerGUI datagaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        database = new FurryDatabase(this, this.getApplicationContext());
+        datagaseHandler = new AsyncDatabaseResponseHandlerGUI() {
+            @Override
+            public void blockInterfaceForDBResponse() {
 
-        try {
-            Log.d("fgsfds", database.getDbHelper().isReady().toString()); // blocking
-        } catch (ExecutionException | InterruptedException e) {
-            Utils.printError(e);
-        }
+            }
 
-        /*
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        */
+            @Override
+            public void unblockInterfaceForDBResponse() {
+
+            }
+
+            @Override
+            public void retrieveDBResponse(List<FurImage> images) {
+
+            }
+        };
+
+        remoteImageHandler = new AsyncRemoteImageHandlerGUI() {
+            @Override
+            public void blockInterfaceForRemoteImages() {
+
+            }
+
+            @Override
+            public void unblockInterfaceForRemoteImages() {
+
+            }
+
+            @Override
+            public void retrieveRemoteImages(List<? extends RemoteFurImage> images) {
+                Log.d("fgsfds", "Recieved remote pictures");
+                List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
+                remoteImagesE621.addAll(e621Images);
+                try {
+                    //downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
+                    int i = 0;
+                    for (FurImage img : driver.downloadPreview(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners)) {
+                        downloadedImages.add(img);
+                        imageViews.get(i++).setImage(img);
+                    }
+                } catch (IOException e) {
+                    Utils.printError(e);
+                }
+            }
+        };
 
         setContentView(R.layout.activity_main);
 
@@ -118,11 +153,19 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        driver = new DriverE621(permanentStorage, 150, 150, this);
+        driver = new DriverE621(permanentStorage, 150, 150, remoteImageHandler);
         if (mProxy != null) {
             Proxy proxy = ProxySettings.getLastProxy();
             Log.d("fgsfds", "Use proxy: " + mProxy);
             driver.setProxy(proxy);
+        }
+
+        database = new FurryDatabase(datagaseHandler, this.getApplicationContext());
+
+        try {
+            Log.d("fgsfds", database.getDbHelper().isReady().toString()); // blocking
+        } catch (ExecutionException | InterruptedException e) {
+            Utils.printError(e);
         }
 
         mOnTouchImageViewListener = new View.OnTouchListener() {
@@ -156,10 +199,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         mImageView4.setOnTouchListener(mOnTouchImageViewListener);
 
         mSearchButton.setOnTouchListener(mOnSearchButtonListener);
-
-
-
-
 
         searchE926(mSearchField.getText().toString());
     }
@@ -210,45 +249,4 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
 
     }
 
-    @Override
-    public void blockInterfaceForRemoteImages() {
-
-    }
-
-    @Override
-    public void unblockInterfaceForRemoteImages() {
-
-    }
-
-    @Override
-    public void retrieveRemoteImages(List<? extends RemoteFurImage> images) {
-        Log.d("fgsfds", "Recieved remote pictures");
-        List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
-        remoteImagesE621.addAll(e621Images);
-        try {
-            //downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
-            int i = 0;
-            for (FurImage img : driver.downloadPreview(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners)) {
-                downloadedImages.add(img);
-                imageViews.get(i++).setImage(img);
-            }
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
-    }
-
-    @Override
-    public void blockInterfaceForDBResponse() {
-
-    }
-
-    @Override
-    public void unblockInterfaceForDBResponse() {
-
-    }
-
-    @Override
-    public void retrieveDBResponse(List<FurImage> images) {
-
-    }
 }

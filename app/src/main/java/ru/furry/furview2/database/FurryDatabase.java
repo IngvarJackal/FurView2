@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,14 +20,13 @@ import java.util.List;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
-import ru.furry.furview2.system.AsyncDatabaseResponseHandler;
 import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
 import ru.furry.furview2.system.Utils;
 
 import static ru.furry.furview2.system.Utils.joinList;
 import static ru.furry.furview2.system.Utils.reduceMD5;
 
-public class FurryDatabase implements AsyncDatabaseResponseHandler {
+public class FurryDatabase {
 
     private static String DB_NAME = "furryDB";
     private static int DB_VERSION = 27;
@@ -38,10 +36,10 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
 
     private FurryDatabaseOpenHelper dbHelper;
     protected SQLiteDatabase database;
-    private AsyncDatabaseResponseHandlerGUI parentThread;
+    private AsyncDatabaseResponseHandlerGUI dbResponseHandler;
 
-    public FurryDatabase(AsyncDatabaseResponseHandlerGUI guiThread, Context context) {
-        this.parentThread = guiThread;
+    public FurryDatabase(AsyncDatabaseResponseHandlerGUI dbResponseHandler, Context context) {
+        this.dbResponseHandler = dbResponseHandler;
         dbHelper = new FurryDatabaseOpenHelper(context, DB_NAME, null, DB_VERSION);
         database = dbHelper.getWritableDatabase();
     }
@@ -331,51 +329,47 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
 
     public void search(String query) {
         // TODO add search by: rating, score, localscore, downloaddate, creationdate, artist
-        parentThread.blockInterfaceForDBResponse();
-        new AsyncSearchTags().execute(new Utils.Tuple<String, AsyncDatabaseResponseHandler>(query, this));
+        dbResponseHandler.blockInterfaceForDBResponse();
+        new AsyncSearchTags().execute(new Utils.Tuple<String, AsyncDatabaseResponseHandlerGUI>(query, dbResponseHandler));
     }
 
-    class AsyncSearchTags extends AsyncTask<Utils.Tuple<String, AsyncDatabaseResponseHandler>, Void, List<FurImage>> {
+    class AsyncSearchTags extends AsyncTask<Utils.Tuple<String, AsyncDatabaseResponseHandlerGUI>, Void, List<FurImage>> {
 
-        private AsyncDatabaseResponseHandler delegate;
+        private AsyncDatabaseResponseHandlerGUI handler;
 
         @Override
-        protected List<FurImage> doInBackground(Utils.Tuple<String, AsyncDatabaseResponseHandler>... tuples) {
-            delegate = tuples[0].y;
+        protected List<FurImage> doInBackground(Utils.Tuple<String, AsyncDatabaseResponseHandlerGUI>... tuples) {
+            handler = tuples[0].y;
             return getImages(tuples[0].x, database);
         }
 
         @Override
         protected void onPostExecute(List<FurImage> images) {
-            delegate.processDBResponse(images);
+            handler.retrieveDBResponse(images);
+            handler.unblockInterfaceForDBResponse();
         }
     }
 
     public void searchByMD5(BigInteger md5) {
-        parentThread.blockInterfaceForDBResponse();
-        new AsyncSearchMD5().execute(new Utils.Tuple<BigInteger, AsyncDatabaseResponseHandler>(md5, this));
+        dbResponseHandler.blockInterfaceForDBResponse();
+        new AsyncSearchMD5().execute(new Utils.Tuple<BigInteger, AsyncDatabaseResponseHandlerGUI>(md5, dbResponseHandler));
     }
 
-    class AsyncSearchMD5 extends AsyncTask<Utils.Tuple<BigInteger, AsyncDatabaseResponseHandler>, Void, List<FurImage>> {
+    class AsyncSearchMD5 extends AsyncTask<Utils.Tuple<BigInteger, AsyncDatabaseResponseHandlerGUI>, Void, List<FurImage>> {
 
-        private AsyncDatabaseResponseHandler delegate;
+        private AsyncDatabaseResponseHandlerGUI handler;
 
         @Override
-        protected List<FurImage> doInBackground(Utils.Tuple<BigInteger, AsyncDatabaseResponseHandler>... tuples) {
-            delegate = tuples[0].y;
+        protected List<FurImage> doInBackground(Utils.Tuple<BigInteger, AsyncDatabaseResponseHandlerGUI>... tuples) {
+            handler = tuples[0].y;
             return getImageByMD5(tuples[0].x, database);
         }
 
         @Override
         protected void onPostExecute(List<FurImage> images) {
-            delegate.processDBResponse(images);
+            handler.retrieveDBResponse(images);
+            handler.unblockInterfaceForDBResponse();
         }
-    }
-
-    @Override
-    public void processDBResponse(List<FurImage> images) {
-        parentThread.retrieveDBResponse(images);
-        parentThread.unblockInterfaceForDBResponse();
     }
 
     /**
@@ -434,6 +428,7 @@ public class FurryDatabase implements AsyncDatabaseResponseHandler {
 
             } while (allRows.moveToNext());
         }
+        allRows.close();
 
         return tableString;
     }

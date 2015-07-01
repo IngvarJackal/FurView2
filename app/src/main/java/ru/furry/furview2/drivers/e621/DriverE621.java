@@ -41,16 +41,14 @@ import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
-import ru.furry.furview2.images.RemoteFurImage;
-import ru.furry.furview2.system.AsyncRemoteImageHandler;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.Files;
 import ru.furry.furview2.system.NoSSLv3Factory;
 import ru.furry.furview2.system.Utils;
 
-public class DriverE621 implements AsyncRemoteImageHandler{
+public class DriverE621 {
 
-    private Object parentActivity;
+    private AsyncRemoteImageHandlerGUI remoteImagesHandler;
 
     private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
     private static final String CHARSET = "UTF-8";
@@ -78,24 +76,20 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     private HttpsURLConnection page;
     private String searchQuery;
 
-    public DriverE621(String permanentStorage, Utils.Tuple<Integer, Integer> preview, AsyncRemoteImageHandlerGUI parentActivity) {
-        this.parentActivity = parentActivity;
+    public DriverE621(String permanentStorage, Utils.Tuple<Integer, Integer> preview, AsyncRemoteImageHandlerGUI remoteImagesHandler) {
+        this.remoteImagesHandler = remoteImagesHandler;
         this.permanentStorage = permanentStorage;
         this.previewHeight = preview.x;
         this.previewWidth = preview.y;
         checkPathStructure(permanentStorage);
     }
 
-    public DriverE621(String permanentStorage, int previewWidth, int previewHeight, AsyncRemoteImageHandlerGUI parentActivity) {
-        this.parentActivity = parentActivity;
+    public DriverE621(String permanentStorage, int previewWidth, int previewHeight, AsyncRemoteImageHandlerGUI remoteImagesHandler) {
+        this.remoteImagesHandler = remoteImagesHandler;
         this.permanentStorage = permanentStorage;
         this.previewHeight = previewHeight;
         this.previewWidth = previewWidth;
         checkPathStructure(permanentStorage);
-    }
-
-    private <T extends AsyncRemoteImageHandlerGUI, AsyncImageHandlerGUI> void setParent(T val) {
-        parentActivity = val;
     }
 
     public void setProxy(Proxy proxy) {
@@ -104,7 +98,6 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         Log.d("fgsfds", "Proxy used: " + Utils.getIP(proxy));
         //
     }
-
 
     // UTILITY
 
@@ -190,17 +183,17 @@ public class DriverE621 implements AsyncRemoteImageHandler{
 
     // LOGIC
 
-    class ReadingImages extends AsyncTask<Utils.Tuple<HttpsURLConnection, ? extends AsyncRemoteImageHandler>, Void, List<RemoteFurImageE621>> {
+    class ReadingImages extends AsyncTask<Utils.Tuple<HttpsURLConnection, ? extends AsyncRemoteImageHandlerGUI>, Void, List<RemoteFurImageE621>> {
 
-        private AsyncRemoteImageHandler delegate;
+        private AsyncRemoteImageHandlerGUI handler;
 
         @Override
-        protected List<RemoteFurImageE621> doInBackground(Utils.Tuple<HttpsURLConnection, ? extends AsyncRemoteImageHandler>... tuples) {
+        protected List<RemoteFurImageE621> doInBackground(Utils.Tuple<HttpsURLConnection, ? extends AsyncRemoteImageHandlerGUI>... tuples) {
 
             Log.d("fgsfds", "Starting retrieving remote images...");
 
             HttpsURLConnection connection = tuples[0].x;
-            delegate = tuples[0].y;
+            handler = tuples[0].y;
 
             Document doc = null;
             try {
@@ -252,19 +245,14 @@ public class DriverE621 implements AsyncRemoteImageHandler{
             if (images.size() == 0) {
                 hasImages = false;
             }
-            delegate.processRemoteImages(images);
+            handler.retrieveRemoteImages(images);
+            handler.unblockInterfaceForRemoteImages();
         }
     }
 
-    @Override
-    public void processRemoteImages(List<? extends RemoteFurImage> images) {
-        ((AsyncRemoteImageHandlerGUI)parentActivity).retrieveRemoteImages(images);
-        ((AsyncRemoteImageHandlerGUI)parentActivity).unblockInterfaceForRemoteImages();
-    }
-
-    private void startReadingImages(HttpsURLConnection page) {
-        ((AsyncRemoteImageHandlerGUI)parentActivity).blockInterfaceForRemoteImages();
-        new ReadingImages().execute(new Utils.Tuple<HttpsURLConnection, AsyncRemoteImageHandler>(page, this));
+    private void startReadingRemoteImages(HttpsURLConnection page) {
+        remoteImagesHandler.blockInterfaceForRemoteImages();
+        new ReadingImages().execute(new Utils.Tuple<HttpsURLConnection, AsyncRemoteImageHandlerGUI>(page, remoteImagesHandler));
     }
 
     public void search(String searchQuery) throws IOException {
@@ -277,7 +265,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         currentPage += 1;
         URL query = makeURL(SEARCH_PATH, searchQuery, currentPage, SEARCH_LIMIT);
         page = openPage(query);
-        startReadingImages(page);
+        startReadingRemoteImages(page);
     }
 
     public boolean hasNext() {
@@ -288,7 +276,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
         imageLoader.displayImage(url, listener, displayOptions);
     }
 
-    private static FurImage downloadPreviews(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
+    private static FurImage fetchPreviews(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
         imageLoader.displayImage(remoteImage.getPreviewUrl(), listener, displayOptions);
         return remoteFurImagetoFurImageE926(remoteImage);
     }
@@ -309,18 +297,18 @@ public class DriverE621 implements AsyncRemoteImageHandler{
     public static List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            downloadedImages.add(downloadPreviews(images.get(i), listeners.get(i)));
+            downloadedImages.add(fetchPreviews(images.get(i), listeners.get(i)));
         }
         return downloadedImages;
     }
 
-    public static void loadFromStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
+    public static void loadFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
         for (int i = 0; i < images.size(); i++) {
             imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions);
         }
     }
 
-    public void save(FurImage image, FurryDatabase database) {
+    public void saveToDBandStorage(FurImage image, FurryDatabase database) {
         image.setFilePath(String.format("%s/%s/", permanentStorage, Files.E621_IMAGES) + image.getMd5() + "." + image.getFileExt());
         database.create(image);
         final String imagePath = image.getFilePath();
@@ -351,7 +339,7 @@ public class DriverE621 implements AsyncRemoteImageHandler{
      * @param image
      * @param database
      */
-    public void delete(FurImage image, FurryDatabase database) {
+    public void deleteFromDBandStorage(FurImage image, FurryDatabase database) {
         database.deleteByMd5(image.getMd5());
         File file = new File(image.getFilePath());
         file.delete();
