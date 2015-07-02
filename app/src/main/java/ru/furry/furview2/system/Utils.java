@@ -20,6 +20,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
+import ru.furry.furview2.images.FurImage;
+
+import static junit.framework.Assert.assertTrue;
+
 public class Utils {
 
     private static MessageDigest md5;
@@ -129,5 +133,34 @@ public class Utils {
                 sb.append(list.get(list.size() - 1));
                 return sb.toString();
         }
+    }
+
+    public static void assertImageEquality(FurImage img1, FurImage img2) {
+        assertTrue(img1.getSearchQuery() == img2.getSearchQuery() || img1.getSearchQuery().equals(img2.getSearchQuery()));
+        assertTrue(img1.getDescription().equals(img2.getDescription()) || img1.getDescription().equals(img2.getDescription()));
+        assertTrue(img1.getScore() == img2.getScore());
+        assertTrue(img1.getRating() == img2.getRating() || img1.getRating().equals(img2.getRating()));
+        assertTrue(img1.getFileUrl() == img2.getFileUrl() || img1.getFileUrl().equals(img2.getFileUrl()));
+        assertTrue(img1.getFileExt() == img2.getFileExt() || img1.getFileExt().equals(img2.getFileExt()));
+        assertTrue(img1.getPageUrl() == img2.getPageUrl() || img1.getPageUrl().equals(img2.getPageUrl()));
+        assertTrue(img1.getAuthor() == img2.getAuthor() || img1.getAuthor().equals(img2.getAuthor()));
+        assertTrue(img1.getCreatedAt() == img2.getCreatedAt() || img1.getCreatedAt().equals(img2.getCreatedAt()));
+        assertTrue(img1.getSources() == img2.getSources() || img1.getSources().equals(img2.getSources()));
+        assertTrue(img1.getTags() == img2.getTags() || img1.getTags().equals(img2.getTags()));
+        assertTrue(img1.getArtists() == img2.getArtists() || img1.getArtists().equals(img2.getArtists()));
+        // assertTrue(img1.getDownloadedAt() == img2.getDownloadedAt() || img1.getDownloadedAt().equals(img2.getDownloadedAt())); // gets rid of milliseconds -- nobody care!
+        assertTrue(img1.getMd5() == img2.getMd5() || img1.getMd5().equals(img2.getMd5()));
+        assertTrue(img1.getFileName() == img2.getFileName() || img1.getFileName().equals(img2.getFileName()));
+        assertTrue(img1.getFileSize() == img2.getFileSize());
+        assertTrue(img1.getFileWidth() == img2.getFileWidth());
+        assertTrue(img1.getFileHeight() == img2.getFileHeight());
+        // assertTrue(img1.getPreviewHeight() == img2.getPreviewHeight()); // Deprecated
+        // assertTrue(img1.getPreviewWidth() == img2.getPreviewWidth()); // Deprecated
+        // assertTrue(img1.getRootPath() == img2.getRootPath() || img1.getRootPath().equals(img2.getRootPath())); // Deprecated
+        assertTrue(img1.getFilePath() == img2.getFilePath() || img1.getFilePath().equals(img2.getFilePath()));
+        assertTrue(img1.getID() == img2.getID());
+        assertTrue(img1.getLocalScore() == img2.getLocalScore() || img1.getLocalScore().equals(img2.getLocalScore()));
+        assertTrue(img1.getLocalTags() == img2.getLocalTags() || img1.getLocalTags().equals(img2.getLocalTags()));
+        assertTrue(img1.getPreviewUrl() == img2.getPreviewUrl() || img1.getPreviewUrl().equals(img2.getPreviewUrl()));
     }
 }

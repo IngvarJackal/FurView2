@@ -2,11 +2,8 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,14 +11,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.thoughtworks.xstream.XStream;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -43,6 +39,8 @@ import ru.furry.furview2.system.Utils;
 
 
 public class MainActivity extends Activity implements View.OnClickListener  {
+
+    XStream xstream = new XStream();
 
     EditText mSearchField;
     ImageButton mSearchButton;
@@ -176,7 +174,8 @@ public class MainActivity extends Activity implements View.OnClickListener  {
                     String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
                     Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
                     Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                    intent.putExtra("imageUrl", ((DataImageView)v).getImage().getFileUrl());
+                    //intent.putExtra("imageUrl", ((DataImageView)v).getImage().getFileUrl());
+                    intent.putExtra("image", ((DataImageView) v).getImage());
                     startActivity(intent);
                 }
                 return false;

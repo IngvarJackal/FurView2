@@ -13,14 +13,21 @@ import android.widget.Toast;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.thoughtworks.xstream.XStream;
 
 import java.io.IOException;
 
 import ru.furry.furview2.drivers.e621.DriverE621;
+import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.Utils;
 
 
 public class FullscreenActivity extends Activity {
+
+    static XStream xstream = new XStream();
+    {
+        xstream.processAnnotations(FurImage.class);
+    }
 
     ImageView mPictureImageView;
 
@@ -38,13 +45,10 @@ public class FullscreenActivity extends Activity {
 
         mPictureImageView = (ImageView)findViewById(R.id.pictureImageView);
 
-        Bundle extras = getIntent().getExtras();
-        String imageUrl = extras.getString("imageUrl");
-
-        ImageView image = (ImageView) findViewById(R.id.pictureImageView);
+        FurImage fImage = (FurImage) getIntent().getParcelableExtra("image");
 
         try {
-            DriverE621.downloadImage(imageUrl, new ImageViewAware(image));
+            DriverE621.downloadImage(fImage.getFileUrl(), new ImageViewAware(mPictureImageView));
         } catch (IOException e) {
             Utils.printError(e);
         }
