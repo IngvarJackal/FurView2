@@ -1,19 +1,18 @@
 package ru.furry.furview2;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.WebView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.thoughtworks.xstream.XStream;
 
 import java.io.IOException;
 
@@ -24,12 +23,10 @@ import ru.furry.furview2.system.Utils;
 
 public class FullscreenActivity extends Activity {
 
-    static XStream xstream = new XStream();
-    {
-        xstream.processAnnotations(FurImage.class);
-    }
 
     ImageView mPictureImageView;
+    ScrollView mScrollVew;
+    Button mTagsButton;
 
     private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
@@ -43,9 +40,24 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        mPictureImageView = (ImageView)findViewById(R.id.pictureImageView);
+        mPictureImageView = (ImageView)findViewById(R.id.picImgView);
+        mScrollVew = (ScrollView)findViewById(R.id.scrollView);
+        mTagsButton = (Button)findViewById(R.id.tagsButton);
 
         FurImage fImage = (FurImage) getIntent().getParcelableExtra("image");
+
+        mTagsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mScrollVew.isShown()) {
+                    mScrollVew.setVisibility(View.GONE);
+                    //mPictureImageView.setVisibility(View.VISIBLE);
+                } else {
+                    mScrollVew.setVisibility(View.VISIBLE);
+                    //mPictureImageView.setVisibility(View.GONE);
+                }
+            }
+        });
 
         try {
             DriverE621.downloadImage(fImage.getFileUrl(), new ImageViewAware(mPictureImageView));
@@ -84,4 +96,6 @@ public class FullscreenActivity extends Activity {
 
 
     }
+
+
 }

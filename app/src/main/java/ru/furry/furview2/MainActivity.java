@@ -14,7 +14,6 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.thoughtworks.xstream.XStream;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -40,7 +39,6 @@ import ru.furry.furview2.system.Utils;
 
 public class MainActivity extends Activity implements View.OnClickListener  {
 
-    XStream xstream = new XStream();
 
     EditText mSearchField;
     ImageButton mSearchButton;

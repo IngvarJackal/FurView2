@@ -33,9 +33,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'net.danlew:android.joda:2.8.1'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
-    compile('com.thoughtworks.xstream:xstream:1.4.4') {
-        exclude group: 'xpp3', module: 'xpp3'
-        exclude group: 'xmlpull', module: 'xmlpull'
-    }
     testCompile 'junit:junit:4.12'
 }

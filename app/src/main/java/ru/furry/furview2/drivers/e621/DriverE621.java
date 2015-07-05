@@ -291,6 +291,7 @@ public class DriverE621 {
     }
 
     public static void downloadImage(String imageUrl, ImageAware listener) throws IOException {
+        Log.d("fgsfds", "downloading image: " + imageUrl);
         fetchImage(imageUrl, listener);
     }
 
