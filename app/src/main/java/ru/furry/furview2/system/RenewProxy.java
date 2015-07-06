@@ -73,7 +73,7 @@ public class RenewProxy extends AsyncTask<Void, Void, Boolean> {
         for (i=currentNumOfWorkingProxy;i<globalData.getProxies().size()-1;i++){
 //        for (i=0;i<1;i++){
             try {
-                Log.d("fgsfds", "Try testing proxy "+i+" "+globalData.getCurrentProxyItem().getIp());
+                Log.d("fgsfds", "Try testing proxy "+i+": "+globalData.getProxies().get(i).getIp());
 
                 URL testUrl = new URL("https://e621.net/post/index.xml?limit=1");
                 //globalData.setCurrentProxy("221.182.62.115", 9999);
@@ -115,6 +115,7 @@ public class RenewProxy extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean state) {
+        Log.d("fgsfds", "Good proxy is: "+globalData.getCurrentProxyItem().getIp());
         return;
     }
 
