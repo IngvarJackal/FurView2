@@ -125,6 +125,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         if (globalData.getCurrentProxy()!=null) {
             Log.d("fgsfds", "Set proxy for driver");
             driver.setProxy(globalData.getCurrentProxy());
+            //driver.setProxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("187.6.252.146",3128))); // set bad proxy for test
         } else {
             Log.d("fgsfds", "Proxy is not using");
         }

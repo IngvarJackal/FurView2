@@ -23,5 +23,7 @@
     <string name="proxy_not_changed">Не удалось сменить прокси</string>
     <string name="setting_proxy">Настройка прокси...</string>
     <string name="checking_proxy">Проверка прокси...</string>
+    <string name="not_good_proxy">Подходящего прокси не найдено</string>
+    <string name="yes_list_proxies">Список прокси получен</string>
 
 </resources>

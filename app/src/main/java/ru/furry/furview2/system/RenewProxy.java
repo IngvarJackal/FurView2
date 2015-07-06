@@ -32,16 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import ru.furry.furview2.GlobalData;
 import ru.furry.furview2.InitialScreen;
-import ru.furry.furview2.MainActivity;
 
 
 public class RenewProxy extends AsyncTask<Void, Void, Boolean> {
     Context context;
+    int flag=0;
     InputStream is = null;
     GlobalData globalData;
     Boolean state = false;
@@ -50,6 +48,13 @@ public class RenewProxy extends AsyncTask<Void, Void, Boolean> {
     public RenewProxy(Context context) {
         super();
         this.context = context;
+        globalData = (GlobalData) context.getApplicationContext();
+    }
+
+    public RenewProxy(Context context, int flag) {
+        super();
+        this.context = context;
+        this.flag=1;
         globalData = (GlobalData) context.getApplicationContext();
     }
 
@@ -94,8 +99,10 @@ public class RenewProxy extends AsyncTask<Void, Void, Boolean> {
                     state=true;
                     break;
                 }
-                catch (SocketTimeoutException e)
-                {Log.d("fgsfds", "Bad proxy"); }
+                //catch (SocketTimeoutException e)
+                //{Log.d("fgsfds", "Bad proxy"); }
+                catch (Exception e)
+                {Log.d("fgsfds", "Bad proxy. Not response after "+TIMEOUT/1000+" sec"); }
 
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -115,7 +122,7 @@ public class RenewProxy extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean state) {
-        Log.d("fgsfds", "Good proxy is: "+globalData.getCurrentProxyItem().getIp());
+        if(flag==1){((InitialScreen) context).unblockSearch(state);}
         return;
     }
 

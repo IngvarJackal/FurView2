@@ -61,15 +61,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             case (R.id.SearchButtonInitial):
             {
                 // UIL initialization
-                Log.d("fgsfds", "UIL initialization");
-                ImageLoaderConfiguration uilConfig = null;
-                uilConfig = new ImageLoaderConfiguration.Builder(this)
-                        .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-//                        .diskCacheFileNameGenerator(new Md5FileNameGenerator())
-//                        .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
-                        .imageDownloader(new ProxiedBaseImageDownloader(this, globalData.getCurrentProxy()))
-                        .build();
-                ImageLoader.getInstance().init(uilConfig);
+                if (globalData.getCurrentProxy()==null) {InitUil(null);}
 
                 //Starting MainActivity
                 Intent intent = new Intent("ru.furry.furview2.MainActivity");
@@ -126,7 +118,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
 public void resultGetProxyList(Boolean proxySearchingResult) {
     if (proxySearchingResult){
         //The proxies was found
-        Toast.makeText(getApplicationContext(),getString(R.string.yes_connect_proxy),Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(),getString(R.string.yes_list_proxies),Toast.LENGTH_LONG).show();
     } else {
         //The proxies was not found
         Log.d("fgsfds", "FurView2 can't find proxy. May be Internet is offline");
@@ -135,12 +127,38 @@ public void resultGetProxyList(Boolean proxySearchingResult) {
         //Disabling proxy
         globalData.setCurrentProxy(null);
     }
-    Toast.makeText(getApplicationContext(),getString(R.string.checking_proxy),Toast.LENGTH_SHORT).show();
+    Toast.makeText(getApplicationContext(),getString(R.string.checking_proxy),Toast.LENGTH_LONG).show();
 
-    new RenewProxy(this).execute();
+    new RenewProxy(this,1).execute();
 
-    mSearchButtonInitial.setClickable(true);
-    mSearchFieldInitial.setClickable(true);
 }
 
+
+    public void InitUil(Proxy proxy)
+    {
+        // UIL initialization
+        Log.d("fgsfds", "UIL initialization");
+        ImageLoaderConfiguration uilConfig = null;
+        uilConfig = new ImageLoaderConfiguration.Builder(this)
+                .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
+//                        .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+//                        .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
+                .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
+                .build();
+        ImageLoader.getInstance().init(uilConfig);
+    }
+
+    public void unblockSearch(Boolean state) {
+        InitUil(globalData.getCurrentProxy());
+        mSearchButtonInitial.setClickable(true);
+        mSearchFieldInitial.setClickable(true);
+        if (state) {
+            Log.d("fgsfds", "" + "Good proxy is: " + globalData.getCurrentProxyItem().getIp());
+            Toast.makeText(getApplicationContext(),getString(R.string.yes_connect_proxy),Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Log.d("fgsfds", "Not a good proxy!");
+            Toast.makeText(getApplicationContext(),getString(R.string.not_good_proxy),Toast.LENGTH_LONG).show();
+        }
+    }
 }
