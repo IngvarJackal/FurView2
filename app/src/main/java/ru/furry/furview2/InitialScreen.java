@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -26,6 +27,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
     CheckBox mProxyBox;
+    ToggleButton sfwButton;
 
     Proxy proxy;
 
@@ -34,9 +36,10 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
 
-        mSearchButtonInitial = (ImageButton)findViewById(R.id.SearchButtonInitial);
-        mSearchFieldInitial = (EditText)findViewById(R.id.SearchFieldInitial);
-        mProxyBox = (CheckBox)findViewById(R.id.proxyBox);
+        mSearchButtonInitial = (ImageButton) findViewById(R.id.searchButtonInitial);
+        mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
+        mProxyBox = (CheckBox) findViewById(R.id.proxyBox);
+        sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         mSearchButtonInitial.setOnClickListener(this);
 
         // proxy init; force by now.
@@ -51,13 +54,13 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         File permanentStorage = new File(getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath());
-        // TODO: set internal storage fr cache
+        // TODO: set internal storage for cache
         File reserveStorage = null;
 
 
         uilConfig = new ImageLoaderConfiguration.Builder(this)
                 .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                        //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 604800)) // TODO: change 1 week time from hardcoded into system constant
                 .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
                 .build();
@@ -67,13 +70,13 @@ public class InitialScreen extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (v.getId()==R.id.SearchButtonInitial)
-        {
+        if (v.getId() == R.id.searchButtonInitial) {
             Intent intent = new Intent("ru.furry.furview2.MainActivity");
             String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
-            intent.putExtra("SearchQuery", mSearchQuery);
+            MainActivity.searchQuery = mSearchQuery;
+            //intent.putExtra("SearchQuery", mSearchQuery);
 
-
+            intent.putExtra("isSfw", sfwButton.isChecked());
             intent.putExtra("Proxy", (proxy != null) ? proxy.toString() : null);
 
             startActivity(intent);

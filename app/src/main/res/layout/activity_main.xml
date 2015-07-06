@@ -16,24 +16,49 @@
 
     <EditText
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/SearchField"
+        android:layout_height="52dp"
+        android:id="@+id/searchField"
         android:hint="@string/search_text"
-        android:layout_alignBottom="@+id/SearchButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/SearchButton"
-        android:layout_toStartOf="@+id/SearchButton"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:layout_toStartOf="@+id/linearLayout6"
+        android:layout_toLeftOf="@+id/linearLayout6"
+        android:textSize="16sp" />
 
-    <ImageButton
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:id="@+id/SearchButton"
-        android:src="@android:drawable/ic_search_category_default"
-        android:layout_below="@+id/topLabel"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="110dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout6"
+        android:layout_above="@+id/linearLayout5"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true">
+
+        <ImageButton
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:id="@+id/searchButton"
+            android:src="@android:drawable/ic_search_category_default"
+            android:layout_below="@+id/topLabel"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_weight="1" />
+
+        <ToggleButton
+            android:layout_width="52dp"
+            android:layout_height="match_parent"
+            android:id="@+id/sfwButton"
+            android:layout_alignBottom="@+id/searchField"
+            android:layout_toEndOf="@+id/linearLayout5"
+            android:layout_alignTop="@+id/SearchButton"
+            android:textSize="12sp"
+            android:textOff="SFW"
+            android:textOn="SFW"
+            android:layout_alignLeft="@+id/SearchButton"
+            android:layout_alignStart="@+id/SearchButton"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 
     <LinearLayout
@@ -42,9 +67,10 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="0.50"
-        android:layout_alignRight="@+id/SearchButton"
-        android:layout_alignEnd="@+id/SearchButton"
-        android:layout_below="@+id/sfwSwitch">
+        android:id="@+id/linearLayout5"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/searchField">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -119,16 +145,6 @@
                 android:scaleType="centerCrop" />
         </LinearLayout>
     </LinearLayout>
-
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SFW"
-        android:id="@+id/sfwSwitch"
-        android:checked="false"
-        android:layout_below="@+id/SearchField"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

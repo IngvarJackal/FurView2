@@ -16,25 +16,42 @@
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/editText"
+            android:id="@+id/tagsEditText"
             android:hint="@string/search_text"
             android:singleLine="true"
-            android:layout_alignBottom="@+id/imageButton"
+            android:layout_alignBottom="@+id/searchImageButton"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_gravity="left"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textSize="16sp" />
 
         <ImageButton
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:id="@+id/imageButton"
+            android:id="@+id/searchImageButton"
             android:src="@android:drawable/ic_search_category_default"
             android:layout_alignParentTop="true"
             android:layout_alignRight="@+id/pictureImageView"
             android:layout_alignEnd="@+id/pictureImageView"
-            android:layout_gravity="right"
             android:layout_weight="0" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:id="@+id/saveButton" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:id="@+id/saveImageButtonProgressBar"
+                android:indeterminate="true" />
+        </FrameLayout>
 
     </LinearLayout>
 

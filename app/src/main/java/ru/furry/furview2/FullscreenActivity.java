@@ -22,7 +22,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -34,8 +33,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.e621.DriverE621;
 import ru.furry.furview2.images.FurImage;
+import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -55,6 +56,13 @@ public class FullscreenActivity extends Activity {
     EditText mScoreEditText;
     EditText mArtistEditText;
     EditText mDateEditText;
+    EditText mTagsEditText;
+    ImageButton mSearchButton;
+    ImageButton mSaveButton;
+    ProgressBar mSaveButtonProgress;
+    AsyncDatabaseResponseHandlerGUI databaseHandler;
+    FurryDatabase database;
+    FurImage fImage;
 
     class Labelled6Row {
         public List<TextView> items = new ArrayList<>();
@@ -68,7 +76,6 @@ public class FullscreenActivity extends Activity {
             for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
                 TextView t = new TextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-                //t.setTextAppearance(context, R.style.TextAppearance_AppCompat_Small);
                 t.setGravity(Gravity.CENTER);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                 int padding = (int) (1.5*getResources().getDisplayMetrics().density + 0.5f);
@@ -102,10 +109,58 @@ public class FullscreenActivity extends Activity {
         mScoreEditText = (EditText)findViewById(R.id.scoreEditText);
         mArtistEditText = (EditText)findViewById(R.id.artistEditText);
         mDateEditText = (EditText)findViewById(R.id.dateEditText);
+        mTagsEditText = (EditText)findViewById(R.id.tagsEditText);
+        mSearchButton = (ImageButton)findViewById(R.id.searchImageButton);
+        mSaveButton = (ImageButton)findViewById(R.id.saveButton);
+        mSaveButton.setEnabled(false);
+        mSaveButtonProgress = (ProgressBar)findViewById(R.id.saveImageButtonProgressBar);
 
-        FurImage fImage = (FurImage) getIntent().getParcelableExtra("image");
+        fImage = (FurImage) getIntent().getParcelableExtra("image");
 
-        Log.d("fgsfds", getApplicationContext().toString());
+        databaseHandler = new AsyncDatabaseResponseHandlerGUI() {
+            private void enableDeleteMode() {
+                mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);
+                mSaveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        database.delete(fImage);
+                        enableDownloadMode();
+                    }
+                });
+            }
+
+            private void enableDownloadMode() {
+                mSaveButton.setImageResource(android.R.drawable.ic_menu_save);
+                mSaveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        database.create(fImage);
+                        enableDeleteMode();
+                    }
+                });
+            }
+
+            @Override
+            public void blockInterfaceForDBResponse() {
+
+            }
+
+            @Override
+            public void unblockInterfaceForDBResponse() {
+                mSaveButtonProgress.setVisibility(View.GONE);
+                mSaveButton.setEnabled(true);
+            }
+
+            @Override
+            public void retrieveDBResponse(List<FurImage> images) {
+                if (images.size() > 0) {
+                    enableDeleteMode();
+                } else {
+                    enableDownloadMode();
+                }
+            }
+        };
+        database = new FurryDatabase(databaseHandler, getApplicationContext());
 
         ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
             @Override
@@ -139,6 +194,7 @@ public class FullscreenActivity extends Activity {
                 break;
         }
 
+        mTagsEditText.setText(MainActivity.searchQuery);
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
@@ -156,6 +212,15 @@ public class FullscreenActivity extends Activity {
             }
         });
 
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.searchQuery = mTagsEditText.getText().toString();
+                finish();
+            }
+        });
+
+
         try {
             DriverE621.downloadImage(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
                 @Override
@@ -165,22 +230,27 @@ public class FullscreenActivity extends Activity {
 
                 @Override
                 public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                    mProgress.setVisibility(View.GONE);
+                    imageLoaded();
                 }
 
                 @Override
                 public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    mProgress.setVisibility(View.GONE);
+                    imageLoaded();
                 }
 
                 @Override
                 public void onLoadingCancelled(String imageUri, View view) {
-                    mProgress.setVisibility(View.GONE);
+                    imageLoaded();
                 }
             });
         } catch (IOException e) {
             Utils.printError(e);
         }
+    }
+
+    private void imageLoaded() {
+        mProgress.setVisibility(View.GONE);
+        database.searchByMD5(fImage.getMd5());
     }
 
     @Override

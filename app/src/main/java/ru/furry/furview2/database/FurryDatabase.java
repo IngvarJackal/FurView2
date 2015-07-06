@@ -39,6 +39,7 @@ public class FurryDatabase {
     private AsyncDatabaseResponseHandlerGUI dbResponseHandler;
 
     public FurryDatabase(AsyncDatabaseResponseHandlerGUI dbResponseHandler, Context context) {
+        Log.d("fgsfds", "Enabling database...");
         this.dbResponseHandler = dbResponseHandler;
         dbHelper = new FurryDatabaseOpenHelper(context, DB_NAME, null, DB_VERSION);
         database = dbHelper.getWritableDatabase();
@@ -315,6 +316,7 @@ public class FurryDatabase {
     }
 
     public void create(FurImage image) {
+        Log.d("fgsfds", "Creating image in DB...");
         new AsyncCreate().execute(image);
     }
 
@@ -329,6 +331,7 @@ public class FurryDatabase {
 
     public void search(String query) {
         // TODO add search by: rating, score, localscore, downloaddate, creationdate, artist
+        Log.d("fgsfds", "DB searching: " + query);
         dbResponseHandler.blockInterfaceForDBResponse();
         new AsyncSearchTags().execute(new Utils.Tuple<String, AsyncDatabaseResponseHandlerGUI>(query, dbResponseHandler));
     }
@@ -351,6 +354,7 @@ public class FurryDatabase {
     }
 
     public void searchByMD5(BigInteger md5) {
+        Log.d("fgsfds", "Searchin image in DB by MD5: " + md5);
         dbResponseHandler.blockInterfaceForDBResponse();
         new AsyncSearchMD5().execute(new Utils.Tuple<BigInteger, AsyncDatabaseResponseHandlerGUI>(md5, dbResponseHandler));
     }
@@ -378,6 +382,7 @@ public class FurryDatabase {
      * @param image
      */
     public void update(FurImage image) {
+        Log.d("fgsfds", "Updating image in DB...");
         create(image);
     }
 
@@ -402,6 +407,7 @@ public class FurryDatabase {
      * @param image
      */
     public void delete(FurImage image) {
+        Log.d("fgsfds", "Deleting image in DB");
         deleteByMd5(image.getMd5());
     }
 
@@ -410,6 +416,7 @@ public class FurryDatabase {
      * @param md5
      */
     public void deleteByMd5(BigInteger md5) {
+        Log.d("fgsfds", "Deleting image by MD5 in DB: " + md5);
         new DeleteImage().execute(md5);
     }
 

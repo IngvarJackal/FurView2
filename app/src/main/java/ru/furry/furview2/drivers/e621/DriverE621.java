@@ -73,6 +73,8 @@ public class DriverE621 {
     private Proxy proxy;
     private boolean hasImages = true;
 
+    private boolean isSfw;
+
     private int currentPage = 0;
     private HttpsURLConnection page;
     private String searchQuery;
@@ -123,6 +125,9 @@ public class DriverE621 {
 
     private URL makeURL(String searchURL, String searchQuery, int page, int limit) throws MalformedURLException {
         URL url = null;
+        if (isSfw && !searchQuery.contains("rating:safe") && !searchQuery.contains("rating:s")) {
+            searchQuery += " rating:s";
+        }
         try {
             String query = String.format("%s?tags=%s&page=%s&limit=%s",
                     searchURL,
@@ -354,6 +359,10 @@ public class DriverE621 {
         database.deleteByMd5(image.getMd5());
         File file = new File(image.getFilePath());
         file.delete();
+    }
+
+    public void setSfw(boolean sfw) {
+        isSfw = sfw;
     }
 
 }

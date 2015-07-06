@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
@@ -39,12 +40,14 @@ import ru.furry.furview2.system.Utils;
 
 public class MainActivity extends Activity implements View.OnClickListener  {
 
+    public static String searchQuery = "";
+    private static String previousQuery = null;
 
     EditText mSearchField;
     ImageButton mSearchButton;
     DataImageView mImageView1, mImageView2, mImageView3, mImageView4;
+    ToggleButton sfwButton;
     List<DataImageView> imageViews;
-    String mSearchQuery;
     String mProxy;
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
@@ -55,13 +58,13 @@ public class MainActivity extends Activity implements View.OnClickListener  {
     DriverE621 driver;
     FurryDatabase database;
     AsyncRemoteImageHandlerGUI remoteImageHandler;
-    AsyncDatabaseResponseHandlerGUI datagaseHandler;
+    AsyncDatabaseResponseHandlerGUI databaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        datagaseHandler = new AsyncDatabaseResponseHandlerGUI() {
+        databaseHandler = new AsyncDatabaseResponseHandlerGUI() {
             @Override
             public void blockInterfaceForDBResponse() {
 
@@ -95,7 +98,6 @@ public class MainActivity extends Activity implements View.OnClickListener  {
                 List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
                 remoteImagesE621.addAll(e621Images);
                 try {
-                    //downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
                     int i = 0;
                     for (FurImage img : driver.downloadPreview(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners)) {
                         downloadedImages.add(img);
@@ -111,16 +113,18 @@ public class MainActivity extends Activity implements View.OnClickListener  {
 
         JodaTimeAndroid.init(this);
 
-        mSearchField = (EditText)findViewById(R.id.SearchField);
-        mSearchButton = (ImageButton)findViewById(R.id.SearchButton);
+        sfwButton = (ToggleButton)findViewById(R.id.sfwButton);
+        sfwButton.setChecked(getIntent().getBooleanExtra("isSfw", false));
+
+        mSearchField = (EditText)findViewById(R.id.searchField);
+        mSearchButton = (ImageButton)findViewById(R.id.searchButton);
 
         mSearchField.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
 
-        mSearchQuery = getIntent().getExtras().getString("SearchQuery");
         mProxy = getIntent().getExtras().getString("Proxy");
 
-        mSearchField.setText(mSearchQuery);
+        mSearchField.setText(searchQuery);
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
 
         mImageView1 = (DataImageView) findViewById(R.id.imageView1);
@@ -156,7 +160,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
             driver.setProxy(proxy);
         }
 
-        database = new FurryDatabase(datagaseHandler, this.getApplicationContext());
+        database = new FurryDatabase(databaseHandler, this.getApplicationContext());
 
         try {
             Log.d("fgsfds", database.getDbHelper().isReady().toString()); // blocking
@@ -184,7 +188,8 @@ public class MainActivity extends Activity implements View.OnClickListener  {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        searchE926(mSearchField.getText().toString());
+                        searchQuery = mSearchField.getText().toString();
+                        searchE926();
                     }
                 return false;
                 }
@@ -197,13 +202,32 @@ public class MainActivity extends Activity implements View.OnClickListener  {
 
         mSearchButton.setOnTouchListener(mOnSearchButtonListener);
 
-        searchE926(mSearchField.getText().toString());
+        searchE926();
     }
 
-    private void searchE926(String query) {
-        Log.d("fgsfds", "Search: " + query);
+    @Override
+    protected void onResume() {
+        super.onRestart();
+        if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
+            searchE926();
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
+            searchE926();
+        }
+    }
+
+    private void searchE926() {
+        Log.d("fgsfds", "Search: " + searchQuery);
+        previousQuery = searchQuery;
+        mSearchField.setText(searchQuery);
+        driver.setSfw(sfwButton.isChecked());
         try {
-            driver.search(query);
+            driver.search(searchQuery);
         } catch (IOException e) {
             Utils.printError(e);
         }
@@ -239,7 +263,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         int id = v.getId();
 
         switch (id) {
-            case R.id.SearchField:
+            case R.id.searchField:
                 Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" SearchField",Toast.LENGTH_SHORT).show();
                 break;
         }
