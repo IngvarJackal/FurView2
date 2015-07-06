@@ -7,9 +7,11 @@ import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
@@ -18,8 +20,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.File;
-import java.net.Proxy;
+import java.util.ArrayList;
 
+import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
 
 public class InitialScreen extends Activity implements View.OnClickListener {
@@ -28,8 +31,7 @@ public class InitialScreen extends Activity implements View.OnClickListener {
     EditText mSearchFieldInitial;
     CheckBox mProxyBox;
     ToggleButton sfwButton;
-
-    Proxy proxy;
+    ListView mDriversList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +42,22 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
         mProxyBox = (CheckBox) findViewById(R.id.proxyBox);
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
+        sfwButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (sfwButton.isChecked())
+                    sfwButton.setBackgroundColor(0xff63ec4f);
+                else
+                    sfwButton.setBackgroundColor(0xccb3b3b3);
+            }
+        });
         mSearchButtonInitial.setOnClickListener(this);
-
-        // proxy init; force by now.
-        //proxy = mProxyBox.isChecked() ? ProxySettings.getProxy() : null;
-
-        //proxy = ProxySettings.getProxy();
-        proxy = null;
-
+        mDriversList = (ListView) findViewById(R.id.listOfDrivers);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_single_choice,
+                new ArrayList<String>(Drivers.drivers.keySet()));
+        mDriversList.setAdapter(adapter);
+        mDriversList.setItemChecked(0, true);
         // UIL initialization
         ImageLoaderConfiguration uilConfig = null;
 
@@ -62,10 +72,32 @@ public class InitialScreen extends Activity implements View.OnClickListener {
                 .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
                         //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 604800)) // TODO: change 1 week time from hardcoded into system constant
-                .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
+                .imageDownloader(new ProxiedBaseImageDownloader(this, null))
                 .build();
 
         ImageLoader.getInstance().init(uilConfig);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onRestart();
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     @Override
@@ -76,8 +108,8 @@ public class InitialScreen extends Activity implements View.OnClickListener {
             MainActivity.searchQuery = mSearchQuery;
             //intent.putExtra("SearchQuery", mSearchQuery);
 
-            intent.putExtra("isSfw", sfwButton.isChecked());
-            intent.putExtra("Proxy", (proxy != null) ? proxy.toString() : null);
+            MainActivity.swf = sfwButton.isChecked();
+            intent.putExtra("driver",  mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
 
             startActivity(intent);
         }

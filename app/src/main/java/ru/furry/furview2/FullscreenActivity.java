@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -29,12 +28,12 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.furry.furview2.database.FurryDatabase;
-import ru.furry.furview2.drivers.e621.DriverE621;
+import ru.furry.furview2.drivers.Driver;
+import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
 import ru.furry.furview2.system.DefaultCreator;
@@ -63,6 +62,7 @@ public class FullscreenActivity extends Activity {
     AsyncDatabaseResponseHandlerGUI databaseHandler;
     FurryDatabase database;
     FurImage fImage;
+    Driver driver;
 
     class Labelled6Row {
         public List<TextView> items = new ArrayList<>();
@@ -78,7 +78,7 @@ public class FullscreenActivity extends Activity {
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-                int padding = (int) (1.5*getResources().getDisplayMetrics().density + 0.5f);
+                int padding = (int) (1.5 * getResources().getDisplayMetrics().density + 0.5f);
                 t.setPadding(padding, 0, padding, 0);
                 items.add(t);
                 linLay.addView(t);
@@ -91,7 +91,7 @@ public class FullscreenActivity extends Activity {
     class Labelled6RowCreator extends DefaultCreator<Labelled6Row> {
         @Override
         public Labelled6Row getDefaultValue(Object... params) {
-            return new Labelled6Row((TableLayout)params[0], (Context)params[1]);
+            return new Labelled6Row((TableLayout) params[0], (Context) params[1]);
         }
     }
 
@@ -100,22 +100,29 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        mPictureImageView = (ImageView)findViewById(R.id.picImgView);
-        mScrollVew = (ScrollView)findViewById(R.id.scrollView);
-        mTagsTable = (TableLayout)findViewById(R.id.tagsTableLayout);
-        mTagsButton = (Button)findViewById(R.id.tagsButton);
-        mProgress = (ProgressBar)findViewById(R.id.progressBar);
-        mRatingImageButton = (ImageButton)findViewById(R.id.ratingImageButton);
-        mScoreEditText = (EditText)findViewById(R.id.scoreEditText);
-        mArtistEditText = (EditText)findViewById(R.id.artistEditText);
-        mDateEditText = (EditText)findViewById(R.id.dateEditText);
-        mTagsEditText = (EditText)findViewById(R.id.tagsEditText);
-        mSearchButton = (ImageButton)findViewById(R.id.searchImageButton);
-        mSaveButton = (ImageButton)findViewById(R.id.saveButton);
+        mPictureImageView = (ImageView) findViewById(R.id.picImgView);
+        mScrollVew = (ScrollView) findViewById(R.id.scrollView);
+        mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
+        mTagsButton = (Button) findViewById(R.id.tagsButton);
+        mProgress = (ProgressBar) findViewById(R.id.progressBar);
+        mRatingImageButton = (ImageButton) findViewById(R.id.ratingImageButton);
+        mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
+        mArtistEditText = (EditText) findViewById(R.id.artistEditText);
+        mDateEditText = (EditText) findViewById(R.id.dateEditText);
+        mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
+        mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
+        mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
-        mSaveButtonProgress = (ProgressBar)findViewById(R.id.saveImageButtonProgressBar);
+        mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
 
         fImage = (FurImage) getIntent().getParcelableExtra("image");
+        try {
+            driver = Drivers.drivers.get(getIntent().getStringExtra("driver")).newInstance();
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+        driver.setSfw(MainActivity.swf);
+        //driver.init(); // don't need to do it!
 
         databaseHandler = new AsyncDatabaseResponseHandlerGUI() {
             private void enableDeleteMode() {
@@ -166,16 +173,16 @@ public class FullscreenActivity extends Activity {
             @Override
             public void ensureCapacity(int index) {
                 if (entries.size() <= index) {
-                    for (int i = 0; i < ((index - entries.size())*3/2 + 1); i++) {
+                    for (int i = 0; i < ((index - entries.size()) * 3 / 2 + 1); i++) {
                         entries.add(creator.getDefaultValue(mTagsTable, getApplicationContext()));
                     }
                 }
             }
         };
 
-        for (int row = 0; row < Math.ceil(fImage.getTags().size()*1.0/LEN_OF_TAGS_ROW); row++) {
-            for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row*LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
-                tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row*LEN_OF_TAGS_ROW + column)));
+        for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
+            for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
+                tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
             }
         }
 
@@ -221,31 +228,27 @@ public class FullscreenActivity extends Activity {
         });
 
 
-        try {
-            DriverE621.downloadImage(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
+        driver.downloadImage(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
 
-                }
+            }
 
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                    imageLoaded();
-                }
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                imageLoaded();
+            }
 
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    imageLoaded();
-                }
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                imageLoaded();
+            }
 
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-                    imageLoaded();
-                }
-            });
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+                imageLoaded();
+            }
+        });
     }
 
     private void imageLoaded() {
@@ -267,8 +270,7 @@ public class FullscreenActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (id)
-        {
+        switch (id) {
             case R.id.action_settings:
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " action_settings", Toast.LENGTH_SHORT).show();
                 return true;
@@ -278,7 +280,8 @@ public class FullscreenActivity extends Activity {
             case R.id.action_tags:
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " action_tags", Toast.LENGTH_SHORT).show();
                 return true;
-            default: return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
 
 

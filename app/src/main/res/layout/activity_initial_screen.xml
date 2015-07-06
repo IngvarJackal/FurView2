@@ -30,7 +30,7 @@
 
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_width="110dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/linearLayout8"
         android:layout_below="@+id/imageLabel"
@@ -45,21 +45,22 @@
             android:layout_below="@+id/topLabel"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_weight="1" />
+            android:layout_weight="0" />
 
         <ToggleButton
-            android:layout_width="52dp"
-            android:layout_height="match_parent"
+            android:layout_width="24dp"
+            android:layout_height="44dp"
             android:id="@+id/sfwButtonInitial"
             android:layout_alignBottom="@+id/searchField"
             android:layout_toEndOf="@+id/linearLayout5"
             android:layout_alignTop="@+id/SearchButton"
             android:textSize="12sp"
-            android:textOff="SFW"
-            android:textOn="SFW"
+            android:textOff="S\nF\nW"
+            android:textOn="S\nF\nW"
             android:layout_alignLeft="@+id/SearchButton"
             android:layout_alignStart="@+id/SearchButton"
-            android:layout_weight="1" />
+            android:background="#ccb3b3b3"
+            android:layout_gravity="center_vertical" />
     </LinearLayout>
 
     <CheckBox
@@ -77,7 +78,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/listOfDrivers"
         android:choiceMode="singleChoice"
-        android:smoothScrollbar="false"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/proxyBox" />

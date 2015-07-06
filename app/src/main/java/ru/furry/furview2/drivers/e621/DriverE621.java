@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
-import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -39,15 +38,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import ru.furry.furview2.database.FurryDatabase;
+import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
 import ru.furry.furview2.system.Files;
-import ru.furry.furview2.system.NoSSLv3Factory;
+import ru.furry.furview2.system.ProxiedHTTPSLoader;
 import ru.furry.furview2.system.Utils;
 
-public class DriverE621 {
+public class DriverE621 extends Driver {
 
     private AsyncRemoteImageHandlerGUI remoteImagesHandler;
 
@@ -68,9 +68,6 @@ public class DriverE621 {
             .build();
 
     private String permanentStorage;
-    private int previewWidth;
-    private int previewHeight;
-    private Proxy proxy;
     private boolean hasImages = true;
 
     private boolean isSfw;
@@ -79,27 +76,11 @@ public class DriverE621 {
     private HttpsURLConnection page;
     private String searchQuery;
 
-    public DriverE621(String permanentStorage, Utils.Tuple<Integer, Integer> preview, AsyncRemoteImageHandlerGUI remoteImagesHandler) {
+    @Override
+    public void init(String permanentStorage, AsyncRemoteImageHandlerGUI remoteImagesHandler) {
         this.remoteImagesHandler = remoteImagesHandler;
         this.permanentStorage = permanentStorage;
-        this.previewHeight = preview.x;
-        this.previewWidth = preview.y;
         checkPathStructure(permanentStorage);
-    }
-
-    public DriverE621(String permanentStorage, int previewWidth, int previewHeight, AsyncRemoteImageHandlerGUI remoteImagesHandler) {
-        this.remoteImagesHandler = remoteImagesHandler;
-        this.permanentStorage = permanentStorage;
-        this.previewHeight = previewHeight;
-        this.previewWidth = previewWidth;
-        checkPathStructure(permanentStorage);
-    }
-
-    public void setProxy(Proxy proxy) {
-        this.proxy = proxy;
-        // FOR DEBUG
-        Log.d("fgsfds", "Proxy used: " + Utils.getIP(proxy));
-        //
     }
 
     // UTILITY
@@ -157,15 +138,6 @@ public class DriverE621 {
                 .setDownloadedAt(new DateTime())
                 .setPageUrl("https://e621.net/post/show/" + remoteImage.getIdE621())
                 .createFurImage();
-    }
-
-    HttpsURLConnection openPage(URL url) throws IOException {
-        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
-        if (proxy != null) {
-            return (HttpsURLConnection) url.openConnection(proxy);
-        } else {
-            return (HttpsURLConnection) url.openConnection();
-        }
     }
 
     private void checkPathStructure(String path) {
@@ -261,19 +233,27 @@ public class DriverE621 {
         new ReadingImages().execute(new Utils.Tuple<HttpsURLConnection, AsyncRemoteImageHandlerGUI>(page, remoteImagesHandler));
     }
 
-    public void search(String searchQuery) throws IOException {
+    @Override
+    public void search(String searchQuery) {
         currentPage = 0;
         this.searchQuery = searchQuery;
         getNext(searchQuery);
     }
 
-    public void getNext(String searchQuery) throws IOException {
+    @Override
+    public void getNext(String searchQuery) {
         currentPage += 1;
-        URL query = makeURL(SEARCH_PATH, searchQuery, currentPage, SEARCH_LIMIT);
-        page = openPage(query);
+        URL query = null;
+        try {
+            query = makeURL(SEARCH_PATH, searchQuery, currentPage, SEARCH_LIMIT);
+            page = ProxiedHTTPSLoader.openPage(query);
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
         startReadingRemoteImages(page);
     }
 
+    @Override
     public boolean hasNext() {
         return hasImages;
     }
@@ -291,39 +271,61 @@ public class DriverE621 {
         return remoteFurImagetoFurImageE926(remoteImage);
     }
 
-    public static List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) throws IOException {
+    @Override
+    public List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            fetchImage(images.get(i).getFileUrl(), listeners.get(i), loadingListeners.get(i));
+            try {
+                fetchImage(images.get(i).getFileUrl(), listeners.get(i), loadingListeners.get(i));
+            } catch (IOException e) {
+                Utils.printError(e);
+            }
             downloadedImages.add(remoteFurImagetoFurImageE926(images.get(i)));
         }
         return downloadedImages;
     }
 
-    public static void downloadImage(String imageUrl, ImageAware listener) throws IOException {
+    @Override
+    public void downloadImage(String imageUrl, ImageAware listener) {
         Log.d("fgsfds", "downloading image: " + imageUrl);
-        fetchImage(imageUrl, listener, null);
+        try {
+            fetchImage(imageUrl, listener, null);
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
     }
 
-    public static void downloadImage(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
+    @Override
+    public void downloadImage(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener) {
         Log.d("fgsfds", "downloading image: " + imageUrl);
-        fetchImage(imageUrl, listener, loadingListener);
+        try {
+            fetchImage(imageUrl, listener, loadingListener);
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
     }
 
-    public static List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
+    @Override
+    public List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            downloadedImages.add(fetchPreviews(images.get(i), listeners.get(i)));
+            try {
+                downloadedImages.add(fetchPreviews(images.get(i), listeners.get(i)));
+            } catch (IOException e) {
+                Utils.printError(e);
+            }
         }
         return downloadedImages;
     }
 
-    public static void loadFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
+    @Override
+    public void loadFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
         for (int i = 0; i < images.size(); i++) {
             imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions);
         }
     }
 
+    @Override
     public void saveToDBandStorage(FurImage image, FurryDatabase database) {
         image.setFilePath(String.format("%s/%s/", permanentStorage, Files.E621_IMAGES) + image.getMd5() + "." + image.getFileExt());
         database.create(image);
@@ -355,12 +357,14 @@ public class DriverE621 {
      * @param image
      * @param database
      */
+    @Override
     public void deleteFromDBandStorage(FurImage image, FurryDatabase database) {
         database.deleteByMd5(image.getMd5());
         File file = new File(image.getFilePath());
         file.delete();
     }
 
+    @Override
     public void setSfw(boolean sfw) {
         isSfw = sfw;
     }
