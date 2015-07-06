@@ -8,6 +8,7 @@ import android.view.View;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import org.joda.time.DateTime;
@@ -272,8 +273,12 @@ public class DriverE621 {
         return hasImages;
     }
 
-    private static void fetchImage(String url, ImageAware listener) throws IOException {
-        imageLoader.displayImage(url, listener, displayOptions);
+    private static void fetchImage(String url, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
+        if (loadingListener != null) {
+            imageLoader.displayImage(url, listener, displayOptions, loadingListener);
+        } else {
+            imageLoader.displayImage(url, listener, displayOptions);
+        }
     }
 
     private static FurImage fetchPreviews(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
@@ -281,10 +286,10 @@ public class DriverE621 {
         return remoteFurImagetoFurImageE926(remoteImage);
     }
 
-    public static List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {
+    public static List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) throws IOException {
         List<FurImage> downloadedImages = new ArrayList<>(images.size());
         for (int i = 0; i < images.size(); i++) {
-            fetchImage(images.get(i).getFileUrl(), listeners.get(i));
+            fetchImage(images.get(i).getFileUrl(), listeners.get(i), loadingListeners.get(i));
             downloadedImages.add(remoteFurImagetoFurImageE926(images.get(i)));
         }
         return downloadedImages;
@@ -292,7 +297,12 @@ public class DriverE621 {
 
     public static void downloadImage(String imageUrl, ImageAware listener) throws IOException {
         Log.d("fgsfds", "downloading image: " + imageUrl);
-        fetchImage(imageUrl, listener);
+        fetchImage(imageUrl, listener, null);
+    }
+
+    public static void downloadImage(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
+        Log.d("fgsfds", "downloading image: " + imageUrl);
+        fetchImage(imageUrl, listener, loadingListener);
     }
 
     public static List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) throws IOException {

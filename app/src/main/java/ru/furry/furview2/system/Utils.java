@@ -120,6 +120,21 @@ public class Utils {
         return s.hasNext() ? s.next() : "";
     }
 
+    public static String unescapeUnicode(String unicode) {
+        if (unicode.contains("\\u")) {
+            unicode = unicode.replace("\\", "");
+            StringBuilder sb = new StringBuilder();
+            String[] arr = unicode.split("u");
+            for(int i = 1; i < arr.length; i++){
+                int hexVal = Integer.parseInt(arr[i], 16);
+                sb.append((char)hexVal);
+            }
+            return sb.toString();
+        } else {
+            return unicode;
+        }
+    }
+
     public static String joinList(List<? extends Object> list, String separator) {
         switch (list.size()) {
             case 0: return "";
