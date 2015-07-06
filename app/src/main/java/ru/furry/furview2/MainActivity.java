@@ -50,20 +50,20 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
     DataImageView mImageView1, mImageView2, mImageView3, mImageView4;
     List<DataImageView> imageViews;
     String mSearchQuery;
-    String mProxy="";
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
-    GlobalData appPath;
     List<ImageViewAware> imageViewListeners;
     List<RemoteFurImageE621> remoteImagesE621 = new ArrayList<>();
     List<FurImage> downloadedImages = new ArrayList<>();
     DriverE621 driver;
     FurryDatabase database;
-    int mPort;
+    GlobalData globalData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        globalData = (GlobalData) getApplicationContext();
 
         database = new FurryDatabase(this, this.getApplicationContext());
 
@@ -84,21 +84,22 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
 
         mSearchField = (EditText)findViewById(R.id.SearchField);
         mSearchButton = (ImageButton)findViewById(R.id.SearchButton);
-
-        mSearchField.setOnClickListener(this);
-        mSearchButton.setOnClickListener(this);
-
-        mSearchQuery = getIntent().getExtras().getString("SearchQuery");
-        mProxy = getIntent().getExtras().getString("mProxy");
-        mPort = getIntent().getExtras().getInt("mPort");
-
-        mSearchField.setText(mSearchQuery);
-        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
-
         mImageView1 = (DataImageView) findViewById(R.id.imageView1);
         mImageView2 = (DataImageView) findViewById(R.id.imageView2);
         mImageView3 = (DataImageView) findViewById(R.id.imageView3);
         mImageView4 = (DataImageView) findViewById(R.id.imageView4);
+
+//        mSearchField.setOnClickListener(this);
+        mSearchButton.setOnClickListener(this);
+        mImageView1.setOnTouchListener(mOnTouchImageViewListener);
+        mImageView2.setOnTouchListener(mOnTouchImageViewListener);
+        mImageView3.setOnTouchListener(mOnTouchImageViewListener);
+        mImageView4.setOnTouchListener(mOnTouchImageViewListener);
+
+        mSearchQuery = getIntent().getExtras().getString("SearchQuery");
+
+        mSearchField.setText(mSearchQuery);
+        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
 
         imageViews= new ArrayList<DataImageView>(Arrays.asList(
                 mImageView1,
@@ -114,21 +115,18 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 new ImageViewAware(mImageView4)
         ));
 
-        appPath = ((GlobalData)getApplicationContext());
-        appPath.setState("/mnt/sdcard/furview2");   //Example path
-
         String permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
         driver = new DriverE621(permanentStorage, 150, 150, this);
-        if (mProxy.equals("")) {
-            Log.d("fgsfds", "Proxy is not using");
+
+        //Set proxy
+        if (globalData.getCurrentProxy()!=null) {
+            Log.d("fgsfds", "Set proxy for driver");
+            driver.setProxy(globalData.getCurrentProxy());
         } else {
-            //Proxy proxy = ProxySettings.getLastProxy();
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));
-            Log.d("fgsfds", "Set proxy "+mProxy+" port "+mPort);
-            driver.setProxy(proxy);
+            Log.d("fgsfds", "Proxy is not using");
         }
 
         mOnTouchImageViewListener = new View.OnTouchListener() {
@@ -136,8 +134,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction()==MotionEvent.ACTION_DOWN)
                 {
-                    String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
-                    Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
+                    Log.d("fgsfds", "Start fullscreen mode");
                     Intent intent = new Intent("ru.furry.furview2.fullscreen");
                     intent.putExtra("imageUrl", ((DataImageView)v).getImage().getFileUrl());
                     startActivity(intent);
@@ -145,29 +142,32 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 return false;
             }
         };
-
-        mOnSearchButtonListener = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        searchE926(mSearchField.getText().toString());
-                    }
-                return false;
-                }
-        };
-
-        mImageView1.setOnTouchListener(mOnTouchImageViewListener);
-        mImageView2.setOnTouchListener(mOnTouchImageViewListener);
-        mImageView3.setOnTouchListener(mOnTouchImageViewListener);
-        mImageView4.setOnTouchListener(mOnTouchImageViewListener);
-
-        mSearchButton.setOnTouchListener(mOnSearchButtonListener);
-
-
-
-
-
+//For debug
         searchE926(mSearchField.getText().toString());
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id) {
+            case R.id.SearchButton:
+                //Set proxy
+                if (globalData.getCurrentProxy()!=null) {
+                    Log.d("fgsfds", "Set proxy for driver");
+                    driver.setProxy(globalData.getCurrentProxy());
+                } else {
+                    Log.d("fgsfds", "Proxy is not using");
+                }
+                searchE926(mSearchField.getText().toString());
+                break;
+        }
+    }
+
+    public void AfterChechingProxy (Boolean state)
+    {
+        Log.d("fgsfds", "Proxy successfully changed: " + state);
+        if (state) searchE926(mSearchField.getText().toString());
+        else Toast.makeText(getApplicationContext(), getResources().getString(R.string.proxy_not_changed), Toast.LENGTH_SHORT).show();
     }
 
     private void searchE926(String query) {
@@ -202,18 +202,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-
-        switch (id) {
-            case R.id.SearchField:
-                Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" SearchField",Toast.LENGTH_SHORT).show();
-                break;
-        }
-
     }
 
     @Override

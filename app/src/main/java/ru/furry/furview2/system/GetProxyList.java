@@ -28,17 +28,21 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import ru.furry.furview2.GlobalData;
 import ru.furry.furview2.system.ProxyItem;
 import ru.furry.furview2.InitialScreen;
 
-public class GetProxyList extends AsyncTask<Void, Void, List<ProxyItem>> {
+public class GetProxyList extends AsyncTask<Void, Void, Boolean> {
     Context context;
     InputStream is = null;
     String xmlRespond;
+    GlobalData globalData;
+    Boolean proxySearchingResult=false;
 
     public GetProxyList(Context context) {
         super();
         this.context = context;
+        globalData = (GlobalData) context.getApplicationContext();
     }
 
     @Override
@@ -47,11 +51,11 @@ public class GetProxyList extends AsyncTask<Void, Void, List<ProxyItem>> {
     }
 
     @Override
-    protected List<ProxyItem> doInBackground(Void... params) {
+    protected Boolean doInBackground(Void... params) {
         return loadXML();
     }
 
-    public List<ProxyItem> loadXML() {
+    public Boolean loadXML() {
         String url = "http://api.foxtools.ru/v2/Proxy.xml";
 
         // Adding parameters
@@ -61,6 +65,7 @@ public class GetProxyList extends AsyncTask<Void, Void, List<ProxyItem>> {
         params.add(new BasicNameValuePair("free", "1"));
         params.add(new BasicNameValuePair("uptime", "2"));
         Log.d("fgsfds", "Set param in GetProxyList before request");
+        // http://api.foxtools.ru/v2/Proxy.xml?type=2&available=1&free=1&uptime=2
 
         //GET request
         try {
@@ -78,10 +83,13 @@ public class GetProxyList extends AsyncTask<Void, Void, List<ProxyItem>> {
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            return proxySearchingResult;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+            return proxySearchingResult;
         } catch (IOException e) {
             e.printStackTrace();
+            return proxySearchingResult;
         }
 
         //Parsing XML
@@ -132,25 +140,35 @@ public class GetProxyList extends AsyncTask<Void, Void, List<ProxyItem>> {
                         }
                 }
             }
-            Log.d("fgsfds", "proxys found: " + proxyElements.size());
-            //Switch fastern proxy and proxy(0)
+            Log.d("fgsfds", "Proxies found: " + proxyElements.size());
+
             if (proxyElements.size()>0)
             {
+                //Switch fastern proxy and proxy(0)
                 ProxyItem tmp = proxyElements.get(0);
                 proxyElements.set(0, proxyElements.get(fasternNum));
                 proxyElements.set(fasternNum, tmp);
+
+                //Set fastern proxy to the GlobalData
+                Log.d("fgsfds", "Set proxies in the globalData: ");
+                globalData.setCurrentProxyItem(proxyElements.get(0));
+                globalData.setProxies(proxyElements);
+                globalData.setNumOfWorkingProxy(0);
+                globalData.setCurrentProxy(proxyElements.get(0).getIp(), proxyElements.get(0).getPort());
+                Log.d("fgsfds", "Fastern proxy is: " + proxyElements.get(0).getIp() + ":"+ proxyElements.get(0).getPort() + " uptime: " + proxyElements.get(0).getUptime() + " from " + proxyElements.get(0).getCoutry());
+                proxySearchingResult=true;
             }
-            Log.d("fgsfds", "Fastern proxy is: "+proxyElements.get(0).getUptime()+" from "+proxyElements.get(0).getCoutry());
         } catch (Exception e) {
             //throw new RuntimeException(e);
             e.printStackTrace();
         }
-        return proxyElements;
+        return proxySearchingResult;
     }
 
     @Override
-    protected void onPostExecute(List<ProxyItem> proxyElements) {
-        ((InitialScreen) context).ProxiList(proxyElements);
+    protected void onPostExecute(Boolean proxySearchingResult) {
+
+        ((InitialScreen) context).resultGetProxyList(proxySearchingResult);
     }
 
 }

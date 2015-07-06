@@ -20,5 +20,8 @@
     <string name="yes_connect_proxy">Прокси найден</string>
     <string name="disable_proxy">Прокси отключён</string>
     <string name="searching_proxy">Поиск прокси...</string>
+    <string name="proxy_not_changed">Не удалось сменить прокси</string>
+    <string name="setting_proxy">Настройка прокси...</string>
+    <string name="checking_proxy">Проверка прокси...</string>
 
 </resources>

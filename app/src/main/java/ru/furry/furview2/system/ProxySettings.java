@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ProxySettings {
 
-    static private List<Proxy> proxies = new ArrayList<>(Arrays.asList(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("91.196.230.66", 3128)))); // it's working... for now
-    // see http://foxtools.ru/Proxy?al=False&am=False&ah=True&ahs=True&http=False&https=True
+    static private List<Proxy> proxies = new ArrayList<>(Arrays.asList(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("112.25.10.146", 55336)))); // it's working... for now
+    // see http://api.foxtools.ru/v2/Proxy.xml?type=2&available=1&free=1&uptime=2
 
     public static Proxy getProxy() {
         return proxies.get(0);
