@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
@@ -57,7 +58,7 @@ public class DriverE621 extends Driver {
     private static final int SEARCH_LIMIT = 95;
 
     private final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("EEE MMM DD kk:mm:ss Z yyyy");
+    private final DateTimeFormatter formatter = DateTimeFormat.forPattern("MMM dd kk:mm:ss Z yyyy").withLocale(new Locale("en", "US"));
     private final static ImageLoader imageLoader = ImageLoader.getInstance();
     private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
             .cacheInMemory(true)
@@ -205,7 +206,7 @@ public class DriverE621 extends Driver {
                             .setPageUrl(null)
                             .setIdE926(Integer.parseInt(element.getAttribute("id")))
                             .setAuthor(element.getAttribute("author"))
-                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24")))
+                            .setCreatedAt(formatter.parseDateTime(element.getAttribute("created_at").replace(" 00", " 24").substring(4)))
                             .setSources(Arrays.asList(element.getAttribute("sources").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))
                             .setTags(Arrays.asList(element.getAttribute("tags").split(" ")))
                             .setArtists(Arrays.asList(element.getAttribute("artist").replace("[&quot;", "").replace("&quot;]", "").split("&quot;,&quot;")))

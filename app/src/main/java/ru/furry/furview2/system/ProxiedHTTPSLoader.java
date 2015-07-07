@@ -13,8 +13,13 @@ public class ProxiedHTTPSLoader {
         HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
     }
 
+    /**
+     * @param url has to be already encoded
+     * @return
+     * @throws IOException
+     */
     public static HttpsURLConnection openPage(String url) throws IOException {
-        return (HttpsURLConnection) new URL(URLEncoder.encode(url, CHARSET)).openConnection();
+        return (HttpsURLConnection) new URL(url).openConnection();
     }
 
     public static HttpsURLConnection openPage(URL url) throws IOException {
