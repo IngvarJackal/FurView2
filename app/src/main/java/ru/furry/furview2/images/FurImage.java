@@ -1,16 +1,75 @@
 package ru.furry.furview2.images;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 import ru.furry.furview2.system.Utils;
 
+import static ru.furry.furview2.system.Utils.joinList;
+
 /**
  * Basic class for downloaded images
  */
-public class FurImage extends RemoteFurImage {
+
+public class FurImage extends RemoteFurImage implements Parcelable {
+    private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String SEPARATOR = "q#za0"; // just random string
+
+    private static String codeDateTime(DateTime date) {
+        return DATETIME_FORMAT.print(date);
+    }
+
+    private static DateTime decodeDateTime(String sDate) {
+        return DATETIME_FORMAT.parseDateTime(sDate);
+    }
+
+    private static String codeRating(Rating rating) {
+        String sRating;
+        switch (rating) {
+            case SAFE:
+                sRating = "s";
+                break;
+            case QUESTIONABLE:
+                sRating = "q";
+                break;
+            case EXPLICIT:
+                sRating = "e";
+                break;
+            default:
+                sRating = "na";
+                break;
+        }
+        return sRating;
+    }
+
+    private static Rating decodeRating(String sRating) {
+        Rating rating;
+        switch (sRating) {
+            case "s":
+                rating = Rating.SAFE;
+                break;
+            case "q":
+                rating = Rating.QUESTIONABLE;
+                break;
+            case "e":
+                rating = Rating.EXPLICIT;
+                break;
+            default:
+                rating = Rating.NA;
+                break;
+        }
+        return rating;
+    }
+
+
     private String author;
     private DateTime createdAt;
     private List<String> sources;
@@ -86,7 +145,7 @@ public class FurImage extends RemoteFurImage {
         if (!obj.getClass().equals(this.getClass())) {
             return false;
         }
-        if (this.getMd5().equals(((FurImage)obj).getMd5())) {
+        if (this.getMd5().equals(((FurImage) obj).getMd5())) {
             return true;
         } else {
             return false;
@@ -191,4 +250,80 @@ public class FurImage extends RemoteFurImage {
         return id;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeStringArray(new String[]{
+                this.getSearchQuery(),
+                this.getDescription(),
+                Integer.toString(this.getScore()),
+                Integer.toString(this.getLocalScore()),
+                codeRating(this.getRating()),
+                Integer.toString(this.getLocalScore()),
+                this.getFileUrl(),
+                this.getFileExt(),
+                this.getPageUrl(),
+                this.getAuthor(),
+                ((this.getArtists() != null) && (this.getArtists().size() > 0)) ? joinList(this.getArtists(), SEPARATOR) : "",
+                codeDateTime(this.getCreatedAt()),
+                ((this.getSources() != null) && (this.getSources().size() > 0)) ? joinList(this.getSources(), SEPARATOR) : "",
+                codeDateTime(this.getDownloadedAt()),
+                this.getMd5().toString(),
+                this.getFileName(),
+                Integer.toString(this.getFileSize()),
+                Integer.toString(this.getFileWidth()),
+                Integer.toString(this.getFileHeight()),
+                this.getFilePath(),
+                this.getPreviewUrl(),
+                ((this.getTags() != null) && (this.getTags().size() > 0)) ? joinList(this.getTags(), SEPARATOR) : "",
+                ((this.getLocalTags() != null) && (this.getLocalTags().size() > 0)) ? joinList(this.getLocalTags(), SEPARATOR) : "",
+                this.getPreviewUrl()
+        });
+    }
+
+    public static final Parcelable.Creator<FurImage> CREATOR = new Parcelable.Creator<FurImage>() {
+        public FurImage createFromParcel(Parcel in) {
+            return FurImage.createFromParcel(in);
+        }
+
+        public FurImage[] newArray(int size) {
+            return new FurImage[size];
+        }
+    };
+
+
+    public static FurImage createFromParcel(Parcel source) {
+        String[] data = new String[24];
+        source.readStringArray(data);
+        return (new FurImageBuilder()
+                .setSearchQuery(data[0])
+                .setDescription(data[1])
+                .setScore(Integer.parseInt(data[2]))
+                .setLocalScore(Integer.parseInt(data[3]))
+                .setRating(decodeRating(data[4]))
+                .setLocalScore(Integer.parseInt(data[5]))
+                .setFileUrl(data[6])
+                .setFileExt(data[7])
+                .setPageUrl(data[8])
+                .setAuthor(data[9])
+                .setArtists(Arrays.asList(data[10].split(SEPARATOR)))
+                .setCreatedAt(decodeDateTime(data[11]))
+                .setSources(Arrays.asList(data[12].split(SEPARATOR)))
+                .setDownloadedAt(decodeDateTime(data[13]))
+                .setMd5(new BigInteger(data[14]))
+                .setFileName(data[15])
+                .setFileSize(Integer.parseInt(data[16]))
+                .setFileWidth(Integer.parseInt(data[17]))
+                .setFileHeight(Integer.parseInt(data[18]))
+                .setFilePath(data[19])
+                .setPreviewUrl(data[20])
+                .setTags(Arrays.asList(data[21].split(SEPARATOR)))
+                .setLocalTags(Arrays.asList(data[22].split(SEPARATOR)))
+                .setPreviewUrl(data[23])
+                .createFurImage());
+    }
 }

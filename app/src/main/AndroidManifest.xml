@@ -46,15 +46,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".UI.LockActivity"
-            android:label="@string/setting_proxy"
-            android:theme="@android:style/Theme.Dialog">
-            <intent-filter>
-                <action android:name="ru.furry.furview2.LockActivity"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

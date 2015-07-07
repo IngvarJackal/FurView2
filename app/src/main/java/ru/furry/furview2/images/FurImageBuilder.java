@@ -31,6 +31,9 @@ public class FurImageBuilder {
     @Deprecated
     private String rootPath;
     private String previewUrl;
+    private int localScore;
+    private String filePath;
+    private List<String> localTags;
 
     public FurImageBuilder setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
@@ -140,6 +143,21 @@ public class FurImageBuilder {
         return this;
     }
 
+    public FurImageBuilder setLocalScore(int score) {
+        this.localScore = score;
+        return this;
+    }
+
+    public FurImageBuilder setFilePath(String filePath) {
+        this.filePath = filePath;
+        return this;
+    }
+
+    public FurImageBuilder setLocalTags(List<String> localTags) {
+        this.localTags = localTags;
+        return this;
+    }
+
     public FurImageBuilder setPreviewUrl(String previewUrl) {
         this.previewUrl = previewUrl;
         return this;
@@ -157,6 +175,10 @@ public class FurImageBuilder {
     }
 
     public FurImage createFurImage() {
-        return new FurImage(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl, author, createdAt, sources, tags, artists, downloadedAt, md5, fileName, fileSize, fileWidth, fileHeight, previewWidth, previewHeight, rootPath, previewUrl);
+        FurImage i = new FurImage(searchQuery, description, score, rating, fileUrl, fileExt, pageUrl, author, createdAt, sources, tags, artists, downloadedAt, md5, fileName, fileSize, fileWidth, fileHeight, previewWidth, previewHeight, rootPath, previewUrl);
+        i.setFilePath(filePath);
+        i.setLocalTags(localTags);
+        i.setLocalScore(localScore);
+        return i;
     }
 }

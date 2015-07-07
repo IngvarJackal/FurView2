@@ -16,94 +16,136 @@
 
     <EditText
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/SearchField"
+        android:layout_height="52dp"
+        android:id="@+id/searchField"
         android:hint="@string/search_text"
-        android:layout_alignBottom="@+id/SearchButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/SearchButton"
-        android:layout_toStartOf="@+id/SearchButton"
-        android:singleLine="true" />
-
-    <ImageButton
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:id="@+id/SearchButton"
-        android:src="@android:drawable/ic_search_category_default"
-        android:layout_below="@+id/topLabel"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
+        android:singleLine="true"
+        android:layout_toStartOf="@+id/linearLayout6"
+        android:layout_toLeftOf="@+id/linearLayout6"
+        android:textSize="16sp" />
 
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="190dp"
-        android:layout_below="@+id/SearchField"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:weightSum="1"
-        android:id="@+id/linearLayout">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout6"
+        android:layout_above="@+id/linearLayout5"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
 
-        <ru.furry.furview2.UI.DataImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/imageView1"
-            android:layout_weight="0.50"
-            android:layout_marginLeft="2sp"
-            android:layout_marginTop="0sp"
-            android:layout_marginRight="5sp"
-            android:layout_marginBottom="5sp"
-            android:clickable="true"
-            android:scaleType="centerCrop" />
+        <ImageButton
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:id="@+id/searchButton"
+            android:src="@android:drawable/ic_search_category_default"
+            android:layout_below="@+id/topLabel"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_weight="1" />
 
-        <ru.furry.furview2.UI.DataImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/imageView2"
-            android:layout_weight="0.50"
-            android:layout_marginLeft="2sp"
-            android:layout_marginTop="0sp"
-            android:layout_marginRight="5sp"
-            android:layout_marginBottom="5sp"
-            android:clickable="true"
-            android:scaleType="centerCrop" />
-
+        <ToggleButton
+            android:layout_width="24dp"
+            android:layout_height="44dp"
+            android:id="@+id/sfwButton"
+            android:layout_alignBottom="@+id/searchField"
+            android:layout_toEndOf="@+id/linearLayout5"
+            android:layout_alignTop="@+id/SearchButton"
+            android:textSize="12sp"
+            android:textOff="S\nF\nW"
+            android:textOn="S\nF\nW"
+            android:layout_alignLeft="@+id/SearchButton"
+            android:layout_alignStart="@+id/SearchButton"
+            android:layout_weight="1"
+            android:background="#ccb3b3b3"
+            android:layout_gravity="center_vertical" />
     </LinearLayout>
 
+
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="190dp"
-        android:weightSum="1"
-        android:id="@+id/linearLayout2"
-        android:layout_below="@+id/linearLayout"
-        android:layout_centerHorizontal="true">
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.50"
+        android:id="@+id/linearLayout5"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/searchField">
 
-        <ru.furry.furview2.UI.DataImageView
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/imageView3"
-            android:layout_weight="0.50"
-            android:layout_marginLeft="2sp"
-            android:layout_marginTop="0sp"
-            android:layout_marginRight="5sp"
-            android:layout_marginBottom="5sp"
-            android:clickable="true"
-            android:scaleType="centerCrop" />
+            android:weightSum="1"
+            android:id="@+id/linearLayout"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="1">
 
-        <ru.furry.furview2.UI.DataImageView
+            <ru.furry.furview2.UI.DataImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView1"
+                android:layout_weight="0.50"
+                android:layout_marginLeft="2sp"
+                android:layout_marginTop="0sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:clickable="true"
+                android:scaleType="centerCrop" />
+
+            <ru.furry.furview2.UI.DataImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView2"
+                android:layout_weight="0.50"
+                android:layout_marginLeft="2sp"
+                android:layout_marginTop="0sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:clickable="true"
+                android:scaleType="centerCrop" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/imageView4"
-            android:layout_weight="0.50"
-            android:layout_marginLeft="2sp"
-            android:layout_marginTop="0sp"
-            android:layout_marginRight="5sp"
-            android:layout_marginBottom="5sp"
-            android:clickable="true"
-            android:scaleType="centerCrop" />
+            android:weightSum="1"
+            android:id="@+id/linearLayout2"
+            android:layout_below="@+id/linearLayout"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="1">
+
+            <ru.furry.furview2.UI.DataImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView3"
+                android:layout_weight="0.50"
+                android:layout_marginLeft="2sp"
+                android:layout_marginTop="0sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:clickable="true"
+                android:scaleType="centerCrop" />
+
+            <ru.furry.furview2.UI.DataImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView4"
+                android:layout_weight="0.50"
+                android:layout_marginLeft="2sp"
+                android:layout_marginTop="0sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:clickable="true"
+                android:scaleType="centerCrop" />
+        </LinearLayout>
     </LinearLayout>
 
 
