@@ -3,96 +3,115 @@ package ru.furry.furview2;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.ListView;
+import android.widget.ToggleButton;
 
+import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.util.List;
+import java.io.File;
+import java.util.ArrayList;
 
-import ru.furry.furview2.database.FurryDatabase;
-import ru.furry.furview2.system.GetProxyList;
+import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
-import ru.furry.furview2.system.ProxyItem;
 
 public class InitialScreen extends Activity implements View.OnClickListener {
 
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
     CheckBox mProxyBox;
-    String mProxy= "";
-    int mPort = 0;
-
-    Proxy proxy;
+    ToggleButton sfwButton;
+    ListView mDriversList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
 
-        mSearchButtonInitial = (ImageButton)findViewById(R.id.SearchButtonInitial);
-        mSearchFieldInitial = (EditText)findViewById(R.id.SearchFieldInitial);
-        mProxyBox = (CheckBox)findViewById(R.id.proxyBox);
+        mSearchButtonInitial = (ImageButton) findViewById(R.id.searchButtonInitial);
+        mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
+        mProxyBox = (CheckBox) findViewById(R.id.proxyBox);
+        sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
+        sfwButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (sfwButton.isChecked())
+                    sfwButton.setBackgroundColor(0xff63ec4f);
+                else
+                    sfwButton.setBackgroundColor(0xccb3b3b3);
+            }
+        });
         mSearchButtonInitial.setOnClickListener(this);
-        mProxyBox.setOnClickListener(this);
+        mDriversList = (ListView) findViewById(R.id.listOfDrivers);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_single_choice,
+                new ArrayList<String>(Drivers.drivers.keySet()));
+        mDriversList.setAdapter(adapter);
+        mDriversList.setItemChecked(0, true);
+        // UIL initialization
+        ImageLoaderConfiguration uilConfig = null;
 
-        //proxy = ProxySettings.getProxy();
-        proxy = null;
+        File permanentStorage = new File(getApplicationContext().getExternalFilesDir(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
+                .getAbsolutePath());
+        // TODO: set internal storage for cache
+        File reserveStorage = null;
+
+
+        uilConfig = new ImageLoaderConfiguration.Builder(this)
+                .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
+                        //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 604800)) // TODO: change 1 week time from hardcoded into system constant
+                .imageDownloader(new ProxiedBaseImageDownloader(this))
+                .build();
+
+        ImageLoader.getInstance().init(uilConfig);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onRestart();
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     @Override
     public void onClick(View v) {
-        switch(v.getId())
-        {
-            case (R.id.SearchButtonInitial):
-            {
-                // UIL initialization
-                Log.d("fgsfds", "UIL initialization");
-                ImageLoaderConfiguration uilConfig = null;
-                uilConfig = new ImageLoaderConfiguration.Builder(this)
-                        .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                                //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                        .imageDownloader(new ProxiedBaseImageDownloader(this, proxy))
-                        .build();
-                ImageLoader.getInstance().init(uilConfig);
+        if (v.getId() == R.id.searchButtonInitial) {
+            Intent intent = new Intent("ru.furry.furview2.MainActivity");
+            String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
+            MainActivity.searchQuery = mSearchQuery;
+            //intent.putExtra("SearchQuery", mSearchQuery);
 
-                //Starting MainActivity
-                Intent intent = new Intent("ru.furry.furview2.MainActivity");
-                Log.d("fgsfds", "Put extras to Intent for transfer to MainActivity");
-                String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
-                intent.putExtra("SearchQuery", mSearchQuery);
-                intent.putExtra("mProxy", mProxy);
-                intent.putExtra("mPort", mPort);
-                //intent.putExtra("Proxy", (proxy != null) ? proxy.toString() : null);
-                Log.d("fgsfds", "Start MainActivity");
-                startActivity(intent);
-                break;
-            }
-            case (R.id.proxyBox):
-            {
-                if (mProxyBox.isChecked()) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.searching_proxy),Toast.LENGTH_LONG).show();
-                    mSearchButtonInitial.setClickable(false);
-                    mSearchFieldInitial.setClickable(false);
-                    new GetProxyList(this).execute();}
-                else   {
-                    Toast.makeText(getApplicationContext(),getString(R.string.disable_proxy),Toast.LENGTH_SHORT).show();
-                    mProxy = "";
-                    mPort = 0;
-                    proxy = null;
-                }
-                break;
-            }
+            MainActivity.swf = sfwButton.isChecked();
+            intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
+
+            startActivity(intent);
         }
     }
 
@@ -116,28 +135,8 @@ public class InitialScreen extends Activity implements View.OnClickListener {
         if (id == R.id.action_settings) {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
-    public void ProxiList(List<ProxyItem> proxyElements) {
-        if (proxyElements.size()>0){
-            ProxyItem result = proxyElements.get(0);
-            Log.d("fgsfds", "Result proxy IP: " + result.getIp());
-            Log.d("fgsfds", "Result proxy Port: " + result.getPort());
-            Toast.makeText(getApplicationContext(),getString(R.string.yes_connect_proxy),Toast.LENGTH_SHORT).show();
-            mProxy = result.getIp();
-            mPort = result.getPort();
-            proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));
-        }
-        else {
-            Log.d("fgsfds", "FurView2 can't find proxy. May be Internet is offline");
-            Toast.makeText(getApplicationContext(),getString(R.string.no_connect_proxy), Toast.LENGTH_SHORT).show();
-            mProxyBox.setChecked(false);
-            mProxy = "";
-            mPort = 0;
-            proxy = null;
-        }
-        mSearchButtonInitial.setClickable(true);
-        mSearchFieldInitial.setClickable(true);
-    }
 }

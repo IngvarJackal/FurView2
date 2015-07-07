@@ -2,11 +2,8 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,17 +11,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,67 +25,115 @@ import java.util.concurrent.ExecutionException;
 
 import ru.furry.furview2.UI.DataImageView;
 import ru.furry.furview2.database.FurryDatabase;
-import ru.furry.furview2.drivers.e621.DriverE621;
+import ru.furry.furview2.drivers.Driver;
+import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.drivers.e621.RemoteFurImageE621;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
 import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
-import ru.furry.furview2.system.ProxySettings;
 import ru.furry.furview2.system.Utils;
 
 
 
-public class MainActivity extends Activity implements View.OnClickListener, AsyncRemoteImageHandlerGUI, AsyncDatabaseResponseHandlerGUI {
+public class MainActivity extends Activity implements View.OnClickListener  {
+
+    public static String searchQuery = "";
+    private static String previousQuery = null;
+    public static boolean swf = false;
 
     EditText mSearchField;
     ImageButton mSearchButton;
     DataImageView mImageView1, mImageView2, mImageView3, mImageView4;
+    ToggleButton sfwButton;
     List<DataImageView> imageViews;
-    String mSearchQuery;
-    String mProxy="";
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
     GlobalData appPath;
     List<ImageViewAware> imageViewListeners;
     List<RemoteFurImageE621> remoteImagesE621 = new ArrayList<>();
     List<FurImage> downloadedImages = new ArrayList<>();
-    DriverE621 driver;
+    Driver driver;
     FurryDatabase database;
-    int mPort;
+    AsyncRemoteImageHandlerGUI remoteImageHandler;
+    AsyncDatabaseResponseHandlerGUI databaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        database = new FurryDatabase(this, this.getApplicationContext());
+        databaseHandler = new AsyncDatabaseResponseHandlerGUI() {
+            @Override
+            public void blockInterfaceForDBResponse() {
 
-        try {
-            Log.d("fgsfds", database.getDbHelper().isReady().toString()); // blocking
-        } catch (ExecutionException | InterruptedException e) {
-            Utils.printError(e);
-        }
+            }
 
-        /*
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        */
+            @Override
+            public void unblockInterfaceForDBResponse() {
+
+            }
+
+            @Override
+            public void retrieveDBResponse(List<FurImage> images) {
+
+            }
+        };
+
+        remoteImageHandler = new AsyncRemoteImageHandlerGUI() {
+            @Override
+            public void blockInterfaceForRemoteImages() {
+
+            }
+
+            @Override
+            public void unblockInterfaceForRemoteImages() {
+
+            }
+
+            @Override
+            public void retrieveRemoteImages(List<? extends RemoteFurImage> images) {
+                Log.d("fgsfds", "Recieved remote pictures");
+                List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
+                remoteImagesE621.addAll(e621Images);
+                int i = 0;
+                for (FurImage img : driver.downloadPreview(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners)) {
+                    downloadedImages.add(img);
+                    imageViews.get(i++).setImage(img);
+                }
+            }
+        };
 
         setContentView(R.layout.activity_main);
 
         JodaTimeAndroid.init(this);
 
-        mSearchField = (EditText)findViewById(R.id.SearchField);
-        mSearchButton = (ImageButton)findViewById(R.id.SearchButton);
+        sfwButton = (ToggleButton)findViewById(R.id.sfwButton);
+        if (MainActivity.swf) {
+            sfwButton.setBackgroundColor(0xff63ec4f);
+            sfwButton.setChecked(true);
+        } else {
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+            sfwButton.setChecked(false);
+        }
+
+        sfwButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.swf = !MainActivity.swf;
+                if (sfwButton.isChecked())
+                    sfwButton.setBackgroundColor(0xff63ec4f);
+                else
+                    sfwButton.setBackgroundColor(0xccb3b3b3);
+            }
+        });
+
+        mSearchField = (EditText)findViewById(R.id.searchField);
+        mSearchButton = (ImageButton)findViewById(R.id.searchButton);
 
         mSearchField.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
 
-        mSearchQuery = getIntent().getExtras().getString("SearchQuery");
-        mProxy = getIntent().getExtras().getString("mProxy");
-        mPort = getIntent().getExtras().getInt("mPort");
-
-        mSearchField.setText(mSearchQuery);
+        mSearchField.setText(searchQuery);
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
 
         mImageView1 = (DataImageView) findViewById(R.id.imageView1);
@@ -121,14 +162,19 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
-        driver = new DriverE621(permanentStorage, 150, 150, this);
-        if (mProxy.equals("")) {
-            Log.d("fgsfds", "Proxy is not using");
-        } else {
-            //Proxy proxy = ProxySettings.getLastProxy();
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(mProxy, mPort));
-            Log.d("fgsfds", "Set proxy "+mProxy+" port "+mPort);
-            driver.setProxy(proxy);
+        try {
+            driver = Drivers.drivers.get(getIntent().getStringExtra("driver")).newInstance();
+        } catch (Exception e) {
+            Utils.printError(e);
+        }
+        driver.init(permanentStorage, remoteImageHandler);
+
+        database = new FurryDatabase(databaseHandler, this.getApplicationContext());
+
+        try {
+            Log.d("fgsfds", database.getDbHelper().isReady().toString()); // blocking
+        } catch (ExecutionException | InterruptedException e) {
+            Utils.printError(e);
         }
 
         mOnTouchImageViewListener = new View.OnTouchListener() {
@@ -139,7 +185,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
                     String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
                     Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
                     Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                    intent.putExtra("imageUrl", ((DataImageView)v).getImage().getFileUrl());
+                    intent.putExtra("image", ((DataImageView) v).getImage());
+                    intent.putExtra("driver", getIntent().getStringExtra("driver"));
                     startActivity(intent);
                 }
                 return false;
@@ -150,7 +197,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                     if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        searchE926(mSearchField.getText().toString());
+                        searchQuery = mSearchField.getText().toString();
+                        searchDriver();
                     }
                 return false;
                 }
@@ -163,20 +211,31 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
 
         mSearchButton.setOnTouchListener(mOnSearchButtonListener);
 
-
-
-
-
-        searchE926(mSearchField.getText().toString());
+        searchDriver();
     }
 
-    private void searchE926(String query) {
-        Log.d("fgsfds", "Search: " + query);
-        try {
-            driver.search(query);
-        } catch (IOException e) {
-            Utils.printError(e);
+    @Override
+    protected void onResume() {
+        super.onRestart();
+        if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
+            searchDriver();
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
+            searchDriver();
+        }
+    }
+
+    private void searchDriver() {
+        Log.d("fgsfds", "Search: " + searchQuery);
+        previousQuery = searchQuery;
+        mSearchField.setText(searchQuery);
+        driver.setSfw(MainActivity.swf);
+        driver.search(searchQuery);
     }
 
     @Override
@@ -209,52 +268,11 @@ public class MainActivity extends Activity implements View.OnClickListener, Asyn
         int id = v.getId();
 
         switch (id) {
-            case R.id.SearchField:
+            case R.id.searchField:
                 Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" SearchField",Toast.LENGTH_SHORT).show();
                 break;
         }
 
     }
 
-    @Override
-    public void blockInterfaceForRemoteImages() {
-
-    }
-
-    @Override
-    public void unblockInterfaceForRemoteImages() {
-
-    }
-
-    @Override
-    public void retrieveRemoteImages(List<? extends RemoteFurImage> images) {
-        Log.d("fgsfds", "Recieved remote pictures");
-        List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
-        remoteImagesE621.addAll(e621Images);
-        try {
-            //downloadedImages.addAll(driver.download(e621Images.subList(0,4), imageViewListeners));
-            int i = 0;
-            for (FurImage img : driver.downloadPreview(e621Images.subList(0,4), imageViewListeners)) {
-                downloadedImages.add(img);
-                imageViews.get(i++).setImage(img);
-            }
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
-    }
-
-    @Override
-    public void blockInterfaceForDBResponse() {
-
-    }
-
-    @Override
-    public void unblockInterfaceForDBResponse() {
-
-    }
-
-    @Override
-    public void retrieveDBResponse(List<FurImage> images) {
-
-    }
 }

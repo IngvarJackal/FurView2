@@ -45,7 +45,7 @@ public class NoSSLv3Factory extends SSLSocketFactory {
     }
 
     private static Socket makeSocketSafe(Socket socket) {
-        if (socket instanceof SSLSocket && !(socket instanceof NoSSLv3SSLSocket)) {
+        if (socket instanceof SSLSocket) {
             socket = new NoSSLv3SSLSocket((SSLSocket) socket);
         }
         return socket;

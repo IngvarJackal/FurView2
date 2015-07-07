@@ -8,11 +8,8 @@ import android.util.Log;
 
 import java.util.concurrent.ExecutionException;
 
-import ru.furry.furview2.system.Utils;
-
 public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
 
-    public static String DB_PATH;
     private Boolean dbReady = true;
     private AsyncTask<SQLiteDatabase, Void, Boolean> initDB;
     private AsyncTask<SQLiteDatabase, Void, Boolean> clearDB;
@@ -48,6 +45,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
                 "localScore integer," +
                 "rating text," +
                 "fileUrl text," +
+                "previewUrl text," +
                 "fileExt text," +
                 "pageUrl text," +
                 "author text," +
