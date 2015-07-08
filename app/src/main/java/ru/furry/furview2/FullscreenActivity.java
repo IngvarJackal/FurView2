@@ -35,7 +35,7 @@ import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
-import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
+import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -59,7 +59,7 @@ public class FullscreenActivity extends Activity {
     ImageButton mSearchButton;
     ImageButton mSaveButton;
     ProgressBar mSaveButtonProgress;
-    AsyncDatabaseResponseHandlerGUI databaseHandler;
+    AsyncHandlerUI<FurImage> databaseHandler;
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
@@ -124,7 +124,7 @@ public class FullscreenActivity extends Activity {
         driver.setSfw(MainActivity.swf);
         //driver.init(); // don't need to do it!
 
-        databaseHandler = new AsyncDatabaseResponseHandlerGUI() {
+        databaseHandler = new AsyncHandlerUI<FurImage>() {
             private void enableDeleteMode() {
                 mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);
                 mSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -148,18 +148,18 @@ public class FullscreenActivity extends Activity {
             }
 
             @Override
-            public void blockInterfaceForDBResponse() {
+            public void blockUI() {
 
             }
 
             @Override
-            public void unblockInterfaceForDBResponse() {
+            public void unblockUI() {
                 mSaveButtonProgress.setVisibility(View.GONE);
                 mSaveButton.setEnabled(true);
             }
 
             @Override
-            public void retrieveDBResponse(List<FurImage> images) {
+            public void retrieve(List<? extends FurImage> images) {
                 if (images.size() > 0) {
                     enableDeleteMode();
                 } else {
@@ -228,7 +228,7 @@ public class FullscreenActivity extends Activity {
         });
 
 
-        driver.downloadImage(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
+        driver.downloadImageFile(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
 

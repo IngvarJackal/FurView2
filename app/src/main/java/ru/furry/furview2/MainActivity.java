@@ -2,6 +2,7 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -14,7 +15,9 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -27,79 +30,146 @@ import ru.furry.furview2.UI.DataImageView;
 import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
-import ru.furry.furview2.drivers.e621.RemoteFurImageE621;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.RemoteFurImage;
-import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
-import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
+import ru.furry.furview2.system.AsyncCounter;
+import ru.furry.furview2.system.AsyncHandlerUI;
+import ru.furry.furview2.system.ListlikeIterator;
 import ru.furry.furview2.system.Utils;
 
 
-
-public class MainActivity extends Activity implements View.OnClickListener  {
+public class MainActivity extends Activity implements View.OnClickListener {
 
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = false;
+    public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
+
+    private final static int NUM_OF_PICS = 4;
+
+    class RemoteImagesIterator implements ListlikeIterator<RemoteFurImage> {
+        List<RemoteFurImage> downloadedRemoteImages = new ArrayList<>();
+        String searchQuery;
+        Driver driver;
+        int cursor = 0;
+
+        @Override
+        public void init(Driver driver, String searchQuery) {
+            this.searchQuery = searchQuery;
+            this.driver = driver;
+        }
+
+        @Override
+        public void asyncHasNext(AsyncHandlerUI<Boolean> remoteImagesHandler) {
+            if (downloadedRemoteImages.size() == 0) {
+                final AsyncHandlerUI<Boolean> remoteImagesHandler2 = remoteImagesHandler;
+                driver.search(searchQuery, new AsyncHandlerUI<RemoteFurImage>() {
+                    @Override
+                    public void blockUI() {
+                        remoteImagesHandler2.blockUI();
+                    }
+
+                    @Override
+                    public void unblockUI() {
+                        remoteImagesHandler2.unblockUI();
+                    }
+
+                    @Override
+                    public void retrieve(List<? extends RemoteFurImage> images) {
+                        downloadedRemoteImages.addAll(images);
+                        check(remoteImagesHandler2);
+                    }
+                });
+            } else {
+                check(remoteImagesHandler);
+            }
+        }
+
+        private void check(AsyncHandlerUI<Boolean> remoteImagesHandler) {
+            if (downloadedRemoteImages.size() > cursor) {
+                remoteImagesHandler.retrieve(new ArrayList<>(Arrays.asList(true)));
+            } else {
+                if (driver.hasNext()) {
+                    downloadImages(remoteImagesHandler);
+                } else {
+                    remoteImagesHandler.retrieve(new ArrayList<>(Arrays.asList(false)));
+                }
+            }
+        }
+
+        private void downloadImages(AsyncHandlerUI<Boolean> remoteImagesHandler) {
+            final AsyncHandlerUI<Boolean> remoteImagesHandler2 = remoteImagesHandler;
+            driver.getNext(new AsyncHandlerUI<RemoteFurImage>() {
+
+                @Override
+                public void blockUI() {
+                    remoteImagesHandler2.blockUI();
+                }
+
+                @Override
+                public void unblockUI() {
+                    remoteImagesHandler2.unblockUI();
+                }
+
+                @Override
+                public void retrieve(List<? extends RemoteFurImage> images) {
+                    downloadedRemoteImages.addAll(images);
+                    remoteImagesHandler2.retrieve(new ArrayList<>(Arrays.asList(driver.hasNext())));
+                }
+            });
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return (cursor > 0);
+        }
+
+        @Override
+        public RemoteFurImage next() {
+            return downloadedRemoteImages.get(cursor++);
+        }
+
+        @Override
+        public RemoteFurImage previous() {
+            return downloadedRemoteImages.get(cursor--);
+        }
+    }
 
     EditText mSearchField;
     ImageButton mSearchButton;
     DataImageView mImageView1, mImageView2, mImageView3, mImageView4;
-    ToggleButton sfwButton;
+    List<ImageViewAware> imageViewListeners;
     List<DataImageView> imageViews;
+    ToggleButton sfwButton;
+
     View.OnTouchListener mOnTouchImageViewListener;
     View.OnTouchListener mOnSearchButtonListener;
+
     GlobalData appPath;
-    List<ImageViewAware> imageViewListeners;
-    List<RemoteFurImageE621> remoteImagesE621 = new ArrayList<>();
-    List<FurImage> downloadedImages = new ArrayList<>();
     Driver driver;
     FurryDatabase database;
-    AsyncRemoteImageHandlerGUI remoteImageHandler;
-    AsyncDatabaseResponseHandlerGUI databaseHandler;
+    AsyncHandlerUI<FurImage> databaseHandler;
+
+    private AsyncCounter procCounter = new AsyncCounter(0, 1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        databaseHandler = new AsyncDatabaseResponseHandlerGUI() {
+        databaseHandler = new AsyncHandlerUI<FurImage>() {
             @Override
-            public void blockInterfaceForDBResponse() {
+            public void blockUI() {
 
             }
 
             @Override
-            public void unblockInterfaceForDBResponse() {
+            public void unblockUI() {
 
             }
 
             @Override
-            public void retrieveDBResponse(List<FurImage> images) {
+            public void retrieve(List<? extends FurImage> images) {
 
-            }
-        };
-
-        remoteImageHandler = new AsyncRemoteImageHandlerGUI() {
-            @Override
-            public void blockInterfaceForRemoteImages() {
-
-            }
-
-            @Override
-            public void unblockInterfaceForRemoteImages() {
-
-            }
-
-            @Override
-            public void retrieveRemoteImages(List<? extends RemoteFurImage> images) {
-                Log.d("fgsfds", "Recieved remote pictures");
-                List<RemoteFurImageE621> e621Images = (List<RemoteFurImageE621>)images;
-                remoteImagesE621.addAll(e621Images);
-                int i = 0;
-                for (FurImage img : driver.downloadPreview(e621Images.subList(0, Math.min(4, e621Images.size())), imageViewListeners)) {
-                    downloadedImages.add(img);
-                    imageViews.get(i++).setImage(img);
-                }
             }
         };
 
@@ -107,7 +177,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
 
         JodaTimeAndroid.init(this);
 
-        sfwButton = (ToggleButton)findViewById(R.id.sfwButton);
+        sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
         if (MainActivity.swf) {
             sfwButton.setBackgroundColor(0xff63ec4f);
             sfwButton.setChecked(true);
@@ -127,8 +197,8 @@ public class MainActivity extends Activity implements View.OnClickListener  {
             }
         });
 
-        mSearchField = (EditText)findViewById(R.id.searchField);
-        mSearchButton = (ImageButton)findViewById(R.id.searchButton);
+        mSearchField = (EditText) findViewById(R.id.searchField);
+        mSearchButton = (ImageButton) findViewById(R.id.searchButton);
 
         mSearchField.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
@@ -141,21 +211,21 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         mImageView3 = (DataImageView) findViewById(R.id.imageView3);
         mImageView4 = (DataImageView) findViewById(R.id.imageView4);
 
-        imageViews= new ArrayList<DataImageView>(Arrays.asList(
+        imageViews = new ArrayList<DataImageView>(Arrays.asList(
                 mImageView1,
                 mImageView2,
                 mImageView3,
                 mImageView4
         ));
 
-        imageViewListeners= new ArrayList<ImageViewAware>(Arrays.asList(
+        imageViewListeners = new ArrayList<ImageViewAware>(Arrays.asList(
                 new ImageViewAware(mImageView1),
                 new ImageViewAware(mImageView2),
                 new ImageViewAware(mImageView3),
                 new ImageViewAware(mImageView4)
         ));
 
-        appPath = ((GlobalData)getApplicationContext());
+        appPath = ((GlobalData) getApplicationContext());
         appPath.setState("/mnt/sdcard/furview2");   //Example path
 
         String permanentStorage = getApplicationContext().getExternalFilesDir(
@@ -167,7 +237,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         } catch (Exception e) {
             Utils.printError(e);
         }
-        driver.init(permanentStorage, remoteImageHandler);
+        driver.init(permanentStorage);
 
         database = new FurryDatabase(databaseHandler, this.getApplicationContext());
 
@@ -180,10 +250,9 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         mOnTouchImageViewListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction()==MotionEvent.ACTION_DOWN)
-                {
-                    String str = getResources().getString(R.string.toast_text)+" webView1"+getResources().getString(R.string.toast_to_fullscreen);
-                    Toast.makeText(getApplicationContext(),str,Toast.LENGTH_LONG).show();
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    String str = getResources().getString(R.string.toast_text) + " webView1" + getResources().getString(R.string.toast_to_fullscreen);
+                    Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
                     Intent intent = new Intent("ru.furry.furview2.fullscreen");
                     intent.putExtra("image", ((DataImageView) v).getImage());
                     intent.putExtra("driver", getIntent().getStringExtra("driver"));
@@ -196,12 +265,12 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         mOnSearchButtonListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        searchQuery = mSearchField.getText().toString();
-                        searchDriver();
-                    }
-                return false;
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    searchQuery = mSearchField.getText().toString();
+                    searchDriver();
                 }
+                return false;
+            }
         };
 
         mImageView1.setOnTouchListener(mOnTouchImageViewListener);
@@ -235,7 +304,73 @@ public class MainActivity extends Activity implements View.OnClickListener  {
         previousQuery = searchQuery;
         mSearchField.setText(searchQuery);
         driver.setSfw(MainActivity.swf);
-        driver.search(searchQuery);
+        remoteImagesIterator = new RemoteImagesIterator();
+        remoteImagesIterator.init(driver, searchQuery);
+        remoteImagesIterator.asyncHasNext(new AsyncHandlerUI<Boolean>() {
+            @Override
+            public void blockUI() {
+
+            }
+
+            @Override
+            public void unblockUI() {
+
+            }
+
+            @Override
+            public void retrieve(List<? extends Boolean> result) {
+                Log.d("fgsfds", "Recieved remote pictures; " + procCounter.getVal());
+                if (result.get(0)) {
+                    if (procCounter.getVal() < NUM_OF_PICS) {
+                        final int index = procCounter.getVal();
+                        ArrayList<RemoteFurImage> fImage = new ArrayList<>(Arrays.asList(remoteImagesIterator.next()));
+                        driver.downloadPreviewFile(fImage,
+                                new ArrayList<>(Arrays.asList(imageViewListeners.get(index))),
+                                new ArrayList<ImageLoadingListener>(Arrays.asList(new ImageLoadingListener() {
+                                    @Override
+                                    public void onLoadingStarted(String imageUri, View view) {
+
+                                    }
+
+                                    @Override
+                                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                                    }
+
+                                    @Override
+                                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                    }
+
+                                    @Override
+                                    public void onLoadingCancelled(String imageUri, View view) {
+
+                                    }
+                                })));
+                        driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
+                            @Override
+                            public void blockUI() {
+                            }
+
+                            @Override
+                            public void unblockUI() {
+
+                            }
+
+                            @Override
+                            public void retrieve(List<? extends FurImage> images) {
+                                imageViews.get(index).setImage(images.get(0));
+                            }
+                        })));
+                        procCounter.increase();
+                    }
+                    if (procCounter.getVal() >= NUM_OF_PICS) {
+                        procCounter.reset();
+                    } else {
+                        remoteImagesIterator.asyncHasNext(this);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -269,7 +404,7 @@ public class MainActivity extends Activity implements View.OnClickListener  {
 
         switch (id) {
             case R.id.searchField:
-                Toast.makeText(getApplicationContext(),getResources().getString(R.string.toast_text)+" SearchField",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " SearchField", Toast.LENGTH_SHORT).show();
                 break;
         }
 
