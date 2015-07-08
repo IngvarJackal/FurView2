@@ -69,7 +69,7 @@ public class InitialScreen extends Activity {
                     GetProxyList getManyProxies = new GetProxyList(hGettingProxies, context);
                     Log.d("fgsfds", "1");
                     getManyProxies.GetingListOfProxies();
-                    }
+                }
                 else   {
                     Log.d("fgsfds", "Set proxy to null");
                     Toast.makeText(getApplicationContext(),getString(R.string.disable_proxy),Toast.LENGTH_SHORT).show();

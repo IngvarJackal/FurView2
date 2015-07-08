@@ -7,17 +7,17 @@ public class ProxyItem {
     public double uptime;
     public String coutry;
 
-        //constructor
-        public ProxyItem(String ip, int port, double uptime, String coutry) {
-            this.ip = ip;
-            this.port = port;
-            this.uptime = uptime;
-            this.coutry = coutry;
-        }
+    //constructor
+    public ProxyItem(String ip, int port, double uptime, String coutry) {
+        this.ip = ip;
+        this.port = port;
+        this.uptime = uptime;
+        this.coutry = coutry;
+    }
 
-        //constructor
-        public ProxyItem() {
-        }
+    //constructor
+    public ProxyItem() {
+    }
 
     public void setIp(String ip) {
         this.ip = ip;
@@ -52,4 +52,3 @@ public class ProxyItem {
     }
 
 }
-
