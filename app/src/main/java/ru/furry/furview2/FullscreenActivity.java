@@ -2,8 +2,10 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -29,12 +31,16 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import ru.furry.furview2.UI.DataImageView;
+import ru.furry.furview2.UI.OnSwipeAncClickTouchListener;
 import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
+import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
@@ -59,10 +65,49 @@ public class FullscreenActivity extends Activity {
     ImageButton mSearchButton;
     ImageButton mSaveButton;
     ProgressBar mSaveButtonProgress;
-    AsyncHandlerUI<FurImage> databaseHandler;
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
+
+    private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
+        @Override
+        public void blockUI() {
+
+        }
+
+        @Override
+        public void unblockUI() {
+
+        }
+
+        @Override
+        public void retrieve(List<? extends Boolean> result) {
+            Log.d("fgsfds", result.toString());
+            if (result.get(0)) {
+                driver.downloadFurImage(new ArrayList<>(Arrays.asList(MainActivity.remoteImagesIterator.next())),
+                        new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
+                    @Override
+                    public void blockUI() {
+
+                    }
+
+                    @Override
+                    public void unblockUI() {
+
+                    }
+
+                    @Override
+                    public void retrieve(List<? extends FurImage> images) {
+                        Intent intent = new Intent("ru.furry.furview2.fullscreen");
+                        intent.putExtra("image", images.get(0));
+                        intent.putExtra("driver", getIntent().getStringExtra("driver"));
+                        startActivity(intent);
+                        finish();
+                    }
+                })));
+            }
+        }
+    };
 
     class Labelled6Row {
         public List<TextView> items = new ArrayList<>();
@@ -124,7 +169,7 @@ public class FullscreenActivity extends Activity {
         driver.setSfw(MainActivity.swf);
         //driver.init(); // don't need to do it!
 
-        databaseHandler = new AsyncHandlerUI<FurImage>() {
+        database = new FurryDatabase(new AsyncHandlerUI<FurImage>() {
             private void enableDeleteMode() {
                 mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);
                 mSaveButton.setOnClickListener(new View.OnClickListener() {
@@ -166,8 +211,8 @@ public class FullscreenActivity extends Activity {
                     enableDownloadMode();
                 }
             }
-        };
-        database = new FurryDatabase(databaseHandler, getApplicationContext());
+        },
+                getApplicationContext());
 
         ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
             @Override
@@ -247,6 +292,28 @@ public class FullscreenActivity extends Activity {
             @Override
             public void onLoadingCancelled(String imageUri, View view) {
                 imageLoaded();
+            }
+        });
+
+        mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
+            @Override
+            public void onSwipeLeft() {
+                MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+            }
+
+            @Override
+            public void onSwipeRight() {
+                int i = 0;
+                if (MainActivity.remoteImagesIterator.hasPrevious()) {
+                    MainActivity.remoteImagesIterator.previous();
+                    i++;
+                }
+                if (MainActivity.remoteImagesIterator.hasPrevious()) {
+                    MainActivity.remoteImagesIterator.previous();
+                    i++;
+                }
+                if (i == 2)
+                    MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
         });
     }
