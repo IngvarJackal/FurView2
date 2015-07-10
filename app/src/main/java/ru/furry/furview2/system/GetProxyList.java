@@ -1,8 +1,7 @@
 package ru.furry.furview2.system;
 
-
-import android.content.Context;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import org.apache.http.HttpEntity;
@@ -21,31 +20,24 @@ import org.w3c.dom.NodeList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import ru.furry.furview2.GlobalData;
-
 public class GetProxyList {
-    Context context;
     InputStream is = null;
-    String xmlRespond;
-    GlobalData globalData;
-    Boolean proxySearchingResult=false;
-    Handler handler;
+    private List<Proxy> localProxies = new ArrayList();
 
-    public GetProxyList(Handler incomingHandler, Context incomingContext) {
+    public GetProxyList() {
         super();
-        this.context = incomingContext;
-        this.handler = incomingHandler;
-        globalData = (GlobalData) context.getApplicationContext();
     }
 
-    public Boolean GetingListOfProxies() {
-
+    public List<Proxy> GetingListOfProxies() {
+        localProxies=null;
 
         Thread t = new Thread(new Runnable() {
             @Override
@@ -54,51 +46,49 @@ public class GetProxyList {
                 String url = "http://api.foxtools.ru/v2/Proxy.xml";
 
                 // Adding parameters
+                Log.d("fgsfds", "Set param in GetProxyList before request");
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("type", "2"));
                 params.add(new BasicNameValuePair("available", "1"));
                 params.add(new BasicNameValuePair("free", "1"));
                 params.add(new BasicNameValuePair("uptime", "2"));
-                Log.d("fgsfds", "Set param in GetProxyList before request");
                 // http://api.foxtools.ru/v2/Proxy.xml?type=2&available=1&free=1&uptime=2
-
 
                 //GET request
                 try {
-                        DefaultHttpClient httpClient = new DefaultHttpClient();
-                        String paramString = URLEncodedUtils.format(params, "utf-8");
-                        url += "?" + paramString;
-                        Log.d("fgsfds", "HTTP request in GetProxyList = " + url);
-                        HttpGet httpGet = new HttpGet(url);
+                    DefaultHttpClient httpClient = new DefaultHttpClient();
+                    String paramString = URLEncodedUtils.format(params, "utf-8");
+                    url += "?" + paramString;
+                    Log.d("fgsfds", "Try HTTP request in GetProxyList = " + url);
+                    HttpGet httpGet = new HttpGet(url);
 
-                        HttpResponse httpResponse = httpClient.execute(httpGet);
-                        HttpEntity httpEntity = httpResponse.getEntity();
-                        is = httpEntity.getContent();
+                    HttpResponse httpResponse = httpClient.execute(httpGet);
+                    HttpEntity httpEntity = httpResponse.getEntity();
+                    is = httpEntity.getContent();
 
-        //                Log.d("fgsfds", "Input stream after GET request to api.foxtools.ru = " + Utils.convertStreamToString(is));
+                    Log.d("fgsfds", "Success HTTP request in GetProxyList");
+
+                    //                Log.d("fgsfds", "Input stream after GET request to api.foxtools.ru = " + Utils.convertStreamToString(is));
 
                 } catch (UnsupportedEncodingException e) {
+                    Log.d("fgsfds", "Fail HTTP request in GetProxyList");
                     e.printStackTrace();
-                    handler.sendEmptyMessage(-1);
                 } catch (ClientProtocolException e) {
+                    Log.d("fgsfds", "Fail HTTP request in GetProxyList");
                     e.printStackTrace();
-                    handler.sendEmptyMessage(-1);
                 } catch (IOException e) {
+                    Log.d("fgsfds", "Fail HTTP request in GetProxyList");
                     e.printStackTrace();
-                    handler.sendEmptyMessage(-1);
                 }
 
                 //Parsing XML
                 Log.d("fgsfds", "Start DOM parser");
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                List<ProxyItem> proxyElements = new ArrayList<ProxyItem>();
                 try {
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     Document dom = builder.parse(is);
                     Element root = dom.getDocumentElement();
                     NodeList items = root.getElementsByTagName("item");
-                    double fastern=2;
-                    int fasternNum=0;
                     for (int i=0;i<items.getLength();i++){
                         ProxyItem proxyElement = new ProxyItem();
                         Node item = items.item(i);
@@ -127,45 +117,19 @@ public class GetProxyList {
                         if (proxyElement.getCoutry().equals("RU"))
                         {}
                         else{
-                            proxyElements.add(proxyElement);
                             //break; // if need only 1 proxy
-                            if (proxyElement.getUptime()<fastern)
-                                {
-                                    fastern=proxyElement.getUptime();
-                                    fasternNum=proxyElements.size()-1;
-                                }
+                            localProxies.add(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyElement.getIp(), proxyElement.getPort())));
                         }
                     }
                     is.close();
-                    Log.d("fgsfds", "Proxies found: " + proxyElements.size());
+                    Log.d("fgsfds", "Proxies found: " + localProxies.size());
 
-                    if (proxyElements.size()>0)
-                    {
-                        //Switch fastern proxy and proxy(0)
-                        ProxyItem tmp = proxyElements.get(0);
-                        proxyElements.set(0, proxyElements.get(fasternNum));
-                        proxyElements.set(fasternNum, tmp);
-
-                        //Set fastern proxy to the GlobalData
-                        Log.d("fgsfds", "Set proxies in the globalData...");
-                        globalData.setCurrentProxyItem(proxyElements.get(0));
-                        globalData.setProxies(proxyElements);
-                        globalData.setNumOfWorkingProxy(0);
-                        globalData.setCurrentProxy(proxyElements.get(0).getIp(), proxyElements.get(0).getPort());
-                        Log.d("fgsfds", "Fastern proxy is: " + proxyElements.get(0).getIp() + ":" + proxyElements.get(0).getPort() + " uptime: " + proxyElements.get(0).getUptime() + " from " + proxyElements.get(0).getCoutry());
-                        handler.sendEmptyMessage(1);
-                        proxySearchingResult=true;
-                    }
                 } catch (Exception e) {
-                    //throw new RuntimeException(e);
-                    handler.sendEmptyMessage(-1);
                     e.printStackTrace();
                 }
             }
         });
         t.start();
-
-        return proxySearchingResult;
+        return localProxies;
     }
-
 }

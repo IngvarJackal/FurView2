@@ -19,10 +19,10 @@ public class ProxiedHTTPSLoader {
      * @throws IOException
      */
     public static HttpsURLConnection openPage(String url) throws IOException {
-        return (HttpsURLConnection) new URL(url).openConnection();
+        return (HttpsURLConnection) new URL(url).openConnection(GetAndCheckProxy.getProxy());
     }
 
     public static HttpsURLConnection openPage(URL url) throws IOException {
-        return (HttpsURLConnection) url.openConnection();
+        return (HttpsURLConnection) url.openConnection(GetAndCheckProxy.getProxy());
     }
 }

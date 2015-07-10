@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,7 +14,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
@@ -34,6 +32,8 @@ import ru.furry.furview2.system.RenewProxy;
 
 public class InitialScreen extends Activity {
 
+    public static boolean useProxy = false;
+
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
     CheckBox mProxyBox;
@@ -41,7 +41,6 @@ public class InitialScreen extends Activity {
     ListView mDriversList;
     GlobalData globalData;
     Context context;
-    Handler hTestingProxies, hGettingProxies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,27 +57,17 @@ public class InitialScreen extends Activity {
         mProxyBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("fgsfds", "Click on ProxyBox");
                 if (mProxyBox.isChecked()) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.searching_proxy), Toast.LENGTH_LONG).show();
-                    Log.d("fgsfds", "Locking views");
-                    mSearchButtonInitial.setClickable(false);
-                    mSearchFieldInitial.setClickable(false);
-                    mProxyBox.setClickable(false);
-                    Log.d("fgsfds", "Start GetProxyList");
-                    GetProxyList getManyProxies = new GetProxyList(hGettingProxies, context);
-                    Log.d("fgsfds", "1");
-                    getManyProxies.GetingListOfProxies();
+                    useProxy = true;
+                    Log.d("fgsfds", "Click on ProxyBox. The proxy will be used.");
                 }
                 else   {
-                    Log.d("fgsfds", "Set proxy to null");
-                    Toast.makeText(getApplicationContext(),getString(R.string.disable_proxy),Toast.LENGTH_SHORT).show();
-                    //Disabling proxy
-                    mProxyBox.setText(getString(R.string.use_proxy));
-                    globalData.setCurrentProxy(null);
+                    useProxy = false;
+                    Log.d("fgsfds", "Click on ProxyBox. The proxy will not be used.");
                 }
             }
         });
+
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         sfwButton.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +92,7 @@ public class InitialScreen extends Activity {
                 intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
                 startActivity(intent);
             }
+
         });
 
         mDriversList = (ListView) findViewById(R.id.listOfDrivers);
@@ -111,76 +101,6 @@ public class InitialScreen extends Activity {
                 new ArrayList<String>(Drivers.drivers.keySet()));
         mDriversList.setAdapter(adapter);
         mDriversList.setItemChecked(0, true);
-
-        //For debug
-        globalData.setCurrentProxy(null);
-        globalData.setNumOfWorkingProxy(-1);
-        //globalData.setCurrentProxyItem("112.25.10.146", 55336,0,"CN");
-        //globalData.setCurrentProxy("221.182.62.115", 9999);
-
-
-        //Handler for getting proxies
-        hGettingProxies = new Handler() {
-            public void handleMessage(android.os.Message msg) {
-                int state =-1;
-                state=msg.what;
-                if (state!=-1){
-                    //The proxies was found
-                    Toast.makeText(getApplicationContext(),getString(R.string.yes_list_proxies),Toast.LENGTH_LONG).show();
-                    RenewProxy renew = new RenewProxy(hTestingProxies,context);
-                    renew.start();
-
-                } else {
-                    //The proxies was not found
-                    Log.d("fgsfds", "FurView2 can't find proxy. May be Internet is offline");
-                    Toast.makeText(getApplicationContext(),getString(R.string.no_connect_proxy), Toast.LENGTH_SHORT).show();
-                    mProxyBox.setChecked(false);
-                    //Disabling proxy
-                    globalData.setCurrentProxy(null);
-                }
-                Toast.makeText(getApplicationContext(),getString(R.string.checking_proxy),Toast.LENGTH_LONG).show();
-
-            }
-        };
-
-        //Handler for testing proxies
-        hTestingProxies = new Handler() {
-            public void handleMessage(android.os.Message msg) {
-                int working=-1;
-                working=msg.what;
-
-                switch (working)
-                {
-                    case (-1):
-                    {
-                        //Fail
-                        Log.d("fgsfds", "We have not working proxy.");
-                        Log.d("fgsfds", "Unlocking views");
-                        mSearchButtonInitial.setClickable(true);
-                        mSearchFieldInitial.setClickable(true);
-                        mProxyBox.setClickable(true);
-                        break;
-                    }
-                    case (-2):
-                    {
-                        //Success
-                        Log.d("fgsfds", "Working proxy is number: "+globalData.getNumOfWorkingProxy());
-                        Toast.makeText(getApplicationContext(),getString(R.string.yes_connect_proxy),Toast.LENGTH_SHORT).show();
-                        Log.d("fgsfds", "Unlocking views");
-                        mSearchButtonInitial.setClickable(true);
-                        mSearchFieldInitial.setClickable(true);
-                        mProxyBox.setClickable(true);
-                        break;
-                    }
-                    default:
-                    {
-                        mProxyBox.setText(getString(R.string.use_proxy)+" (#"+working+")");
-                        break;
-                    }
-                }
-            }
-        };
-
 
         // UIL initialization
         Log.d("fgsfds", "UIL initialization");
