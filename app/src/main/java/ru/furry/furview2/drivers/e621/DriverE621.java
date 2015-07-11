@@ -73,7 +73,6 @@ public class DriverE621 extends Driver {
     private boolean isSfw;
 
     private int currentPage = 0;
-    private HttpsURLConnection page;
     private String searchQuery;
 
     @Override
@@ -160,16 +159,23 @@ public class DriverE621 extends Driver {
 
     // LOGIC
 
-    class ReadingImages extends AsyncTask<Utils.Tuple<HttpsURLConnection, AsyncHandlerUI<RemoteFurImage>>, Void, List<RemoteFurImageE621>> {
+    class ReadingImages extends AsyncTask<Utils.Tuple<URL, AsyncHandlerUI<RemoteFurImage>>, Void, List<RemoteFurImageE621>> {
 
         private AsyncHandlerUI<RemoteFurImage> handler;
 
         @Override
-        protected List<RemoteFurImageE621> doInBackground(Utils.Tuple<HttpsURLConnection, AsyncHandlerUI<RemoteFurImage>>... tuples) {
+        protected List<RemoteFurImageE621> doInBackground(Utils.Tuple<URL, AsyncHandlerUI<RemoteFurImage>>... tuples) {
 
             Log.d("fgsfds", "Starting retrieving remote images...");
 
-            HttpsURLConnection connection = tuples[0].x;
+            URL queryPage = tuples[0].x;
+            HttpsURLConnection connection;
+            try {
+                connection = ProxiedHTTPSLoader.openPage(queryPage);
+            } catch (IOException e) {
+                Utils.printError(e);
+                throw new RuntimeException(e);
+            }
             handler = tuples[0].y;
 
             Document doc = null;
@@ -227,9 +233,9 @@ public class DriverE621 extends Driver {
         }
     }
 
-    private void startReadingRemoteImages(HttpsURLConnection page, AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
+    private void startReadingRemoteImages(URL queryPage, AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
         remoteImagesHandler.blockUI();
-        new ReadingImages().execute(new Utils.Tuple<HttpsURLConnection, AsyncHandlerUI<RemoteFurImage>>(page, remoteImagesHandler));
+        new ReadingImages().execute(new Utils.Tuple<URL, AsyncHandlerUI<RemoteFurImage>>(queryPage, remoteImagesHandler));
     }
 
     @Override
@@ -245,11 +251,10 @@ public class DriverE621 extends Driver {
         URL query = null;
         try {
             query = makeURL(SEARCH_PATH, searchQuery, currentPage, SEARCH_LIMIT);
-            page = ProxiedHTTPSLoader.openPage(query);
         } catch (IOException e) {
             Utils.printError(e);
         }
-        startReadingRemoteImages(page, remoteImagesHandler);
+        startReadingRemoteImages(query, remoteImagesHandler);
     }
 
     @Override
