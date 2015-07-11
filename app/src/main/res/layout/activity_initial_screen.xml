@@ -52,7 +52,7 @@
             android:layout_height="44dp"
             android:id="@+id/sfwButtonInitial"
             android:layout_alignBottom="@+id/searchField"
-            android:layout_toEndOf="@+id/linearLayout5"
+            android:layout_toEndOf="@+id/picturesLayout"
             android:layout_alignTop="@+id/SearchButton"
             android:textSize="12sp"
             android:textOff="S\nF\nW"

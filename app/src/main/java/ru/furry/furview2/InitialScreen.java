@@ -26,9 +26,8 @@ import java.net.Proxy;
 import java.util.ArrayList;
 
 import ru.furry.furview2.drivers.Drivers;
-import ru.furry.furview2.system.GetProxyList;
+import ru.furry.furview2.system.GetAndCheckProxy;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
-import ru.furry.furview2.system.RenewProxy;
 
 public class InitialScreen extends Activity {
 
@@ -39,7 +38,6 @@ public class InitialScreen extends Activity {
     CheckBox mProxyBox;
     ToggleButton sfwButton;
     ListView mDriversList;
-    GlobalData globalData;
     Context context;
 
     @Override
@@ -47,8 +45,6 @@ public class InitialScreen extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
         context = getApplicationContext();
-
-        globalData = (GlobalData) getApplicationContext();
 
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
 

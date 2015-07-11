@@ -43,14 +43,13 @@ import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
-import ru.furry.furview2.system.AsyncRemoteImageHandlerGUI;
+import ru.furry.furview2.images.RemoteFurImage;
+import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.Files;
 import ru.furry.furview2.system.ProxiedHTTPSLoader;
 import ru.furry.furview2.system.Utils;
 
 public class DriverE621 extends Driver {
-
-    private AsyncRemoteImageHandlerGUI remoteImagesHandler;
 
     private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
     private static final String CHARSET = "UTF-8";
@@ -74,12 +73,10 @@ public class DriverE621 extends Driver {
     private boolean isSfw;
 
     private int currentPage = 0;
-    private HttpsURLConnection page;
     private String searchQuery;
 
     @Override
-    public void init(String permanentStorage, AsyncRemoteImageHandlerGUI remoteImagesHandler) {
-        this.remoteImagesHandler = remoteImagesHandler;
+    public void init(String permanentStorage) {
         this.permanentStorage = permanentStorage;
         checkPathStructure(permanentStorage);
     }
@@ -123,7 +120,7 @@ public class DriverE621 extends Driver {
         return url;
     }
 
-    private static FurImage remoteFurImagetoFurImageE926(RemoteFurImageE621 remoteImage) {
+    private static FurImage remoteFurImagetoFurImageE621(RemoteFurImageE621 remoteImage) {
         return new FurImageBuilder()
                 .makeFromRemoteFurImage(remoteImage)
                 .setScore(remoteImage.getScore())
@@ -162,16 +159,23 @@ public class DriverE621 extends Driver {
 
     // LOGIC
 
-    class ReadingImages extends AsyncTask<Utils.Tuple<HttpsURLConnection, ? extends AsyncRemoteImageHandlerGUI>, Void, List<RemoteFurImageE621>> {
+    class ReadingImages extends AsyncTask<Utils.Tuple<URL, AsyncHandlerUI<RemoteFurImage>>, Void, List<RemoteFurImageE621>> {
 
-        private AsyncRemoteImageHandlerGUI handler;
+        private AsyncHandlerUI<RemoteFurImage> handler;
 
         @Override
-        protected List<RemoteFurImageE621> doInBackground(Utils.Tuple<HttpsURLConnection, ? extends AsyncRemoteImageHandlerGUI>... tuples) {
+        protected List<RemoteFurImageE621> doInBackground(Utils.Tuple<URL, AsyncHandlerUI<RemoteFurImage>>... tuples) {
 
             Log.d("fgsfds", "Starting retrieving remote images...");
 
-            HttpsURLConnection connection = tuples[0].x;
+            URL queryPage = tuples[0].x;
+            HttpsURLConnection connection;
+            try {
+                connection = ProxiedHTTPSLoader.openPage(queryPage);
+            } catch (IOException e) {
+                Utils.printError(e);
+                throw new RuntimeException(e);
+            }
             handler = tuples[0].y;
 
             Document doc = null;
@@ -224,34 +228,33 @@ public class DriverE621 extends Driver {
             if (images.size() == 0) {
                 hasImages = false;
             }
-            handler.retrieveRemoteImages(images);
-            handler.unblockInterfaceForRemoteImages();
+            handler.retrieve(images);
+            handler.unblockUI();
         }
     }
 
-    private void startReadingRemoteImages(HttpsURLConnection page) {
-        remoteImagesHandler.blockInterfaceForRemoteImages();
-        new ReadingImages().execute(new Utils.Tuple<HttpsURLConnection, AsyncRemoteImageHandlerGUI>(page, remoteImagesHandler));
+    private void startReadingRemoteImages(URL queryPage, AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
+        remoteImagesHandler.blockUI();
+        new ReadingImages().execute(new Utils.Tuple<URL, AsyncHandlerUI<RemoteFurImage>>(queryPage, remoteImagesHandler));
     }
 
     @Override
-    public void search(String searchQuery) {
+    public void search(String searchQuery, AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
         currentPage = 0;
         this.searchQuery = searchQuery;
-        getNext(searchQuery);
+        getNext(remoteImagesHandler);
     }
 
     @Override
-    public void getNext(String searchQuery) {
+    public void getNext(AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
         currentPage += 1;
         URL query = null;
         try {
             query = makeURL(SEARCH_PATH, searchQuery, currentPage, SEARCH_LIMIT);
-            page = ProxiedHTTPSLoader.openPage(query);
         } catch (IOException e) {
             Utils.printError(e);
         }
-        startReadingRemoteImages(page);
+        startReadingRemoteImages(query, remoteImagesHandler);
     }
 
     @Override
@@ -259,35 +262,25 @@ public class DriverE621 extends Driver {
         return hasImages;
     }
 
-    private static void fetchImage(String url, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
-        if (loadingListener != null) {
-            imageLoader.displayImage(url, listener, displayOptions, loadingListener);
-        } else {
-            imageLoader.displayImage(url, listener, displayOptions);
-        }
-    }
-
-    private static FurImage fetchPreviews(RemoteFurImageE621 remoteImage, ImageAware listener) throws IOException {
-        imageLoader.displayImage(remoteImage.getPreviewUrl(), listener, displayOptions);
-        return remoteFurImagetoFurImageE926(remoteImage);
-    }
-
     @Override
-    public List<FurImage> download(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
-        List<FurImage> downloadedImages = new ArrayList<>(images.size());
+    public void downloadFurImage(List<RemoteFurImage> images, List<AsyncHandlerUI<FurImage>> furImagesHandlers) {
         for (int i = 0; i < images.size(); i++) {
-            try {
-                fetchImage(images.get(i).getFileUrl(), listeners.get(i), loadingListeners.get(i));
-            } catch (IOException e) {
-                Utils.printError(e);
-            }
-            downloadedImages.add(remoteFurImagetoFurImageE926(images.get(i)));
+            furImagesHandlers.get(i).retrieve(new ArrayList<>(Arrays.asList(remoteFurImagetoFurImageE621((RemoteFurImageE621)images.get(i)))));
         }
-        return downloadedImages;
     }
 
+    private static void fetchImage(String url, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
+        imageLoader.displayImage(url, listener, displayOptions, loadingListener);
+    }
+
+    private static FurImage fetchPreviews(RemoteFurImageE621 remoteImage, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
+        imageLoader.displayImage(remoteImage.getPreviewUrl(), listener, displayOptions, loadingListener);
+        return remoteFurImagetoFurImageE621(remoteImage);
+    }
+
+    /*
     @Override
-    public void downloadImage(String imageUrl, ImageAware listener) {
+    public void downloadImageFile(String imageUrl, ImageAware listener) {
         Log.d("fgsfds", "downloading image: " + imageUrl);
         try {
             fetchImage(imageUrl, listener, null);
@@ -295,9 +288,10 @@ public class DriverE621 extends Driver {
             Utils.printError(e);
         }
     }
+    */
 
     @Override
-    public void downloadImage(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener) {
+    public void downloadImageFile(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener) {
         Log.d("fgsfds", "downloading image: " + imageUrl);
         try {
             fetchImage(imageUrl, listener, loadingListener);
@@ -307,22 +301,21 @@ public class DriverE621 extends Driver {
     }
 
     @Override
-    public List<FurImage> downloadPreview(List<? extends RemoteFurImageE621> images, List<? extends ImageAware> listeners) {
-        List<FurImage> downloadedImages = new ArrayList<>(images.size());
+    public void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
         for (int i = 0; i < images.size(); i++) {
             try {
-                downloadedImages.add(fetchPreviews(images.get(i), listeners.get(i)));
+                fetchPreviews((RemoteFurImageE621)images.get(i), listeners.get(i), loadingListeners.get(i));
             } catch (IOException e) {
                 Utils.printError(e);
             }
+            ;
         }
-        return downloadedImages;
     }
 
     @Override
-    public void loadFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners) {
+    public void loadFileFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
         for (int i = 0; i < images.size(); i++) {
-            imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions);
+            imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions, loadingListeners.get(i));
         }
     }
 
@@ -355,6 +348,7 @@ public class DriverE621 extends Driver {
 
     /**
      * Deletes image only from storage, not from database
+     *
      * @param image
      * @param database
      */
