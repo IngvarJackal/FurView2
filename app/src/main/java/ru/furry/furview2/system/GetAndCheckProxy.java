@@ -31,7 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import ru.furry.furview2.InitialScreen;
 
 
-final public class GetAndCheckProxy { //public ???
+final public class GetAndCheckProxy {
 
     private static List<Proxy> proxies = new ArrayList();
 
@@ -43,31 +43,32 @@ final public class GetAndCheckProxy { //public ???
                 Log.d("fgsfds", "Start getting proxies. Current num of proxies is: " + proxies.size());
                 proxies=GetListProxies();
                 Log.d("fgsfds", "Start checking proxies. Current num of proxies is: " + proxies.size());
-                proxies=CheckListProxies(proxies);
+                CheckListProxies();
                 Log.d("fgsfds", "Proxies checked. Current num of proxies is: " + proxies.size());
                 return proxies.get(0);
             }
             else{
                 Log.d("fgsfds", "Start checking proxies. Current num of proxies is: " + proxies.size());
-                proxies=CheckListProxies(proxies);
+                CheckListProxies();
                 Log.d("fgsfds", "Proxies checked. Current num of proxies is: " + proxies.size());
                 return proxies.get(0);
             }
         }
         else return null;
-
-
     }
 
-    private static List<Proxy> CheckListProxies(List<Proxy> incomingProxies) {
-        final int TIMEOUT = 3000;
-        List<Proxy> localProxies = new ArrayList();
-        localProxies=incomingProxies;
+    public final static void renewProxy(){
+        CheckListProxies();
+        Log.d("fgsfds", "Proxies checked. Current num of proxies is: " + proxies.size());
+    }
+
+    private static void CheckListProxies() {
+        final int TIMEOUT = 2000;
 
         int i;
-        for (i=0;i<localProxies.size()-1;i++){
+        for (i=0;i<proxies.size()-1;i++){
             try {
-                Log.d("fgsfds", "Try testing proxy " + i + " "+ localProxies.get(i).address().toString());
+                Log.d("fgsfds", "Try testing proxy " + i + " "+ proxies.get(i).address().toString());
 
                 URL testUrl = new URL("https://e621.net/post/index.xml?limit=1");
 
@@ -76,20 +77,15 @@ final public class GetAndCheckProxy { //public ???
                 huc.setConnectTimeout(TIMEOUT);
                 huc.setRequestMethod("GET");
                 try {
-                    //huc.connect();
-                    InputStream input = huc.getInputStream();
-                    Log.d("fgsfds", "Input stream after RenewProxy = " + Utils.convertStreamToString(input));
+                    huc.connect();
                     Log.d("fgsfds", "Good proxy");
-                    input.close();
                     huc.disconnect();
                     break;
                 }
-                //catch (SocketTimeoutException e)
-                //{Log.d("fgsfds", "Bad proxy"); }
                 catch (Exception e)
                 {
-                    localProxies.remove(i);
-                    Log.d("fgsfds", "Bad proxy. Not response after " + TIMEOUT / 1000 + " sec. Removed. Proxies left: " +localProxies.size());
+                    proxies.remove(i);
+                    Log.d("fgsfds", "Bad proxy. Not response after " + TIMEOUT / 1000 + " sec. Removed. Proxies left: " +proxies.size());
                 }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -101,7 +97,6 @@ final public class GetAndCheckProxy { //public ???
                 e.printStackTrace();
             }
         }
-        return localProxies;
     }
 
     private static List<Proxy> GetListProxies()
