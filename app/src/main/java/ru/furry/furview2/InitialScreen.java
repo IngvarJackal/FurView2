@@ -22,16 +22,13 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.File;
-import java.net.Proxy;
 import java.util.ArrayList;
 
 import ru.furry.furview2.drivers.Drivers;
-import ru.furry.furview2.system.GetAndCheckProxy;
+import ru.furry.furview2.system.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
 
 public class InitialScreen extends Activity {
-
-    public static boolean useProxy = false;
 
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
@@ -54,16 +51,15 @@ public class InitialScreen extends Activity {
             @Override
             public void onClick(View v) {
                 if (mProxyBox.isChecked()) {
-                    useProxy = true;
+                    GetProxiedConnection.init(2000,true);
                     Log.d("fgsfds", "Click on ProxyBox. The proxy will be used.");
                 }
                 else   {
-                    useProxy = false;
+                    GetProxiedConnection.init(2000,false);
                     Log.d("fgsfds", "Click on ProxyBox. The proxy will not be used.");
                 }
             }
         });
-
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         sfwButton.setOnClickListener(new View.OnClickListener() {

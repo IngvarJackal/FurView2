@@ -1,108 +1,97 @@
 package ru.furry.furview2.system;
 
-import android.util.Log;
+        import android.util.Log;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+        import org.apache.http.HttpEntity;
+        import org.apache.http.HttpResponse;
+        import org.apache.http.NameValuePair;
+        import org.apache.http.client.ClientProtocolException;
+        import org.apache.http.client.methods.HttpGet;
+        import org.apache.http.client.utils.URLEncodedUtils;
+        import org.apache.http.impl.client.DefaultHttpClient;
+        import org.apache.http.message.BasicNameValuePair;
+        import org.w3c.dom.Document;
+        import org.w3c.dom.Element;
+        import org.w3c.dom.Node;
+        import org.w3c.dom.NodeList;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+        import java.io.IOException;
+        import java.io.InputStream;
+        import java.io.UnsupportedEncodingException;
+        import java.net.InetSocketAddress;
+        import java.net.Proxy;
+        import java.net.URL;
+        import java.util.ArrayList;
+        import java.util.List;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+        import javax.net.ssl.HttpsURLConnection;
+        import javax.xml.parsers.DocumentBuilder;
+        import javax.xml.parsers.DocumentBuilderFactory;
 
-import ru.furry.furview2.InitialScreen;
+        import static junit.framework.Assert.assertEquals;
 
 
-final public class GetAndCheckProxy {
+final public class GetProxiedConnection {
 
     private static List<Proxy> proxies = new ArrayList();
+    private static int PROXY_TIMEOUT;
+    private static boolean stateProxy;
 
+    {
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
+    }
 
-    public final static Proxy getProxy(){
-        if (InitialScreen.useProxy)
+    public static void init(int incomingTimeout,boolean incomingStateProxy)
+    {
+        PROXY_TIMEOUT=incomingTimeout;
+        stateProxy=incomingStateProxy;
+    }
+
+    public static HttpsURLConnection getProxiedConnection(URL url) throws IOException {
+        HttpsURLConnection conn = null;
+        //Checking using proxy
+        if (stateProxy) {
+            if (proxies.size() < 1) {
+                Log.d("fgsfds", "Start getting proxies.");
+                GetListProxies();
+                Log.d("fgsfds", "Set proxy in connection.");
+                conn = SetAndCheck(url);
+            } else {
+                Log.d("fgsfds", "Set proxy in connection.");
+                conn = SetAndCheck(url);
+            }
+        }
+        else
         {
-            if (proxies.size()<1) {
-                Log.d("fgsfds", "Start getting proxies. Current num of proxies is: " + proxies.size());
-                proxies=GetListProxies();
-                Log.d("fgsfds", "Start checking proxies. Current num of proxies is: " + proxies.size());
-                CheckListProxies();
-                Log.d("fgsfds", "Proxies checked. Current num of proxies is: " + proxies.size());
-                return proxies.get(0);
-            }
-            else{
-                Log.d("fgsfds", "Start checking proxies. Current num of proxies is: " + proxies.size());
-                CheckListProxies();
-                Log.d("fgsfds", "Proxies checked. Current num of proxies is: " + proxies.size());
-                return proxies.get(0);
-            }
+            conn=(HttpsURLConnection) url.openConnection();
         }
-        else return null;
+        return conn;
     }
 
-    public final static void renewProxy(){
-        CheckListProxies();
-        Log.d("fgsfds", "Proxies checked. Current num of proxies is: " + proxies.size());
-    }
-
-    private static void CheckListProxies() {
-        final int TIMEOUT = 2000;
-
-        int i;
-        for (i=0;i<proxies.size()-1;i++){
+    private static HttpsURLConnection SetAndCheck(URL testUrl)  {
+        HttpsURLConnection testConn = null;
+        //testing HTTPS Connection
+        while(testConn==null){
             try {
-                Log.d("fgsfds", "Try testing proxy " + i + " "+ proxies.get(i).address().toString());
-
-                URL testUrl = new URL("https://e621.net/post/index.xml?limit=1");
-
-                HttpsURLConnection huc = (HttpsURLConnection) testUrl.openConnection(proxies.get(i));
-                HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
-                huc.setConnectTimeout(TIMEOUT);
-                huc.setRequestMethod("GET");
-                try {
-                    huc.connect();
-                    Log.d("fgsfds", "Good proxy");
-                    huc.disconnect();
-                    break;
-                }
-                catch (Exception e)
-                {
-                    proxies.remove(i);
-                    Log.d("fgsfds", "Bad proxy. Not response after " + TIMEOUT / 1000 + " sec. Removed. Proxies left: " +proxies.size());
-                }
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("fgsfds", "Try testing proxy "+ proxies.get(0).address().toString());
+                HttpsURLConnection urlConn = (HttpsURLConnection) testUrl.openConnection(proxies.get(0));
+                urlConn.setConnectTimeout(PROXY_TIMEOUT);
+                urlConn.connect();
+                assertEquals(HttpsURLConnection.HTTP_OK, urlConn.getResponseCode());
+                testConn=urlConn;
+                Log.d("fgsfds", "A good proxy is found.");
             } catch (Exception e) {
+                proxies.remove(0);
+                Log.d("fgsfds", "Bad proxy. Not response after " + PROXY_TIMEOUT / 1000 + " sec. Removed. Proxies left: " +proxies.size());
                 e.printStackTrace();
             }
         }
+        return testConn;
     }
 
-    private static List<Proxy> GetListProxies()
+    private static void GetListProxies()
     {
         InputStream is = null;
-        List<Proxy> localProxies = new ArrayList();
         String url = "http://api.foxtools.ru/v2/Proxy.xml";
 
         // Adding parameters
@@ -178,16 +167,16 @@ final public class GetAndCheckProxy {
                 {}
                 else{
                     //break; // if need only 1 proxy
-                    localProxies.add(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyElement.getIp(), proxyElement.getPort())));
+                    proxies.add(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyElement.getIp(), proxyElement.getPort())));
                 }
             }
             is.close();
-            Log.d("fgsfds", "Proxies found: " + localProxies.size());
+            Log.d("fgsfds", "Proxies found: " + proxies.size());
 
         } catch (Exception e) {
+            Log.d("fgsfds", "Can't parse proxies.");
             e.printStackTrace();
         }
-        return localProxies;
     }
 
 }

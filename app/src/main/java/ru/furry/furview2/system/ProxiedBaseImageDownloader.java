@@ -13,15 +13,17 @@ public class ProxiedBaseImageDownloader extends BaseImageDownloader {
     public ProxiedBaseImageDownloader(Context context) {
         super(context);
     }
-
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         String encodedUrl = Uri.encode(url, ALLOWED_URI_CHARS);
-        HttpURLConnection conn = ProxiedHTTPSLoader.openPage(encodedUrl);
-        //conn.setConnectTimeout(connectTimeout);
-        //conn.setReadTimeout(readTimeout);
-        conn.setConnectTimeout(7000);
-        conn.setReadTimeout(7000);
+        HttpURLConnection conn = null;
+        try {
+            conn = ProxiedHTTPSLoader.openPage(encodedUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        conn.setConnectTimeout(connectTimeout);
+        conn.setReadTimeout(readTimeout);
         return conn;
     }
 
