@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.system.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
+import ru.furry.furview2.system.ProxyTypes;
 
 public class InitialScreen extends Activity {
 
@@ -51,11 +52,11 @@ public class InitialScreen extends Activity {
             @Override
             public void onClick(View v) {
                 if (mProxyBox.isChecked()) {
-                    GetProxiedConnection.init(2000,true);
+                    GetProxiedConnection.proxyType = ProxyTypes.foxtools;
                     Log.d("fgsfds", "Click on ProxyBox. The proxy will be used.");
                 }
                 else   {
-                    GetProxiedConnection.init(2000,false);
+                    GetProxiedConnection.proxyType = ProxyTypes.none;
                     Log.d("fgsfds", "Click on ProxyBox. The proxy will not be used.");
                 }
             }
@@ -145,10 +146,30 @@ public class InitialScreen extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id)
+        {
+            case (R.id.sub_proxy_menu_1): {
+                GetProxiedConnection.proxyType = ProxyTypes.foxtools;
+                return true;
+            }
+            case (R.id.sub_proxy_menu_2): {
+                GetProxiedConnection.proxyType = ProxyTypes.opera;
+                return true;
+            }
+            case (R.id.sub_proxy_menu_3): {
+                GetProxiedConnection.proxyType = ProxyTypes.antizapret;
+                return true;
+            }
+            case (R.id.sub_proxy_menu_4): {
+                GetProxiedConnection.proxyType = ProxyTypes.manual;
+                return true;
+            }
+            case (R.id.sub_proxy_menu_5): {
+                GetProxiedConnection.proxyType = ProxyTypes.none;
+                return true;
+            }
+            default: return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 }

@@ -34,36 +34,42 @@ package ru.furry.furview2.system;
 final public class GetProxiedConnection {
 
     private static List<Proxy> proxies = new ArrayList();
-    private static int PROXY_TIMEOUT;
-    private static boolean stateProxy;
+    private final static int PROXY_TIMEOUT = 2000;
+    public static boolean stateProxy;
+    public static ProxyTypes proxyType;
 
     {
         HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
     }
 
-    public static void init(int incomingTimeout,boolean incomingStateProxy)
-    {
-        PROXY_TIMEOUT=incomingTimeout;
-        stateProxy=incomingStateProxy;
-    }
-
     public static HttpsURLConnection getProxiedConnection(URL url) throws IOException {
         HttpsURLConnection conn = null;
         //Checking using proxy
-        if (stateProxy) {
-            if (proxies.size() < 1) {
-                Log.d("fgsfds", "Start getting proxies.");
-                GetListProxies();
-                Log.d("fgsfds", "Set proxy in connection.");
-                conn = SetAndCheck(url);
-            } else {
-                Log.d("fgsfds", "Set proxy in connection.");
-                conn = SetAndCheck(url);
-            }
-        }
-        else
+        switch (proxyType)
         {
-            conn=(HttpsURLConnection) url.openConnection();
+            case foxtools:
+                if (proxies.size() < 1) {
+                    Log.d("fgsfds", "Start getting proxies.");
+                    GetListProxies();
+                    Log.d("fgsfds", "Set proxy in connection.");
+                    conn = SetAndCheck(url);
+                } else {
+                    Log.d("fgsfds", "Set proxy in connection.");
+                    conn = SetAndCheck(url);
+                }
+                break;
+            case manual:
+                conn=(HttpsURLConnection) url.openConnection();
+                break;
+            case antizapret:
+                conn=(HttpsURLConnection) url.openConnection();
+                break;
+            case opera:
+                conn=(HttpsURLConnection) url.openConnection();
+                break;
+            case none:
+                conn=(HttpsURLConnection) url.openConnection();
+                break;
         }
         return conn;
     }

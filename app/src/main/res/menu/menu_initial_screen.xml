@@ -3,4 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context="ru.furry.furview2.InitialScreen">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/proxies_menu" android:title="@string/proxies"
+        android:orderInCategory="100" app:showAsAction="never">
+        <menu>
+            <item android:id="@+id/sub_proxy_menu_1"
+                android:title="@string/proxy1" />
+            <item android:id="@+id/sub_proxy_menu_2"
+                android:title="@string/proxy2" />
+            <item android:id="@+id/sub_proxy_menu_3"
+                android:title="@string/proxy3" />
+            <item android:id="@+id/sub_proxy_menu_4"
+            android:title="@string/proxy4" />
+            <item android:id="@+id/sub_proxy_menu_5"
+                android:title="@string/proxy5" />
+        </menu>
+    </item>
 </menu>

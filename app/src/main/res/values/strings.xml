@@ -24,4 +24,11 @@
     <string name="not_good_proxy">Подходящего прокси не найдено</string>
     <string name="yes_list_proxies">Список прокси получен</string>
 
+    <string name="proxies">Прокси</string>
+    <string name="proxy1">FoxTools</string>
+    <string name="proxy2">Opera</string>
+    <string name="proxy3">AntiZapret</string>
+    <string name="proxy4">Пользовательский</string>
+    <string name="proxy5">Без прокси</string>
+
 </resources>
