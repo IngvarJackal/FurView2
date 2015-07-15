@@ -157,12 +157,12 @@ public class MainActivity extends Activity {
 
         @Override
         public RemoteFurImage next() {
-            return downloadedRemoteImages.get(cursor++);
+            return downloadedRemoteImages.get(++cursor);
         }
 
         @Override
         public RemoteFurImage previous() {
-            return downloadedRemoteImages.get(cursor--);
+            return downloadedRemoteImages.get(--cursor);
         }
     }
 
@@ -224,13 +224,13 @@ public class MainActivity extends Activity {
         mImageView3 = (DataImageView) findViewById(R.id.imageView3);
         mImageView4 = (DataImageView) findViewById(R.id.imageView4);
 
-        imageViews = new ArrayList<DataImageView>(Arrays.asList(
+        imageViews = new ArrayList<>(Arrays.asList(
                 mImageView1,
                 mImageView2,
                 mImageView3,
                 mImageView4
         ));
-        imageViewListeners = new ArrayList<ImageViewAware>(Arrays.asList(
+        imageViewListeners = new ArrayList<>(Arrays.asList(
                 new ImageViewAware(mImageView1),
                 new ImageViewAware(mImageView2),
                 new ImageViewAware(mImageView3),
@@ -319,7 +319,7 @@ public class MainActivity extends Activity {
 
     private void setPicture(int imageIndex, RemoteFurImage image) {
         final int index = imageIndex;
-        Log.d("fgsfds", "Setting image " + index);
+        Log.d("fgsfds", "Setting image " + cursor + " to place " + index);
         ArrayList<RemoteFurImage> fImage = new ArrayList<>(Arrays.asList(image));
         driver.downloadPreviewFile(fImage,
                 new ArrayList<>(Arrays.asList(imageViewListeners.get(index))),
@@ -361,7 +361,7 @@ public class MainActivity extends Activity {
                 }
             })));
         } else {
-            imageViews.get(index).setImage(downloadedImages.get(cursor));
+            imageViews.get(index).setImage(downloadedImages.get((cursor > 3) ? cursor : cursor-1));
         }
     }
 
@@ -370,7 +370,7 @@ public class MainActivity extends Activity {
     }
 
     public void hideSoftKeyboard(Activity activity) {
-        InputMethodManager inputMethodManager = (InputMethodManager)  activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
     }
 
@@ -380,16 +380,9 @@ public class MainActivity extends Activity {
             i++;
             remoteImagesIterator.previous();
         }
-        remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onRestart();
-        if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
-            searchDriver();
-        } else {
-            redrawImages();
+        Log.d("fgsfds", "redraw index = " + i);
+        if (i == NUM_OF_PICS) {
+            remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
         }
     }
 
