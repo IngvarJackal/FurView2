@@ -18,6 +18,7 @@ import org.w3c.dom.NodeList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
@@ -47,22 +48,22 @@ final public class GetProxiedConnection {
         switch (proxyType) {
             case foxtools:
                 if (proxies.size() < 1) {
-                    Log.d("fgsfds", "Start getting proxies.");
-                    GetListProxies();
-                    Log.d("fgsfds", "Set proxy in connection.");
-                    conn = SetAndCheck(url);
+                    Log.d("fgsfds", "Start getting Foxtools proxies.");
+                    GetListFoxtolsProxies();
+                    Log.d("fgsfds", "Set Foxtools proxy in connection.");
+                    conn = SetAndCheckFoxtolsProxies(url);
                 } else {
-                    Log.d("fgsfds", "Set proxy in connection.");
-                    conn = SetAndCheck(url);
+                    Log.d("fgsfds", "Set Foxtools proxy in connection.");
+                    conn = SetAndCheckFoxtolsProxies(url);
                 }
                 break;
-            case manual:
+            case opera:
                 conn = (HttpsURLConnection) url.openConnection();
                 break;
             case antizapret:
-                conn = (HttpsURLConnection) url.openConnection();
+                conn = SetAntizapretProxy(url);
                 break;
-            case opera:
+            case manual:
                 conn = (HttpsURLConnection) url.openConnection();
                 break;
             case none:
@@ -72,7 +73,19 @@ final public class GetProxiedConnection {
         return conn;
     }
 
-    private static HttpsURLConnection SetAndCheck(URL testUrl) {
+    private static HttpsURLConnection SetAntizapretProxy(URL testUrl) {
+        HttpsURLConnection testConn = null;
+        try {
+            Proxy antizapret = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.antizapret.prostovpn.org", 3128));
+            testConn = (HttpsURLConnection) testUrl.openConnection(antizapret);
+        } catch (IOException e) {
+            Log.d("fgsfds", "Proxy from Antizapret is not working.");
+            e.printStackTrace();
+        }
+        return testConn;
+    }
+
+    private static HttpsURLConnection SetAndCheckFoxtolsProxies(URL testUrl) {
         HttpsURLConnection testConn = null;
         //testing HTTPS Connection
         while (testConn == null) {
@@ -93,7 +106,7 @@ final public class GetProxiedConnection {
         return testConn;
     }
 
-    private static void GetListProxies() {
+    private static void GetListFoxtolsProxies() {
         InputStream is = null;
         String url = "http://api.foxtools.ru/v2/Proxy.xml";
 

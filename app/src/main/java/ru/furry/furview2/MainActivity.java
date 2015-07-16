@@ -391,7 +391,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_OnDestroy), Toast.LENGTH_SHORT).show();
+        Log.d("fgsfds", "Clearing cache.");
         super.onDestroy();
     }
 

@@ -227,6 +227,7 @@ public class InitialScreen extends Activity {
                 GetProxiedConnection.proxyType = ProxyTypes.manual;
                 setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
+                startActivity(new Intent("ru.furry.furview2.ManualProxy"));
                 return true;
             }
             case (R.id.sub_proxy_menu_5): {

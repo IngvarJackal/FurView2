@@ -2,15 +2,15 @@
 <resources>
 
     <string name="app_name">FurView2</string>
-    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="title_activity_fullscreen">Полноэкранный режим</string>
     <string name="title_activity_initial_screen">FurView2</string>
+    <string name="title_activity_manual_proxy">Ручной ввод прокси</string>
 
     <string name="action_settings">Настройки</string>
     <string name="action_save">Сохранить</string>
     <string name="action_tags">Список тэгов</string>
     <string name="search_text">Поиск</string>
 
-    <string name="toast_to_OnDestroy">Вызов OnDestroy. Очитка кэша.</string>
     <string name="use_proxy">Использовать прокси</string>
     <string name="imageName">Рисунок</string>
     <string name="tags">Тэги</string>
@@ -30,5 +30,10 @@
     <string name="proxy3">AntiZapret</string>
     <string name="proxy4">Пользовательский</string>
     <string name="proxy5">Без прокси</string>
+
+
+    <string name="manual_address">123.456.789.012, example.com</string>
+    <string name="manual_port">8080</string>
+    <string name="button_set_proxy">Установить прокси</string>
 
 </resources>

@@ -16,15 +16,13 @@
                         android:title="@string/proxy1" />
                     <item android:id="@+id/sub_proxy_menu_2"
                         android:checkable="true"
-                        android:enabled="false"
+android:enabled="false"
                         android:title="@string/proxy2" />
                     <item android:id="@+id/sub_proxy_menu_3"
                         android:checkable="true"
-                        android:enabled="false"
                         android:title="@string/proxy3" />
                     <item android:id="@+id/sub_proxy_menu_4"
                         android:checkable="true"
-                        android:enabled="false"
                         android:title="@string/proxy4" />
                     <item android:id="@+id/sub_proxy_menu_5"
                         android:checkable="true"
