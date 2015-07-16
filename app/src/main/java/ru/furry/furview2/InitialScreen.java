@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.system.GetProxiedConnection;
@@ -37,7 +39,12 @@ public class InitialScreen extends Activity {
     ToggleButton sfwButton;
     ListView mDriversList;
     Context context;
-    private MenuItem mItem1, mItem2, mItem3, mItem4, mItem5;
+    //for menu
+    private List<MenuItem> SubMenuProxy = new ArrayList();
+    //for save and restore settings
+    public static final String APP_PREFERENCES = "settings";
+    public static final String APP_PREFERENCES_PROXY = "proxy";
+    private SharedPreferences mSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +52,11 @@ public class InitialScreen extends Activity {
         setContentView(R.layout.activity_initial_screen);
         context = getApplicationContext();
 
+        //Initial settings
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
 
-        //CheckBox
         mProxyBox = (CheckBox) findViewById(R.id.proxyBox);
         mProxyBox.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,13 +125,29 @@ public class InitialScreen extends Activity {
 
     @Override
     protected void onResume() {
-        super.onRestart();
+        super.onRestart(); // not super.onResume(); ?
         sfwButton.setChecked(MainActivity.swf);
         if (MainActivity.swf)
             sfwButton.setBackgroundColor(0xff63ec4f);
         else
             sfwButton.setBackgroundColor(0xccb3b3b3);
         mSearchFieldInitial.setText(MainActivity.searchQuery);
+        //Restore settings
+        if (mSettings.contains(APP_PREFERENCES_PROXY)) {
+            int num = mSettings.getInt(APP_PREFERENCES_PROXY, 0);
+            GetProxiedConnection.proxyType = ProxyTypes.values()[num];
+            Log.d("fgsfds", "Restore proxy setting: " + ProxyTypes.values()[num].name());
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Store settings
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
+        editor.apply();
+        Log.d("fgsfds", "Save proxy setting: " + GetProxiedConnection.proxyType.name());
     }
 
     @Override
@@ -143,15 +168,33 @@ public class InitialScreen extends Activity {
         getMenuInflater().inflate(R.menu.menu_initial_screen, menu);
         return true;
     }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        mItem1 = menu.findItem(R.id.sub_proxy_menu_1);
-        mItem2 = menu.findItem(R.id.sub_proxy_menu_2);
-        mItem3 = menu.findItem(R.id.sub_proxy_menu_3);
-        mItem4 = menu.findItem(R.id.sub_proxy_menu_4);
-        mItem5 = menu.findItem(R.id.sub_proxy_menu_5);
+        SubMenuProxy.clear();
+        SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_1));
+        SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_2));
+        SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_3));
+        SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_4));
+        SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_5));
+        setCheckingProxyMenu();
         return true;
     }
+
+    private void setCheckingProxyMenu()
+    {
+        int i;
+        for (i=0;i<SubMenuProxy.size();i++)
+        {
+            if (i==GetProxiedConnection.proxyType.ordinal()){
+                SubMenuProxy.get(i).setChecked(true);
+            }
+            else {
+                SubMenuProxy.get(i).setChecked(false);
+            }
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -164,51 +207,31 @@ public class InitialScreen extends Activity {
             }
             case (R.id.sub_proxy_menu_1): {
                 GetProxiedConnection.proxyType = ProxyTypes.foxtools;
-                mItem1.setChecked(true);
-                mItem2.setChecked(false);
-                mItem3.setChecked(false);
-                mItem4.setChecked(false);
-                mItem5.setChecked(false);
+                setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
             case (R.id.sub_proxy_menu_2): {
                 GetProxiedConnection.proxyType = ProxyTypes.opera;
-                mItem1.setChecked(false);
-                mItem2.setChecked(true);
-                mItem3.setChecked(false);
-                mItem4.setChecked(false);
-                mItem5.setChecked(false);
+                setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
             case (R.id.sub_proxy_menu_3): {
                 GetProxiedConnection.proxyType = ProxyTypes.antizapret;
-                mItem1.setChecked(false);
-                mItem2.setChecked(false);
-                mItem3.setChecked(true);
-                mItem4.setChecked(false);
-                mItem5.setChecked(false);
+                setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
             case (R.id.sub_proxy_menu_4): {
                 GetProxiedConnection.proxyType = ProxyTypes.manual;
-                mItem1.setChecked(false);
-                mItem2.setChecked(false);
-                mItem3.setChecked(false);
-                mItem4.setChecked(true);
-                mItem5.setChecked(false);
+                setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
             case (R.id.sub_proxy_menu_5): {
                 GetProxiedConnection.proxyType = ProxyTypes.none;
-                mItem1.setChecked(false);
-                mItem2.setChecked(false);
-                mItem3.setChecked(false);
-                mItem4.setChecked(false);
-                mItem5.setChecked(true);
+                setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
