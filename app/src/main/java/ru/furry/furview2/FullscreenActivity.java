@@ -160,7 +160,7 @@ public class FullscreenActivity extends Activity {
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
 
-        fImage = (FurImage) getIntent().getParcelableExtra("image");
+        fImage = getIntent().getParcelableExtra("image");
         try {
             driver = Drivers.drivers.get(getIntent().getStringExtra("driver")).newInstance();
         } catch (Exception e) {
@@ -170,28 +170,6 @@ public class FullscreenActivity extends Activity {
         //driver.init(); // don't need to do it!
 
         database = new FurryDatabase(new AsyncHandlerUI<FurImage>() {
-            private void enableDeleteMode() {
-                mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);
-                mSaveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        database.delete(fImage);
-                        enableDownloadMode();
-                    }
-                });
-            }
-
-            private void enableDownloadMode() {
-                mSaveButton.setImageResource(android.R.drawable.ic_menu_save);
-                mSaveButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        database.create(fImage);
-                        enableDeleteMode();
-                    }
-                });
-            }
-
             @Override
             public void blockUI() {
 
@@ -304,16 +282,35 @@ public class FullscreenActivity extends Activity {
             @Override
             public void onSwipeRight() {
                 int i = 0;
-                if (MainActivity.remoteImagesIterator.hasPrevious()) {
+                int LIMIT = 2;
+                while (MainActivity.remoteImagesIterator.hasPrevious() && i < LIMIT) {
                     MainActivity.remoteImagesIterator.previous();
                     i++;
                 }
-                if (MainActivity.remoteImagesIterator.hasPrevious()) {
-                    MainActivity.remoteImagesIterator.previous();
-                    i++;
-                }
-                if (i == 2)
+                if (i == LIMIT)
                     MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+            }
+        });
+    }
+
+    private void enableDeleteMode() {
+        mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                database.delete(fImage);
+                enableDownloadMode();
+            }
+        });
+    }
+
+    private void enableDownloadMode() {
+        mSaveButton.setImageResource(android.R.drawable.ic_menu_save);
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                database.create(fImage);
+                enableDeleteMode();
             }
         });
     }
