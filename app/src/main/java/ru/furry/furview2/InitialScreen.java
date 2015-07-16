@@ -44,7 +44,10 @@ public class InitialScreen extends Activity {
     //for save and restore settings
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_PROXY = "proxy";
+    public static final String APP_PREFERENCES_MANUAL_ADDRESS = "manual_proxy_adress";
+    public static final String APP_PREFERENCES_MANUAL_PORT = "manual_proxy_port";
     private SharedPreferences mSettings;
+    private static final int REQUEST_CODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,10 +136,19 @@ public class InitialScreen extends Activity {
             sfwButton.setBackgroundColor(0xccb3b3b3);
         mSearchFieldInitial.setText(MainActivity.searchQuery);
         //Restore settings
+            //Proxy type
         if (mSettings.contains(APP_PREFERENCES_PROXY)) {
             int num = mSettings.getInt(APP_PREFERENCES_PROXY, 0);
             GetProxiedConnection.proxyType = ProxyTypes.values()[num];
             Log.d("fgsfds", "Restore proxy setting: " + ProxyTypes.values()[num].name());
+        }
+            //Manual proxy adress
+        if (mSettings.contains(APP_PREFERENCES_MANUAL_ADDRESS)) {
+            GetProxiedConnection.ManualProxyAddress=mSettings.getString(APP_PREFERENCES_MANUAL_ADDRESS, "");
+        }
+            //Manual proxy port
+        if (mSettings.contains(APP_PREFERENCES_MANUAL_PORT)) {
+            GetProxiedConnection.ManualProxyPort=mSettings.getInt(APP_PREFERENCES_MANUAL_PORT, 0);
         }
     }
 
@@ -146,8 +158,10 @@ public class InitialScreen extends Activity {
         // Store settings
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
+        editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
+        editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
         editor.apply();
-        Log.d("fgsfds", "Save proxy setting: " + GetProxiedConnection.proxyType.name());
+//        Log.d("fgsfds", "Save proxy setting: " + GetProxiedConnection.proxyType.name());
     }
 
     @Override
@@ -224,10 +238,9 @@ public class InitialScreen extends Activity {
                 return true;
             }
             case (R.id.sub_proxy_menu_4): {
-                GetProxiedConnection.proxyType = ProxyTypes.manual;
                 setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
-                startActivity(new Intent("ru.furry.furview2.ManualProxy"));
+                startActivityForResult(new Intent("ru.furry.furview2.ManualProxy"),REQUEST_CODE);
                 return true;
             }
             case (R.id.sub_proxy_menu_5): {
@@ -237,6 +250,21 @@ public class InitialScreen extends Activity {
                 return true;
             }
             default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                SharedPreferences.Editor editor = mSettings.edit();
+                editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
+                editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
+                editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
+                editor.apply();
+            }
         }
     }
 

@@ -37,6 +37,8 @@ final public class GetProxiedConnection {
     private static List<Proxy> proxies = new ArrayList();
     private final static int PROXY_TIMEOUT = 2000;
     public static ProxyTypes proxyType = ProxyTypes.none;
+    public static String ManualProxyAddress="";
+    public static int ManualProxyPort=0;
 
     {
         HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
@@ -64,13 +66,31 @@ final public class GetProxiedConnection {
                 conn = SetAntizapretProxy(url);
                 break;
             case manual:
-                conn = (HttpsURLConnection) url.openConnection();
+                Log.d("fgsfds", "Manual proxy: "+ ManualProxyAddress + " : "+ManualProxyPort);
+                conn = SetManualProxy(url);
                 break;
             case none:
                 conn = (HttpsURLConnection) url.openConnection();
                 break;
         }
         return conn;
+    }
+
+    private static HttpsURLConnection SetManualProxy(URL testUrl) {
+        Proxy setManualProxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ManualProxyAddress, ManualProxyPort));
+        HttpsURLConnection testConn = null;
+        try {
+            HttpsURLConnection urlConn = (HttpsURLConnection) testUrl.openConnection(setManualProxy);
+            urlConn.setConnectTimeout(PROXY_TIMEOUT);
+            urlConn.connect();
+            assertEquals(HttpsURLConnection.HTTP_OK, urlConn.getResponseCode());
+            testConn = urlConn;
+            Log.d("fgsfds", "Manual proxy is good.");
+        } catch (IOException e) {
+            Log.d("fgsfds", "Manual proxy is bad.");
+            e.printStackTrace();
+        }
+        return testConn;
     }
 
     private static HttpsURLConnection SetAntizapretProxy(URL testUrl) {

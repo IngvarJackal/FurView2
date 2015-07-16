@@ -15,7 +15,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:singleLine="true"
-        android:hint="@string/manual_address" />
+        android:hint="@string/manual_address"
+        android:inputType="text" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -28,13 +29,14 @@
         android:layout_below="@+id/manual_address"
         android:inputType="number"
         android:singleLine="true"
-        android:hint="@string/manual_port" />
+        android:hint="@string/manual_port"
+        android:numeric="integer" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_set_proxy"
-        android:id="@+id/button"
+        android:id="@+id/ButtonSetManualProxy"
         android:layout_below="@+id/manual_port"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>

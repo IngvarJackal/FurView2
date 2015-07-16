@@ -23,6 +23,8 @@
     <string name="checking_proxy">Проверка прокси...</string>
     <string name="not_good_proxy">Подходящего прокси не найдено</string>
     <string name="yes_list_proxies">Список прокси получен</string>
+    <string name="success_set_manual_proxy">"Установлен прокси: "</string>
+    <string name="fail_set_manual_proxy">"Прокси не установлен. Введите корректные данные."</string>
 
     <string name="proxies">Прокси</string>
     <string name="proxy1">FoxTools</string>
@@ -35,5 +37,6 @@
     <string name="manual_address">123.456.789.012, example.com</string>
     <string name="manual_port">8080</string>
     <string name="button_set_proxy">Установить прокси</string>
+
 
 </resources>
