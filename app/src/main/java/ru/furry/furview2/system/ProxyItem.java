@@ -17,34 +17,35 @@ public class ProxyItem {
 
     //constructor
     public ProxyItem() {
+
     }
 
     public void setIp(String ip) {
         this.ip = ip;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setUptime(double uptime) {
-        this.uptime = uptime;
-    }
-
-    public void setCoutry(String coutry) {
-        this.coutry = coutry;
-    }
-
     public String getIp() {
         return ip;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public int getPort() {
         return port;
     }
 
+    public void setUptime(double uptime) {
+        this.uptime = uptime;
+    }
+
     public double getUptime() {
         return uptime;
+    }
+
+    public void setCoutry(String coutry) {
+        this.coutry = coutry;
     }
 
     public String getCoutry() {

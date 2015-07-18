@@ -16,8 +16,7 @@ public class ProxiedBaseImageDownloader extends BaseImageDownloader {
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         String encodedUrl = Uri.encode(url, ALLOWED_URI_CHARS);
-        HttpURLConnection conn = null;
-        conn = ProxiedHTTPSLoader.openPage(encodedUrl);
+        HttpURLConnection conn = ProxiedHTTPSLoader.openPage(encodedUrl);
         conn.setConnectTimeout(connectTimeout);
         conn.setReadTimeout(readTimeout);
         return conn;

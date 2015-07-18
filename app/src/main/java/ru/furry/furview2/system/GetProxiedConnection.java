@@ -5,7 +5,6 @@ import android.util.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -17,8 +16,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
@@ -35,14 +32,10 @@ import static junit.framework.Assert.assertEquals;
 final public class GetProxiedConnection {
 
     private static List<Proxy> proxies = new ArrayList();
-    private final static int PROXY_TIMEOUT = 2000;
+    private final static int PROXY_TIMEOUT = 3000;
     public static ProxyTypes proxyType = ProxyTypes.none;
     public static String ManualProxyAddress="";
     public static int ManualProxyPort=0;
-
-    {
-        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
-    }
 
     public static HttpsURLConnection getProxiedConnection(URL url) throws IOException {
         HttpsURLConnection conn = null;
@@ -51,23 +44,23 @@ final public class GetProxiedConnection {
             case foxtools:
                 if (proxies.size() < 1) {
                     Log.d("fgsfds", "Start getting Foxtools proxies.");
-                    GetListFoxtolsProxies();
+                    getListFoxtolsProxies();
                     Log.d("fgsfds", "Set Foxtools proxy in connection.");
-                    conn = SetAndCheckFoxtolsProxies(url);
+                    conn = setAndCheckFoxtolsProxies(url);
                 } else {
                     Log.d("fgsfds", "Set Foxtools proxy in connection.");
-                    conn = SetAndCheckFoxtolsProxies(url);
+                    conn = setAndCheckFoxtolsProxies(url);
                 }
                 break;
             case opera:
                 conn = (HttpsURLConnection) url.openConnection();
                 break;
             case antizapret:
-                conn = SetAntizapretProxy(url);
+                conn = setAntizapretProxy(url);
                 break;
             case manual:
                 Log.d("fgsfds", "Manual proxy: "+ ManualProxyAddress + " : "+ManualProxyPort);
-                conn = SetManualProxy(url);
+                conn = setManualProxy(url);
                 break;
             case none:
                 conn = (HttpsURLConnection) url.openConnection();
@@ -76,57 +69,59 @@ final public class GetProxiedConnection {
         return conn;
     }
 
-    private static HttpsURLConnection SetManualProxy(URL testUrl) {
+    private static HttpsURLConnection setManualProxy(URL testUrl) {
         Proxy setManualProxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ManualProxyAddress, ManualProxyPort));
         HttpsURLConnection testConn = null;
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
         try {
             HttpsURLConnection urlConn = (HttpsURLConnection) testUrl.openConnection(setManualProxy);
             urlConn.setConnectTimeout(PROXY_TIMEOUT);
-            urlConn.connect();
             assertEquals(HttpsURLConnection.HTTP_OK, urlConn.getResponseCode());
             testConn = urlConn;
             Log.d("fgsfds", "Manual proxy is good.");
         } catch (IOException e) {
             Log.d("fgsfds", "Manual proxy is bad.");
-            e.printStackTrace();
+            Utils.printError(e);
         }
         return testConn;
     }
 
-    private static HttpsURLConnection SetAntizapretProxy(URL testUrl) {
+    private static HttpsURLConnection setAntizapretProxy(URL testUrl) {
         HttpsURLConnection testConn = null;
         try {
             Proxy antizapret = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.antizapret.prostovpn.org", 3128));
             testConn = (HttpsURLConnection) testUrl.openConnection(antizapret);
         } catch (IOException e) {
             Log.d("fgsfds", "Proxy from Antizapret is not working.");
-            e.printStackTrace();
+            Utils.printError(e);
         }
         return testConn;
     }
 
-    private static HttpsURLConnection SetAndCheckFoxtolsProxies(URL testUrl) {
+    private static HttpsURLConnection setAndCheckFoxtolsProxies(URL testUrl) {
         HttpsURLConnection testConn = null;
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
         //testing HTTPS Connection
         while (testConn == null) {
             try {
                 Log.d("fgsfds", "Try testing proxy " + proxies.get(0).address().toString());
                 HttpsURLConnection urlConn = (HttpsURLConnection) testUrl.openConnection(proxies.get(0));
                 urlConn.setConnectTimeout(PROXY_TIMEOUT);
-                urlConn.connect();
-                assertEquals(HttpsURLConnection.HTTP_OK, urlConn.getResponseCode());
+                    assertEquals(HttpsURLConnection.HTTP_OK, urlConn.getResponseCode());
+                        //or
+                    //Log.d("fgsfds", "A good proxy is found. Response code: "+urlConn.getResponseCode());
+                Log.d("fgsfds", "A good proxy from foxtools is found.");
                 testConn = urlConn;
-                Log.d("fgsfds", "A good proxy is found.");
             } catch (Exception e) {
                 proxies.remove(0);
                 Log.d("fgsfds", "Bad proxy. Not response after " + PROXY_TIMEOUT / 1000 + " sec. Removed. Proxies left: " + proxies.size());
-                e.printStackTrace();
+                Utils.printError(e);
             }
         }
         return testConn;
     }
 
-    private static void GetListFoxtolsProxies() {
+    private static void getListFoxtolsProxies() {
         InputStream is = null;
         String url = "http://api.foxtools.ru/v2/Proxy.xml";
 
@@ -150,7 +145,6 @@ final public class GetProxiedConnection {
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();
             is = httpEntity.getContent();
-
             Log.d("fgsfds", "Success HTTP request in GetProxyList");
 
             //Log.d("fgsfds", "Input stream after GET request to api.foxtools.ru = " + Utils.convertStreamToString(is));
@@ -194,13 +188,12 @@ final public class GetProxiedConnection {
             }
             is.close();
             Log.d("fgsfds", "Proxies found: " + proxies.size());
-
         } catch (IOException e) {
             Log.d("fgsfds", "Fail HTTP request in GetProxyList");
-            e.printStackTrace();
+            Utils.printError(e);
         } catch (Exception e) {
             Log.d("fgsfds", "Can't parse proxies.");
-            e.printStackTrace();
+            Utils.printError(e);
         }
     }
 
