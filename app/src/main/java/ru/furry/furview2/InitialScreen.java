@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -35,7 +34,6 @@ public class InitialScreen extends Activity {
 
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
-    CheckBox mProxyBox;
     ToggleButton sfwButton;
     ListView mDriversList;
     Context context;
@@ -46,6 +44,7 @@ public class InitialScreen extends Activity {
     public static final String APP_PREFERENCES_PROXY = "proxy";
     public static final String APP_PREFERENCES_MANUAL_ADDRESS = "manual_proxy_adress";
     public static final String APP_PREFERENCES_MANUAL_PORT = "manual_proxy_port";
+    public static final String APP_PREFERENCES_SWF = "swf";
     private SharedPreferences mSettings;
     private static final int REQUEST_CODE = 0;
 
@@ -60,21 +59,6 @@ public class InitialScreen extends Activity {
 
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
 
-        mProxyBox = (CheckBox) findViewById(R.id.proxyBox);
-        mProxyBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mProxyBox.isChecked()) {
-                    GetProxiedConnection.proxyType = ProxyTypes.foxtools;
-                    Log.d("fgsfds", "Click on ProxyBox. The proxy will be used.");
-                }
-                else   {
-                    GetProxiedConnection.proxyType = ProxyTypes.none;
-                    Log.d("fgsfds", "Click on ProxyBox. The proxy will not be used.");
-                }
-            }
-        });
-
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         sfwButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +67,7 @@ public class InitialScreen extends Activity {
                     sfwButton.setBackgroundColor(0xff63ec4f);
                 else
                     sfwButton.setBackgroundColor(0xccb3b3b3);
+                MainActivity.swf = sfwButton.isChecked();
             }
         });
 
@@ -94,7 +79,6 @@ public class InitialScreen extends Activity {
                 String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
                 MainActivity.searchQuery = mSearchQuery;
                 //intent.putExtra("SearchQuery", mSearchQuery);
-                MainActivity.swf = sfwButton.isChecked();
                 intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
                 startActivity(intent);
             }
@@ -128,13 +112,7 @@ public class InitialScreen extends Activity {
 
     @Override
     protected void onResume() {
-        super.onRestart(); // not super.onResume(); ?
-        sfwButton.setChecked(MainActivity.swf);
-        if (MainActivity.swf)
-            sfwButton.setBackgroundColor(0xff63ec4f);
-        else
-            sfwButton.setBackgroundColor(0xccb3b3b3);
-        mSearchFieldInitial.setText(MainActivity.searchQuery);
+        super.onResume();
         //Restore settings
             //Proxy type
         if (mSettings.contains(APP_PREFERENCES_PROXY)) {
@@ -150,6 +128,17 @@ public class InitialScreen extends Activity {
         if (mSettings.contains(APP_PREFERENCES_MANUAL_PORT)) {
             GetProxiedConnection.ManualProxyPort=mSettings.getInt(APP_PREFERENCES_MANUAL_PORT, 0);
         }
+            //swf button
+        if (mSettings.contains(APP_PREFERENCES_SWF)) {
+            MainActivity.swf=mSettings.getBoolean(APP_PREFERENCES_SWF, false);
+        }
+
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     @Override
@@ -160,19 +149,9 @@ public class InitialScreen extends Activity {
         editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
         editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
         editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
+        editor.putBoolean(APP_PREFERENCES_SWF, MainActivity.swf);
         editor.apply();
 //        Log.d("fgsfds", "Save proxy setting: " + GetProxiedConnection.proxyType.name());
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        sfwButton.setChecked(MainActivity.swf);
-        if (MainActivity.swf)
-            sfwButton.setBackgroundColor(0xff63ec4f);
-        else
-            sfwButton.setBackgroundColor(0xccb3b3b3);
-        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     //Menu
@@ -198,9 +177,12 @@ public class InitialScreen extends Activity {
     private void setCheckingProxyMenu()
     {
         int i;
+        String val1="",val2="";
         for (i=0;i<SubMenuProxy.size();i++)
         {
-            if (i==GetProxiedConnection.proxyType.ordinal()){
+            val1=SubMenuProxy.get(i).getTitle().toString();
+            val2=getString(GetProxiedConnection.proxyType.getProxyStringId());
+            if(val1.equals(val2)){
                 SubMenuProxy.get(i).setChecked(true);
             }
             else {

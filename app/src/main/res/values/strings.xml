@@ -37,6 +37,7 @@
     <string name="manual_address">123.456.789.012, example.com</string>
     <string name="manual_port">8080</string>
     <string name="button_set_proxy">Установить прокси</string>
+    <string name="search_button_content_description">Поиск</string>
 
 
 </resources>
