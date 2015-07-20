@@ -24,6 +24,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ru.furry.furview2.UI.DataImageView;
@@ -40,14 +41,14 @@ import ru.furry.furview2.system.Utils;
 
 public class MainActivity extends Activity {
 
+    public static final int NUM_OF_PICS = 4;
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = false;
     public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
-    public static int cursor = 0;
-
-    private final static int NUM_OF_PICS = 4;
+    public List<FurImage> currtenlyDownloadedImages = (List<FurImage>)Utils.createAndFillList(NUM_OF_PICS, null);
+    public static int cursor = -1;
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -63,8 +64,8 @@ public class MainActivity extends Activity {
         @Override
         public void retrieve(List<? extends Boolean> result) {
             if (result.get(0)) {
-                Log.d("fgsfds", "Recieved remote picture №" + procCounter.getVal());
                 if (procCounter.getVal() < NUM_OF_PICS) {
+                    Log.d("fgsfds", "Recieved remote picture №" + procCounter.getVal());
                     setPicture(procCounter.getVal(), remoteImagesIterator.next());
                     procCounter.increase();
                     remoteImagesIterator.asyncLoad(this);
@@ -191,6 +192,8 @@ public class MainActivity extends Activity {
 
         JodaTimeAndroid.init(this);
 
+        Collections.fill(currtenlyDownloadedImages, null);
+
         sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
         if (MainActivity.swf) {
             sfwButton.setBackgroundColor(0xff63ec4f);
@@ -243,7 +246,7 @@ public class MainActivity extends Activity {
                 String str = getResources().getString(R.string.toast_text) + " webView1" + getResources().getString(R.string.toast_to_fullscreen);
                 Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                intent.putExtra("image", ((DataImageView) view).getImage());
+                intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
                 intent.putExtra("driver", getIntent().getStringExtra("driver"));
                 startActivity(intent);
             }
@@ -257,16 +260,20 @@ public class MainActivity extends Activity {
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
+                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
                 int i = 0;
+                /*
                 while (i < NUM_OF_PICS*2 && remoteImagesIterator.hasPrevious()) {
                     i++;
                     remoteImagesIterator.previous();
-                }
+                }*/
+                cursor = Math.max(-1, cursor - NUM_OF_PICS * 2);
+                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
         };
@@ -307,7 +314,7 @@ public class MainActivity extends Activity {
     private void searchDriver() {
         Log.d("fgsfds", "Search: " + searchQuery);
         procCounter.reset();
-        cursor = 0;
+        cursor = -1;
         previousQuery = searchQuery;
         mSearchField.setText(searchQuery);
         driver.setSfw(MainActivity.swf);
@@ -317,12 +324,12 @@ public class MainActivity extends Activity {
         remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
     }
 
-    private void setPicture(int imageIndex, RemoteFurImage image) {
-        final int index = imageIndex;
-        Log.d("fgsfds", "Setting image " + cursor + " to place " + index);
+    private void setPicture(final int imageButtonIndex, RemoteFurImage image) {
+        final int imageIndex = cursor;
+        Log.d("fgsfds", "Setting image " + cursor + " to place " + imageButtonIndex);
         ArrayList<RemoteFurImage> fImage = new ArrayList<>(Arrays.asList(image));
         driver.downloadPreviewFile(fImage,
-                new ArrayList<>(Arrays.asList(imageViewListeners.get(index))),
+                new ArrayList<>(Arrays.asList(imageViewListeners.get(imageButtonIndex))),
                 new ArrayList<ImageLoadingListener>(Arrays.asList(new ImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
@@ -356,12 +363,16 @@ public class MainActivity extends Activity {
 
                 @Override
                 public void retrieve(List<? extends FurImage> images) {
-                    downloadedImages.add(images.get(0));
-                    imageViews.get(index).setImage(images.get(0));
+                    currtenlyDownloadedImages.set(imageButtonIndex, images.get(0));
+                    if (!currtenlyDownloadedImages.contains(null)) {
+                        downloadedImages.addAll(currtenlyDownloadedImages);
+                        currtenlyDownloadedImages = (List<FurImage>)Utils.createAndFillList(NUM_OF_PICS, null);
+                    }
+                    imageViews.get(imageButtonIndex).setImageIndex(imageIndex);
                 }
             })));
         } else {
-            imageViews.get(index).setImage(downloadedImages.get((cursor > 3) ? cursor : cursor-1));
+            imageViews.get(imageButtonIndex).setImageIndex(imageIndex);
         }
     }
 

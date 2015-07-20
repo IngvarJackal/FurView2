@@ -4,10 +4,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import java.util.Iterator;
+import java.util.List;
+
 import ru.furry.furview2.images.FurImage;
 
 public class DataImageView extends ImageView {
-    private FurImage image;
+    private int index;
 
     public DataImageView(Context context) {
         super(context);
@@ -21,11 +24,11 @@ public class DataImageView extends ImageView {
         super(context, attrs, defStyleAttr);
     }
 
-    public FurImage getImage() {
-        return image;
+    public int getIndex() {
+        return index;
     }
 
-    public void setImage(FurImage image) {
-        this.image = image;
+    public void setImageIndex(int index) {
+        this.index = index;
     }
 }

@@ -68,6 +68,7 @@ public class FullscreenActivity extends Activity {
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
+    int fIndex;
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -98,8 +99,10 @@ public class FullscreenActivity extends Activity {
 
                     @Override
                     public void retrieve(List<? extends FurImage> images) {
+                        if (MainActivity.downloadedImages.size() == fIndex)
+                            MainActivity.downloadedImages.addAll(images);
                         Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                        intent.putExtra("image", images.get(0));
+                        intent.putExtra("imageIndex", fIndex);
                         intent.putExtra("driver", getIntent().getStringExtra("driver"));
                         startActivity(intent);
                         finish();
@@ -145,6 +148,8 @@ public class FullscreenActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
+        Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+
         mPictureImageView = (ImageView) findViewById(R.id.picImgView);
         mScrollVew = (ScrollView) findViewById(R.id.scrollView);
         mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
@@ -160,7 +165,8 @@ public class FullscreenActivity extends Activity {
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
 
-        fImage = getIntent().getParcelableExtra("image");
+        fIndex = getIntent().getIntExtra("imageIndex", 0);
+        fImage = MainActivity.downloadedImages.get(fIndex);
         try {
             driver = Drivers.drivers.get(getIntent().getStringExtra("driver")).newInstance();
         } catch (Exception e) {
@@ -276,19 +282,26 @@ public class FullscreenActivity extends Activity {
         mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
+                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+                fIndex += 1;
                 MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
-                int i = 0;
+                /*int i = 0;
                 int LIMIT = 2;
                 while (MainActivity.remoteImagesIterator.hasPrevious() && i < LIMIT) {
                     MainActivity.remoteImagesIterator.previous();
                     i++;
-                }
-                if (i == LIMIT)
+                }*/
+                boolean needLoadNext = Math.max(-1, MainActivity.cursor-2) > -1;
+                MainActivity.cursor = Math.max(-1, MainActivity.cursor-2);
+                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+                if (needLoadNext) {
+                    fIndex -= 1;
                     MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                }
             }
         });
     }
