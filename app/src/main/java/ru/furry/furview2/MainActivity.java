@@ -321,6 +321,9 @@ public class MainActivity extends Activity {
         downloadedImages = new ArrayList<>();
         remoteImagesIterator = new RemoteImagesIterator();
         remoteImagesIterator.init(driver, searchQuery);
+        for (int i = 0; i < NUM_OF_PICS; i++) {
+            clearImage(i);
+        }
         remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
     }
 
