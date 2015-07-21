@@ -15,7 +15,7 @@ public class GlobalData extends Application{
 }
 
     /*
-    *Example of use:
+    *   //Example of use:
     *   GlobalData appPath = ((GlobalData)getApplicationContext());
     *   String s = appPath.getState();
     */

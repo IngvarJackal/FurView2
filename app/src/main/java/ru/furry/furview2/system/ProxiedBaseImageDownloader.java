@@ -13,7 +13,6 @@ public class ProxiedBaseImageDownloader extends BaseImageDownloader {
     public ProxiedBaseImageDownloader(Context context) {
         super(context);
     }
-
     @Override
     protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
         String encodedUrl = Uri.encode(url, ALLOWED_URI_CHARS);

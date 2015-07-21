@@ -12,7 +12,8 @@
         android:id="@+id/imageLabel"
         android:src="@drawable/fl320"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/imageName" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -42,36 +43,19 @@
             android:layout_height="52dp"
             android:id="@+id/searchButtonInitial"
             android:src="@android:drawable/ic_search_category_default"
-            android:layout_below="@+id/topLabel"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_weight="0" />
+            android:layout_weight="0"
+            android:contentDescription="@string/search_button_content_description" />
 
         <ToggleButton
             android:layout_width="24dp"
             android:layout_height="44dp"
             android:id="@+id/sfwButtonInitial"
-            android:layout_alignBottom="@+id/searchField"
-            android:layout_toEndOf="@+id/picturesLayout"
-            android:layout_alignTop="@+id/SearchButton"
             android:textSize="12sp"
             android:textOff="S\nF\nW"
             android:textOn="S\nF\nW"
-            android:layout_alignLeft="@+id/SearchButton"
-            android:layout_alignStart="@+id/SearchButton"
             android:background="#ccb3b3b3"
             android:layout_gravity="center_vertical" />
     </LinearLayout>
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/use_proxy"
-        android:id="@+id/proxyBox"
-        android:checked="false"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/linearLayout8" />
 
     <ListView
         android:layout_width="fill_parent"
@@ -80,7 +64,7 @@
         android:choiceMode="singleChoice"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/proxyBox" />
+        android:layout_below="@+id/linearLayout8" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleSmall"
@@ -88,9 +72,9 @@
         android:layout_height="32dp"
         android:id="@+id/progressProxy"
         android:indeterminate="true"
-        android:layout_alignTop="@+id/proxyBox"
         android:layout_alignRight="@+id/listOfDrivers"
         android:layout_alignEnd="@+id/listOfDrivers"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_below="@+id/linearLayout8" />
 
 </RelativeLayout>

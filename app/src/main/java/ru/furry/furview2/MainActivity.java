@@ -179,7 +179,6 @@ public class MainActivity extends Activity {
     View.OnClickListener mImageButtonClickListener;
     View.OnClickListener mOnSearchButtonListener;
 
-    GlobalData appPath;
     Driver driver;
 
     private AsyncCounter procCounter = new AsyncCounter(0, 1);
@@ -220,7 +219,6 @@ public class MainActivity extends Activity {
         mSearchButton = (ImageButton) findViewById(R.id.searchButton);
 
         mSearchField.setText(searchQuery);
-        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_mainscreen), Toast.LENGTH_SHORT).show();
 
         mImageView1 = (DataImageView) findViewById(R.id.imageView1);
         mImageView2 = (DataImageView) findViewById(R.id.imageView2);
@@ -243,8 +241,6 @@ public class MainActivity extends Activity {
         mImageButtonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String str = getResources().getString(R.string.toast_text) + " webView1" + getResources().getString(R.string.toast_to_fullscreen);
-                Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent("ru.furry.furview2.fullscreen");
                 intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
                 intent.putExtra("driver", getIntent().getStringExtra("driver"));
@@ -282,9 +278,6 @@ public class MainActivity extends Activity {
         mImageView2.setOnTouchListener(mImageButtonSwitchListener);
         mImageView3.setOnTouchListener(mImageButtonSwitchListener);
         mImageView4.setOnTouchListener(mImageButtonSwitchListener);
-
-        appPath = ((GlobalData) getApplicationContext());
-        appPath.setState("/mnt/sdcard/furview2");   //Example path
 
         String permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
@@ -412,7 +405,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_to_OnDestroy), Toast.LENGTH_SHORT).show();
+        Log.d("fgsfds", "Clearing cache.");
         super.onDestroy();
     }
 
@@ -428,7 +421,6 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " action_settings", Toast.LENGTH_SHORT).show();
             return true;
         }
 

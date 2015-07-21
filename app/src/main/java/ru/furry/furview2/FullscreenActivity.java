@@ -349,13 +349,10 @@ public class FullscreenActivity extends Activity {
 
         switch (id) {
             case R.id.action_settings:
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " action_settings", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_save:
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " action_save", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.action_tags:
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_text) + " action_tags", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
