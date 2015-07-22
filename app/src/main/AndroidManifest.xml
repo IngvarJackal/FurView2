@@ -50,7 +50,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UI.ManualProxy"
+            android:name=".proxy.ManualProxy"
             android:label="@string/title_activity_manual_proxy"
             android:theme="@style/Theme.AppCompat.Dialog.MinWidth">
             <intent-filter>

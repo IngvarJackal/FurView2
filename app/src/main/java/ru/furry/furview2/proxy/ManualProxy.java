@@ -1,4 +1,4 @@
-package ru.furry.furview2.UI;
+package ru.furry.furview2.proxy;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,8 +9,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import ru.furry.furview2.R;
-import ru.furry.furview2.system.GetProxiedConnection;
-import ru.furry.furview2.system.ProxyTypes;
 
 public class ManualProxy extends Activity {
 

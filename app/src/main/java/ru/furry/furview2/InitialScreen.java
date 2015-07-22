@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.furry.furview2.drivers.Drivers;
-import ru.furry.furview2.system.GetProxiedConnection;
+import ru.furry.furview2.proxy.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
-import ru.furry.furview2.system.ProxyTypes;
+import ru.furry.furview2.proxy.ProxyTypes;
 
 public class InitialScreen extends Activity {
 
