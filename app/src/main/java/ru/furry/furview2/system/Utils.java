@@ -1,5 +1,6 @@
 package ru.furry.furview2.system;
 
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -50,6 +51,7 @@ public class Utils {
     public static class Tuple<X, Y> {
         public final X x;
         public final Y y;
+
         public Tuple(X x, Y y) {
             this.x = x;
             this.y = y;
@@ -68,7 +70,7 @@ public class Utils {
     }
 
     public static boolean deleteDirectory(File path) {
-        if( path.exists() ) {
+        if (path.exists()) {
             File[] files = path.listFiles();
             if (files == null) {
                 return true;
@@ -81,7 +83,7 @@ public class Utils {
                 }
             }
         }
-        return( path.delete() );
+        return (path.delete());
     }
 
     public static String getStringFromInputStream(InputStream is) throws IOException {
@@ -121,33 +123,57 @@ public class Utils {
     }
 
     public static String unescapeUnicode(String unicode) {
-        if (unicode.contains("\\u")) {
-            unicode = unicode.replace("\\", "");
-            StringBuilder sb = new StringBuilder();
-            String[] arr = unicode.split("u");
-            for(int i = 1; i < arr.length; i++){
-                int hexVal = Integer.parseInt(arr[i], 16);
-                sb.append((char)hexVal);
+        try {
+            if (unicode.contains("\\u")) {
+                unicode = unicode.replace("\\", "");
+                StringBuilder sb = new StringBuilder();
+                String[] arr = unicode.split("u");
+                for (int i = 1; i < arr.length; i++) {
+                    int hexVal = Integer.parseInt(arr[i], 16);
+                    sb.append((char) hexVal);
+                }
+                return sb.toString();
+            } else {
+                return unicode;
             }
-            return sb.toString();
-        } else {
+        } catch (Exception e) {
+            Utils.printError(e);
             return unicode;
         }
     }
 
-    public static String joinList(List<? extends Object> list, String separator) {
+    public static String joinList(List<?> list, String separator, Function1 function) {
         switch (list.size()) {
-            case 0: return "";
-            case 1: return list.get(0).toString();
+            case 0:
+                return "";
+            case 1:
+                return list.get(0).toString();
             default:
                 StringBuilder sb = new StringBuilder();
                 for (Object element : list.subList(0, list.size() - 1)) {
-                    sb.append(element.toString());
+                    sb.append(function.apply(element).toString());
                     sb.append(separator);
                 }
                 sb.append(list.get(list.size() - 1));
                 return sb.toString();
         }
+    }
+
+    public static String joinList(List<?> list, String separator) {
+        return joinList(list, separator, new Function1() {
+            @Override
+            public Object apply(Object argument) {
+                return argument;
+            }
+        });
+    }
+
+    public static abstract class Function1 {
+        public abstract Object apply(Object argument);
+    }
+
+    public static abstract class FunctionMulti {
+        public abstract List<Object> apply(Object... arguments);
     }
 
     public static void assertImageEquality(FurImage img1, FurImage img2) {
@@ -177,5 +203,11 @@ public class Utils {
         assertTrue(img1.getLocalScore() == img2.getLocalScore() || img1.getLocalScore().equals(img2.getLocalScore()));
         assertTrue(img1.getLocalTags() == img2.getLocalTags() || img1.getLocalTags().equals(img2.getLocalTags()));
         assertTrue(img1.getPreviewUrl() == img2.getPreviewUrl() || img1.getPreviewUrl().equals(img2.getPreviewUrl()));
+    }
+
+    public static List createAndFillList(int size, Object value) {
+        Object[] nulls = new Object[size];
+        Arrays.fill(nulls, value);
+        return Arrays.asList(nulls);
     }
 }
