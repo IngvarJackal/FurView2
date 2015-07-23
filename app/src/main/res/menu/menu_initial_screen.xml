@@ -1,34 +1,49 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context="ru.furry.furview2.InitialScreen">
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".InitialScreen">
+    <item
+        android:id="@+id/action_settings"
         android:orderInCategory="100"
+        android:title="@string/action_settings"
         app:showAsAction="never" />
-    <item android:id="@+id/proxies_menu" android:title="@string/proxies"
-        android:orderInCategory="100" app:showAsAction="never">
+    <item
+        android:id="@+id/proxies_menu"
+        android:orderInCategory="100"
+        android:title="@string/proxies"
+        app:showAsAction="never">
         <menu>
             <group
                 android:id="@+id/initial_menu_group"
                 android:checkableBehavior="single">
-                    <item android:id="@+id/sub_proxy_menu_1"
-                        android:checkable="true"
-                        android:title="@string/proxy1" />
-                    <item android:id="@+id/sub_proxy_menu_2"
-                        android:checkable="true"
-android:enabled="false"
-                        android:title="@string/proxy2" />
-                    <item android:id="@+id/sub_proxy_menu_3"
-                        android:checkable="true"
-                        android:title="@string/proxy3" />
-                    <item android:id="@+id/sub_proxy_menu_4"
-                        android:checkable="true"
-                        android:title="@string/proxy4" />
-                    <item android:id="@+id/sub_proxy_menu_5"
-                        android:checkable="true"
-                        android:checked="true"
-                        android:title="@string/proxy5" />
+                <item
+                    android:id="@+id/sub_proxy_menu_1"
+                    android:checkable="true"
+                    android:title="@string/proxy1" />
+                <item
+                    android:id="@+id/sub_proxy_menu_2"
+                    android:checkable="true"
+                    android:enabled="false"
+                    android:title="@string/proxy2" />
+                <item
+                    android:id="@+id/sub_proxy_menu_3"
+                    android:checkable="true"
+                    android:title="@string/proxy3" />
+                <item
+                    android:id="@+id/sub_proxy_menu_4"
+                    android:checkable="true"
+                    android:title="@string/proxy4" />
+                <item
+                    android:id="@+id/sub_proxy_menu_5"
+                    android:checkable="true"
+                    android:checked="true"
+                    android:title="@string/proxy5" />
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/action_searchelp"
+        android:orderInCategory="100"
+        android:title="@string/action_searchelp"
+        app:showAsAction="never" />
 </menu>
