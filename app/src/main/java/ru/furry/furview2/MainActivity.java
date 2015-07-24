@@ -22,6 +22,7 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void retrieve(List<? extends Boolean> result) {
-            Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
             if (result.get(0)) {
                 if (procCounter.getVal() < NUM_OF_PICS) {
                     Log.d("fgsfds", "Recieved remote picture №" + procCounter.getVal());
@@ -243,6 +243,11 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                for (FurImage image: currtenlyDownloadedImages) {
+                    if (image != null) {
+                        downloadedImages.add(image);
+                    }
+                }
                 Intent intent = new Intent("ru.furry.furview2.fullscreen");
                 intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
                 intent.putExtra("driver", getIntent().getStringExtra("driver"));
@@ -342,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 })));
-        if ((cursor + NUM_OF_PICS >= downloadedImages.size()) || downloadedImages.size()==0) {
+        if (cursor + NUM_OF_PICS*2 >= downloadedImages.size()) {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
@@ -357,7 +362,11 @@ public class MainActivity extends AppCompatActivity {
                 public void retrieve(List<? extends FurImage> images) {
                     currtenlyDownloadedImages.set(imageButtonIndex, images.get(0));
                     if (!currtenlyDownloadedImages.contains(null)) {
-                        downloadedImages.addAll(currtenlyDownloadedImages);
+                        for (FurImage img : currtenlyDownloadedImages) {
+                            if (!downloadedImages.contains(img)) {
+                                downloadedImages.add(img);
+                            }
+                        }
                         currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
                     }
                     imageViews.get(imageButtonIndex).setImageIndex(imageIndex);
@@ -391,8 +400,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onRestart() {
-        Log.d("fgsfds", "Cursor: " + cursor);
         super.onRestart();
+        Log.d("fgsfds", "Cursor: " + cursor);
         if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
             searchDriver();
         } else {

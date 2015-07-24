@@ -267,11 +267,11 @@ public class FullscreenActivity extends AppCompatActivity {
 
             @Override
             public void onSwipeRight() {
-                Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor);
-                boolean needLoadNext = MainActivity.cursor - 2 > 0;
-                MainActivity.cursor = Math.max(0, MainActivity.cursor - 2);
+                boolean needLoadNext = fIndex > 0;
                 if (needLoadNext) {
-                    fIndex -= 1;
+                    MainActivity.cursor = fIndex - 1;
+                    fIndex = MainActivity.cursor;
+                    Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor + " fIndex " + fIndex);
                     MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
                 }
             }
