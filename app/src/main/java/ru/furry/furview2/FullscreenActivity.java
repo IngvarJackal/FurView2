@@ -21,7 +21,6 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
@@ -34,13 +33,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ru.furry.furview2.UI.DataImageView;
 import ru.furry.furview2.UI.OnSwipeAncClickTouchListener;
 import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
-import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
@@ -175,28 +172,7 @@ public class FullscreenActivity extends Activity {
         driver.setSfw(MainActivity.swf);
         //driver.init(); // don't need to do it!
 
-        database = new FurryDatabase(new AsyncHandlerUI<FurImage>() {
-            @Override
-            public void blockUI() {
-
-            }
-
-            @Override
-            public void unblockUI() {
-                mSaveButtonProgress.setVisibility(View.GONE);
-                mSaveButton.setEnabled(true);
-            }
-
-            @Override
-            public void retrieve(List<? extends FurImage> images) {
-                if (images.size() > 0) {
-                    enableDeleteMode();
-                } else {
-                    enableDownloadMode();
-                }
-            }
-        },
-                getApplicationContext());
+        database = new FurryDatabase(getApplicationContext());
 
         ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
             @Override
@@ -257,7 +233,7 @@ public class FullscreenActivity extends Activity {
         });
 
 
-        driver.downloadImageFile(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
+        driver.downloadImageFile(fImage.getFilePath(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
 
@@ -330,7 +306,27 @@ public class FullscreenActivity extends Activity {
 
     private void imageLoaded() {
         mProgress.setVisibility(View.GONE);
-        database.searchByMD5(fImage.getMd5());
+        database.searchByMD5(fImage.getMd5(), new AsyncHandlerUI<FurImage>() {
+            @Override
+            public void blockUI() {
+
+            }
+
+            @Override
+            public void unblockUI() {
+                mSaveButtonProgress.setVisibility(View.GONE);
+                mSaveButton.setEnabled(true);
+            }
+
+            @Override
+            public void retrieve(List<? extends FurImage> images) {
+                if (images.size() > 0) {
+                    enableDeleteMode();
+                } else {
+                    enableDownloadMode();
+                }
+            }
+        });
     }
 
     @Override

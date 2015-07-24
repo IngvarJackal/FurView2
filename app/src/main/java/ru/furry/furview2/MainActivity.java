@@ -288,7 +288,7 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             Utils.printError(e);
         }
-        driver.init(permanentStorage);
+        driver.init(permanentStorage, getApplicationContext());
 
         mOnSearchButtonListener = new View.OnClickListener() {
             @Override

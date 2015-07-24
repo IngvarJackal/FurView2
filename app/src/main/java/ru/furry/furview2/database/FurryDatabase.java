@@ -21,7 +21,6 @@ import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
 import ru.furry.furview2.system.AsyncHandlerUI;
-import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.Utils;
 
 import static ru.furry.furview2.system.Utils.joinList;
@@ -37,11 +36,9 @@ public class FurryDatabase {
 
     private FurryDatabaseOpenHelper dbHelper;
     protected SQLiteDatabase database;
-    private AsyncHandlerUI<FurImage> dbResponseHandler;
 
-    public FurryDatabase(AsyncHandlerUI dbResponseHandler, Context context) {
+    public FurryDatabase(Context context) {
         Log.d("fgsfds", "Enabling database...");
-        this.dbResponseHandler = dbResponseHandler;
         dbHelper = new FurryDatabaseOpenHelper(context, DB_NAME, null, DB_VERSION);
         database = dbHelper.getWritableDatabase();
     }
@@ -330,7 +327,7 @@ public class FurryDatabase {
         }
     }
 
-    public void search(String query) {
+    public void search(String query, AsyncHandlerUI<FurImage> dbResponseHandler) {
         // TODO add search by: rating, score, localscore, downloaddate, creationdate, artist
         Log.d("fgsfds", "DB searching: " + query);
         dbResponseHandler.blockUI();
@@ -354,7 +351,7 @@ public class FurryDatabase {
         }
     }
 
-    public void searchByMD5(BigInteger md5) {
+    public void searchByMD5(BigInteger md5, AsyncHandlerUI<FurImage> dbResponseHandler) {
         Log.d("fgsfds", "Searchin image in DB by MD5: " + md5);
         dbResponseHandler.blockUI();
         new AsyncSearchMD5().execute(new Utils.Tuple<BigInteger, AsyncHandlerUI<FurImage>>(md5, dbResponseHandler));
