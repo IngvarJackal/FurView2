@@ -44,12 +44,9 @@ public class DriverDB extends Driver {
             .cacheOnDisk(true)
             .build();
 
-    public DriverDB(String permanentStorage) {
-        this.permanentStorage = permanentStorage;
-    }
-
     @Override
     public void init(String permanentStorage, Context context) {
+        this.permanentStorage = permanentStorage;
         furryDatabase = new FurryDatabase(context);
     }
 
@@ -59,7 +56,7 @@ public class DriverDB extends Driver {
     }
 
     @Override
-    public void search(String searchQuery, AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
+    public void search(String searchQuery, final AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
         Matcher md5Matcher = md5Pattern.matcher(searchQuery);
         if (md5Matcher.find()) {
             furryDatabase.searchByMD5(new BigInteger(md5Matcher.group(1), 16), new AsyncHandlerUI<FurImage>() {
@@ -106,7 +103,7 @@ public class DriverDB extends Driver {
 
     @Override
     public void getNext(AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
-        remoteImagesHandler.retrieve(new ArrayList<>());
+        remoteImagesHandler.retrieve(new ArrayList<RemoteFurImage>());
     }
 
     @Override

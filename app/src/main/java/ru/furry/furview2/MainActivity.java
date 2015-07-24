@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void retrieve(List<? extends Boolean> result) {
+            Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
             if (result.get(0)) {
                 if (procCounter.getVal() < NUM_OF_PICS) {
                     Log.d("fgsfds", "Recieved remote picture №" + procCounter.getVal());
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void check(AsyncHandlerUI<Boolean> remoteImagesHandler) {
-            if (downloadedRemoteImages.size() > cursor) {
+            if (downloadedRemoteImages.size()-1 > cursor) {
                 remoteImagesHandler.retrieve(new ArrayList<>(Arrays.asList(true)));
             } else {
                 if (driver.hasNext()) {
@@ -257,20 +258,13 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
                 int i = 0;
-                /*
-                while (i < NUM_OF_PICS*2 && remoteImagesIterator.hasPrevious()) {
-                    i++;
-                    remoteImagesIterator.previous();
-                }*/
                 cursor = Math.max(-1, cursor - NUM_OF_PICS * 2);
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
         };
@@ -284,8 +278,8 @@ public class MainActivity extends AppCompatActivity {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
 
+        driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {
-            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
             driver = driverEnum.driverclass.newInstance();
         } catch (Exception e) {
             Utils.printError(e);
@@ -348,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 })));
-        if (cursor >= downloadedImages.size()) {
+        if ((cursor + NUM_OF_PICS >= downloadedImages.size()) || downloadedImages.size()==0) {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
@@ -397,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onRestart() {
+        Log.d("fgsfds", "Cursor: " + cursor);
         super.onRestart();
         if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
             searchDriver();

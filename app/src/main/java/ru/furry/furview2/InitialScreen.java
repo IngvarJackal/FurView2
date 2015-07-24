@@ -1,6 +1,5 @@
 package ru.furry.furview2;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,7 +25,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.system.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
@@ -105,11 +103,10 @@ public class InitialScreen extends AppCompatActivity {
         uilConfig = new ImageLoaderConfiguration.Builder(this)
                 .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
                         //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                .diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 604800)) // TODO: change 1 week time from hardcoded into system constant
+                .diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
                 .imageDownloader(new ProxiedBaseImageDownloader(this))
                 .build();
         ImageLoader.getInstance().init(uilConfig);
-
     }
 
     @Override

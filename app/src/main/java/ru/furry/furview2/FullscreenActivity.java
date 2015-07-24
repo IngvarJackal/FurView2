@@ -147,7 +147,7 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+        Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
         mPictureImageView = (ImageView) findViewById(R.id.picImgView);
         mScrollVew = (ScrollView) findViewById(R.id.scrollView);
@@ -166,8 +166,8 @@ public class FullscreenActivity extends AppCompatActivity {
 
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
+        driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {
-            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
             driver = driverEnum.driverclass.newInstance();
         } catch (Exception e) {
             Utils.printError(e);
@@ -261,22 +261,15 @@ public class FullscreenActivity extends AppCompatActivity {
         mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 fIndex += 1;
                 MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
-                /*int i = 0;
-                int LIMIT = 2;
-                while (MainActivity.remoteImagesIterator.hasPrevious() && i < LIMIT) {
-                    MainActivity.remoteImagesIterator.previous();
-                    i++;
-                }*/
-                boolean needLoadNext = Math.max(-1, MainActivity.cursor - 2) > -1;
-                MainActivity.cursor = Math.max(-1, MainActivity.cursor - 2);
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+                Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor);
+                boolean needLoadNext = MainActivity.cursor - 2 > 0;
+                MainActivity.cursor = Math.max(0, MainActivity.cursor - 2);
                 if (needLoadNext) {
                     fIndex -= 1;
                     MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
