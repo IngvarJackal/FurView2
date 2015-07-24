@@ -1,12 +1,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ru.furry.furview2.FullscreenActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_save" android:title="@string/action_save"
-        android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_tags" android:title="@string/action_tags"
-        android:orderInCategory="100" app:showAsAction="never" />
+    tools:context=".FullscreenActivity">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_save"
+        android:orderInCategory="100"
+        android:title="@string/action_save"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_tags"
+        android:orderInCategory="100"
+        android:title="@string/action_tags"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_searchelp"
+        android:orderInCategory="100"
+        android:title="@string/action_searchelp"
+        app:showAsAction="never" />
 
 </menu>

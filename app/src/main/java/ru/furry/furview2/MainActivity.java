@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,7 +14,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -39,7 +39,7 @@ import ru.furry.furview2.system.ListlikeIterator;
 import ru.furry.furview2.system.Utils;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     public static final int NUM_OF_PICS = 4;
     public static String searchQuery = "";
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
     public static boolean swf = false;
     public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
-    public List<FurImage> currtenlyDownloadedImages = (List<FurImage>)Utils.createAndFillList(NUM_OF_PICS, null);
+    public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
@@ -180,6 +180,7 @@ public class MainActivity extends Activity {
     View.OnClickListener mOnSearchButtonListener;
 
     Driver driver;
+    Drivers driverEnum;
 
     private AsyncCounter procCounter = new AsyncCounter(0, 1);
 
@@ -284,7 +285,8 @@ public class MainActivity extends Activity {
                 .getAbsolutePath();
 
         try {
-            driver = Drivers.drivers.get(getIntent().getStringExtra("driver")).newInstance();
+            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
+            driver = driverEnum.driverclass.newInstance();
         } catch (Exception e) {
             Utils.printError(e);
         }
@@ -362,7 +364,7 @@ public class MainActivity extends Activity {
                     currtenlyDownloadedImages.set(imageButtonIndex, images.get(0));
                     if (!currtenlyDownloadedImages.contains(null)) {
                         downloadedImages.addAll(currtenlyDownloadedImages);
-                        currtenlyDownloadedImages = (List<FurImage>)Utils.createAndFillList(NUM_OF_PICS, null);
+                        currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
                     }
                     imageViews.get(imageButtonIndex).setImageIndex(imageIndex);
                 }
@@ -420,11 +422,18 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case (R.id.action_searchelp): {
+                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                intent.putExtra("helptextId", driverEnum.searchHelpId);
+                startActivity(intent);
+                return true;
+            }
+            case R.id.action_settings:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
 }
