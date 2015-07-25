@@ -17,11 +17,14 @@ import android.widget.ListView;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
+import com.nostra13.universalimageloader.cache.disc.impl.ext.LruDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +32,7 @@ import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.system.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
 import ru.furry.furview2.system.ProxyTypes;
+import ru.furry.furview2.system.Utils;
 
 public class InitialScreen extends AppCompatActivity {
 
@@ -97,15 +101,20 @@ public class InitialScreen extends AppCompatActivity {
         ImageLoaderConfiguration uilConfig = null;
         File permanentStorage = new File(getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
-                .getAbsolutePath());
+                .getAbsolutePath() + "/cache");
         // TODO: set internal storage for cache
         File reserveStorage = null;
-        uilConfig = new ImageLoaderConfiguration.Builder(this)
-                .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                        //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                .diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
-                .imageDownloader(new ProxiedBaseImageDownloader(this))
-                .build();
+        try {
+            uilConfig = new ImageLoaderConfiguration.Builder(this)
+                    .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
+                            //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                    //.diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
+                    .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 0))
+                    .imageDownloader(new ProxiedBaseImageDownloader(this))
+                    .build();
+        } catch (IOException e) {
+            Utils.printError(e);
+        }
         ImageLoader.getInstance().init(uilConfig);
     }
 

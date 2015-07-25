@@ -2,6 +2,8 @@ package ru.furry.furview2.drivers.dbDriver;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -29,6 +31,8 @@ import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.Files;
 import ru.furry.furview2.system.Utils;
 
+import static ru.furry.furview2.drivers.DriverUtils.checkPathStructureForImages;
+
 public class DriverDB extends Driver {
 
     private FurryDatabase furryDatabase;
@@ -37,16 +41,14 @@ public class DriverDB extends Driver {
     private final static Pattern md5Pattern = Pattern.compile("md5:([1234567890abcdef]+)");
     private String permanentStorage;
     private final DisplayImageOptions downloadOptions = new DisplayImageOptions.Builder()
-            .cacheOnDisk(true)
             .build();
     private final static DisplayImageOptions displayOptions = new DisplayImageOptions.Builder()
-            .cacheInMemory(true)
-            .cacheOnDisk(true)
             .build();
 
     @Override
     public void init(String permanentStorage, Context context) {
         this.permanentStorage = permanentStorage;
+        checkPathStructureForImages(permanentStorage);
         furryDatabase = new FurryDatabase(context);
     }
 
@@ -119,17 +121,27 @@ public class DriverDB extends Driver {
     }
 
     @Override
-    public void downloadImageFile(String imagePath, ImageAware listener, ImageLoadingListener loadingListener) {
+    public void downloadImageFile(FurImage image, ImageAware listener, ImageLoadingListener loadingListener) {
+        String imagePath = image.getFilePath();
+        if (!new File(imagePath).exists()) {
+            imagePath = image.getPreviewUrl();
+        } else {
+            imagePath = Uri.decode(Uri.fromFile(new File(imagePath)).toString());
+        }
+        Log.d("fgsfds", "loading image " + imagePath);
         imageLoader.displayImage(imagePath, listener, displayOptions, loadingListener);
     }
 
     @Override
     public void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
         for (int i = 0; i < images.size(); i++) {
-            String imagePath = ((FurImage) images.get(i)).getFilePath();
+            String imagePath = (((FurImage) images.get(i)).getFilePath());
             if (!new File(imagePath).exists()) {
                 imagePath = images.get(i).getPreviewUrl();
+            } else {
+                imagePath = Uri.decode(Uri.fromFile(new File(imagePath)).toString());
             }
+            Log.d("fgsfds", "loading image " + imagePath);
             imageLoader.displayImage(imagePath, listeners.get(i), displayOptions, loadingListeners.get(i));
         }
     }

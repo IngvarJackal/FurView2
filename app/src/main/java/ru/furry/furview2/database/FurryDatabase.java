@@ -185,7 +185,7 @@ public class FurryDatabase {
     private static Utils.Tuple<String, String[]> constructQuery(String query) {
         query = query.replaceAll("\\s", " ");
         if (query.replace(" ", "").equals("")) {
-            return new Utils.Tuple<>("select * from images", new String[0]);
+            return new Utils.Tuple<>("select * from images where deleted == 'FALSE'", new String[0]);
         }
 
         String[] tags = query.split(" ");
@@ -283,7 +283,6 @@ public class FurryDatabase {
             sqlQuery.append("group by i.imageId");
         }
 
-
         return new Utils.Tuple<>(sqlQuery.toString(), arguments.toArray(new String[arguments.size()]));
     }
 
@@ -293,6 +292,8 @@ public class FurryDatabase {
 
         String sqlQuery = tQuery.x;
         String[] arguments = tQuery.y;
+
+        Log.d("suckfuck", sqlQuery);
 
         Cursor cursor = db.rawQuery(sqlQuery, arguments);
 

@@ -43,6 +43,7 @@ import ru.furry.furview2.system.Utils;
 public class MainActivity extends AppCompatActivity {
 
     public static final int NUM_OF_PICS = 4;
+    public static String permanentStorage;
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = false;
@@ -248,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
                         downloadedImages.add(image);
                     }
                 }
+                Log.d("fgsfds", downloadedImages.toString());
                 Intent intent = new Intent("ru.furry.furview2.fullscreen");
                 intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
                 intent.putExtra("driver", getIntent().getStringExtra("driver"));
@@ -279,9 +281,10 @@ public class MainActivity extends AppCompatActivity {
         mImageView3.setOnTouchListener(mImageButtonSwitchListener);
         mImageView4.setOnTouchListener(mImageButtonSwitchListener);
 
-        String permanentStorage = getApplicationContext().getExternalFilesDir(
+        permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
+        Log.d("fgsfds", "storage: " + permanentStorage);
 
         driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {

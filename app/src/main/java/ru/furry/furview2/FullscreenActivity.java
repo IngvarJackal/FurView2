@@ -1,6 +1,7 @@
 package ru.furry.furview2;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -166,6 +167,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
+        Log.d("fgsfds", fImage.toString());
         driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {
             driver = driverEnum.driverclass.newInstance();
@@ -173,9 +175,11 @@ public class FullscreenActivity extends AppCompatActivity {
             Utils.printError(e);
         }
         driver.setSfw(MainActivity.swf);
-        //driver.init(); // don't need to do it!
+        driver.init(MainActivity.permanentStorage, getApplicationContext());
 
         database = new FurryDatabase(getApplicationContext());
+
+        Log.d("fgsfds database", database.getTableAsString("images"));
 
         ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
             @Override
@@ -236,7 +240,7 @@ public class FullscreenActivity extends AppCompatActivity {
         });
 
 
-        driver.downloadImageFile(fImage.getFilePath(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
+        driver.downloadImageFile(fImage, new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
 
@@ -283,7 +287,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database.delete(fImage);
+                driver.deleteFromDBandStorage(fImage, database);
                 enableDownloadMode();
             }
         });
@@ -294,7 +298,8 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database.create(fImage);
+                driver.saveToDBandStorage(fImage, database);
+                Log.d("fgsfds", fImage.toString());
                 enableDeleteMode();
             }
         });

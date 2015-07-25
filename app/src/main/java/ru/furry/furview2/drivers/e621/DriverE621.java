@@ -50,6 +50,8 @@ import ru.furry.furview2.system.Files;
 import ru.furry.furview2.system.ProxiedHTTPSLoader;
 import ru.furry.furview2.system.Utils;
 
+import static ru.furry.furview2.drivers.DriverUtils.checkPathStructureForImages;
+
 public class DriverE621 extends Driver {
 
     private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
@@ -79,7 +81,7 @@ public class DriverE621 extends Driver {
     @Override
     public void init(String permanentStorage, Context context) {
         this.permanentStorage = permanentStorage;
-        checkPathStructure(permanentStorage);
+        checkPathStructureForImages(permanentStorage);
     }
 
     // UTILITY
@@ -138,24 +140,6 @@ public class DriverE621 extends Driver {
                 .setPageUrl("https://e621.net/post/show/" + remoteImage.getIdE621())
                 .setFilePath(remoteImage.getFileUrl())
                 .createFurImage();
-    }
-
-    private void checkPathStructure(String path) {
-        try {
-            checkDir(new File(path));
-            checkDir(new File(String.format("%s/%s", path, Files.IMAGES)));
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
-    }
-
-    private void checkDir(File path) throws IOException {
-        if (!path.exists()) {
-            path.mkdirs();
-        } else if (!path.isDirectory()) {
-            path.delete();
-            path.mkdir();
-        }
     }
 
 
@@ -272,9 +256,9 @@ public class DriverE621 extends Driver {
     }
 
     @Override
-    public void downloadImageFile(String imagePath, ImageAware listener, ImageLoadingListener loadingListener) {
-        Log.d("fgsfds", "downloading image: " + imagePath);
-        imageLoader.displayImage(imagePath, listener, displayOptions, loadingListener);
+    public void downloadImageFile(FurImage image, ImageAware listener, ImageLoadingListener loadingListener) {
+        Log.d("fgsfds", "downloading image: " + image.getFileUrl());
+        imageLoader.displayImage(image.getFileUrl(), listener, displayOptions, loadingListener);
     }
 
     @Override
@@ -289,6 +273,7 @@ public class DriverE621 extends Driver {
         image.setFilePath(String.format("%s/%s/", permanentStorage, Files.IMAGES) + image.getMd5() + "." + image.getFileExt());
         database.create(image);
         final String imagePath = image.getFilePath();
+        Log.d("fgsfds", "saving image to " + imagePath);
         imageLoader.loadImage(image.getFileUrl(), downloadOptions, new SimpleImageLoadingListener() {
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
