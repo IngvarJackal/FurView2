@@ -26,9 +26,9 @@ public class ManualProxy extends Activity {
         mManual_address = (EditText)findViewById(R.id.manual_address);
         mManual_port = (EditText)findViewById(R.id.manual_port);
 
-        mManual_address.setText(GetProxiedConnection.ManualProxyAddress);
-        if (GetProxiedConnection.ManualProxyPort!=0){
-            mManual_port.setText(String.valueOf(GetProxiedConnection.ManualProxyPort));
+        mManual_address.setText(GetProxiedConnection.manualProxyAddress);
+        if (GetProxiedConnection.manualProxyPort !=0){
+            mManual_port.setText(String.valueOf(GetProxiedConnection.manualProxyPort));
         }
 
         View.OnClickListener OnClickListenerSetManualProxy = new View.OnClickListener() {
@@ -37,17 +37,17 @@ public class ManualProxy extends Activity {
                 if ( ! "".equals(mManual_address.getText().toString()) && ! "".equals(mManual_port.getText().toString()) )
                 {
                     GetProxiedConnection.proxyType = ProxyTypes.manual;
-                    GetProxiedConnection.ManualProxyAddress=mManual_address.getText().toString();
-                    GetProxiedConnection.ManualProxyPort=Integer.valueOf(mManual_port.getText().toString());
-                    String str = getString(R.string.success_set_manual_proxy) + GetProxiedConnection.ManualProxyAddress+":"+GetProxiedConnection.ManualProxyPort;
+                    GetProxiedConnection.manualProxyAddress =mManual_address.getText().toString();
+                    GetProxiedConnection.manualProxyPort =Integer.valueOf(mManual_port.getText().toString());
+                    String str = getString(R.string.success_set_manual_proxy) + GetProxiedConnection.manualProxyAddress +":"+GetProxiedConnection.manualProxyPort;
                     Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
                     Log.d("fgsfds", "GetProxiedConnection.proxyType is: "+GetProxiedConnection.proxyType.name());
                     setResult(RESULT_OK);
                     finish();
                 }
                 else {
-                    GetProxiedConnection.ManualProxyAddress="";
-                    GetProxiedConnection.ManualProxyPort=0;
+                    GetProxiedConnection.manualProxyAddress ="";
+                    GetProxiedConnection.manualProxyPort =0;
                     Toast.makeText(getApplicationContext(),getString(R.string.fail_set_manual_proxy),Toast.LENGTH_SHORT).show();
                     Log.d("fgsfds", "Invalid manual proxy!");
                 }

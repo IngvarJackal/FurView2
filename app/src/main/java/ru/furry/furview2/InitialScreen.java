@@ -1,6 +1,5 @@
 package ru.furry.furview2;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,7 +25,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.proxy.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
@@ -124,11 +122,11 @@ public class InitialScreen extends AppCompatActivity {
         }
         //Manual proxy adress
         if (mSettings.contains(APP_PREFERENCES_MANUAL_ADDRESS)) {
-            GetProxiedConnection.ManualProxyAddress = mSettings.getString(APP_PREFERENCES_MANUAL_ADDRESS, "");
+            GetProxiedConnection.manualProxyAddress = mSettings.getString(APP_PREFERENCES_MANUAL_ADDRESS, "");
         }
         //Manual proxy port
         if (mSettings.contains(APP_PREFERENCES_MANUAL_PORT)) {
-            GetProxiedConnection.ManualProxyPort = mSettings.getInt(APP_PREFERENCES_MANUAL_PORT, 0);
+            GetProxiedConnection.manualProxyPort = mSettings.getInt(APP_PREFERENCES_MANUAL_PORT, 0);
         }
         //swf button
         if (mSettings.contains(APP_PREFERENCES_SWF)) {
@@ -149,8 +147,8 @@ public class InitialScreen extends AppCompatActivity {
         // Store settings
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
-        editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
-        editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
+        editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.manualProxyAddress);
+        editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.manualProxyPort);
         editor.putBoolean(APP_PREFERENCES_SWF, MainActivity.swf);
         editor.apply();
 //        Log.d("fgsfds", "Save proxy setting: " + GetProxiedConnection.proxyType.name());
@@ -248,8 +246,8 @@ public class InitialScreen extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 SharedPreferences.Editor editor = mSettings.edit();
                 editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
-                editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
-                editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
+                editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.manualProxyAddress);
+                editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.manualProxyPort);
                 editor.apply();
             }
         }

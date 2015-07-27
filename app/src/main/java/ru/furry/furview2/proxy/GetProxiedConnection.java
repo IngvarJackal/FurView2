@@ -21,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,11 +41,11 @@ final public class GetProxiedConnection {
     private static List<Proxy> proxies = new ArrayList();
     private final static int PROXY_TIMEOUT = 3000;
     public static ProxyTypes proxyType = ProxyTypes.none;
-    public static String ManualProxyAddress = "";
-    public static int ManualProxyPort = 0;
+    public static String manualProxyAddress = "";
+    public static int manualProxyPort = 0;
 
-    private static ArrayList<Integer> ProxyPortsAntizpret = new ArrayList<>();
-    private static ArrayList<String> BlockedIPsAntizapret = new ArrayList<>();
+    private static HashSet<String> blockedIPsHashSet = new HashSet<>();
+    private static ArrayList<Integer> proxyPortsAntizpret = new ArrayList<>();
 
     public static HttpsURLConnection getProxiedConnection(URL url) throws IOException {
         HttpsURLConnection conn = null;
@@ -69,8 +70,8 @@ final public class GetProxiedConnection {
                 //conn = setHardAntizapretProxy(url);
                 break;
             case manual:
-                Log.d("fgsfds", "Manual proxy: " + ManualProxyAddress + " : " + ManualProxyPort);
-                conn = setManualProxy(url, ManualProxyAddress, ManualProxyPort);
+                Log.d("fgsfds", "Manual proxy: " + manualProxyAddress + " : " + manualProxyPort);
+                conn = setManualProxy(url, manualProxyAddress, manualProxyPort);
                 break;
             case none:
                 conn = (HttpsURLConnection) url.openConnection();
@@ -85,7 +86,7 @@ final public class GetProxiedConnection {
         String url = "http://antizapret.prostovpn.org/proxy.pac";
         String BlockedIPsInpusStreamString = null;
 
-        if (BlockedIPsAntizapret.size()==0){
+        if (blockedIPsHashSet.size()==0){
             // Download and parse *.pac from http://antizapret.prostovpn.org/proxy.pac if it not download an parsed
             try {
                 //download
@@ -101,10 +102,10 @@ final public class GetProxiedConnection {
                 Matcher matcher = pattern.matcher(BlockedIPsInpusStreamString);
                 while (matcher.find()) {
                     if (matcher.group(1)!=null){
-                        BlockedIPsAntizapret.add(matcher.group(1));
+                        blockedIPsHashSet.add(matcher.group(1));
                     }
                     if (matcher.group(3)!=null){
-                        ProxyPortsAntizpret.add(Integer.valueOf(matcher.group(3)));
+                        proxyPortsAntizpret.add(Integer.valueOf(matcher.group(3)));
                     }
                 }
             } catch (IOException e) {
@@ -114,18 +115,15 @@ final public class GetProxiedConnection {
         }
 
         try {
-            //Checking: BlockedIPsFromPac include ip or not
+            //Checking: blockedIPsHashSet include ip or not
             InetAddress address = InetAddress.getByName(testUrl.getHost());
             String ip = address.getHostAddress();
 
-            for (int i=0;i< BlockedIPsAntizapret.size();i++) {
-                if (ip.equals(BlockedIPsAntizapret.get(i))) {
-                    for (int j = ProxyPortsAntizpret.size() - 1; j >= 0; j--) {
-                    testConn = setManualProxy(testUrl, "proxy.antizapret.prostovpn.org", ProxyPortsAntizpret.get(j));
-                        if (testConn != null)
-                            break;
-                    }
-                    break;
+            if (blockedIPsHashSet.contains(ip)) {
+                for (int j = proxyPortsAntizpret.size() - 1; j >= 0; j--) {
+                    testConn = setManualProxy(testUrl, "proxy.antizapret.prostovpn.org", proxyPortsAntizpret.get(j));
+                    if (testConn != null)
+                        break;
                 }
             }
 
