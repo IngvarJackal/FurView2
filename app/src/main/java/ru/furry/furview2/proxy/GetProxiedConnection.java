@@ -44,7 +44,7 @@ final public class GetProxiedConnection {
     public static String manualProxyAddress = "";
     public static int manualProxyPort = 0;
 
-    private static HashSet<String> blockedIPsHashSet = new HashSet<>();
+    private static HashSet<Integer> blockedIPsHashSet = new HashSet<>();
     private static ArrayList<Integer> proxyPortsAntizpret = new ArrayList<>();
 
     public static HttpsURLConnection getProxiedConnection(URL url) throws IOException {
@@ -102,7 +102,7 @@ final public class GetProxiedConnection {
                 Matcher matcher = pattern.matcher(BlockedIPsInpusStreamString);
                 while (matcher.find()) {
                     if (matcher.group(1)!=null){
-                        blockedIPsHashSet.add(matcher.group(1));
+                        blockedIPsHashSet.add(matcher.group(1).hashCode());
                     }
                     if (matcher.group(3)!=null){
                         proxyPortsAntizpret.add(Integer.valueOf(matcher.group(3)));
@@ -117,9 +117,9 @@ final public class GetProxiedConnection {
         try {
             //Checking: blockedIPsHashSet include ip or not
             InetAddress address = InetAddress.getByName(testUrl.getHost());
-            String ip = address.getHostAddress();
+            int ipHashCode = address.getHostAddress().hashCode();
 
-            if (blockedIPsHashSet.contains(ip)) {
+            if (blockedIPsHashSet.contains(ipHashCode)) {
                 for (int j = proxyPortsAntizpret.size() - 1; j >= 0; j--) {
                     testConn = setManualProxy(testUrl, "proxy.antizapret.prostovpn.org", proxyPortsAntizpret.get(j));
                     if (testConn != null)
