@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ru.furry.furview2.UI.DataImageView;
 import ru.furry.furview2.UI.OnSwipeAncClickTouchListener;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
+    public static AtomicInteger shownImages = new AtomicInteger(0);
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -265,13 +267,14 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
+                shownImages.set(0);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
                 int i = 0;
-                cursor = Math.max(-1, cursor - NUM_OF_PICS * 2);
+                cursor = Math.max(-1, cursor - (shownImages.get() + 1) * 2);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
         };
@@ -312,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("fgsfds", "Search: " + searchQuery);
         procCounter.reset();
         cursor = -1;
+        shownImages.set(0);
         previousQuery = searchQuery;
         mSearchField.setText(searchQuery);
         driver.setSfw(MainActivity.swf);
@@ -327,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
     private void setPicture(final int imageButtonIndex, RemoteFurImage image) {
         final int imageIndex = cursor;
         Log.d("fgsfds", "Setting image " + cursor + " to place " + imageButtonIndex);
+        shownImages.incrementAndGet();
         ArrayList<RemoteFurImage> fImage = new ArrayList<>(Arrays.asList(image));
         driver.downloadPreviewFile(fImage,
                 new ArrayList<>(Arrays.asList(imageViewListeners.get(imageButtonIndex))),
@@ -381,6 +386,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void clearImage(int index) {
+        Log.d("fgsfds", "Clearing image " + index);
         imageViews.get(index).setImageResource(android.R.color.transparent);
     }
 
