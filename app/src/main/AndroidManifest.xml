@@ -58,6 +58,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".UI.HelpScreen"
+            android:label="@string/title_help_screen">
+            <intent-filter>
+                <action android:name="ru.furry.furview2.HelpScreen" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

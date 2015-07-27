@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -21,7 +22,6 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
@@ -34,20 +34,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ru.furry.furview2.UI.DataImageView;
 import ru.furry.furview2.UI.OnSwipeAncClickTouchListener;
 import ru.furry.furview2.database.FurryDatabase;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
-import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
 
 
-public class FullscreenActivity extends Activity {
+public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW = 5;
@@ -68,6 +66,7 @@ public class FullscreenActivity extends Activity {
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
+    Drivers driverEnum;
     int fIndex;
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
@@ -87,27 +86,27 @@ public class FullscreenActivity extends Activity {
             if (result.get(0)) {
                 driver.downloadFurImage(new ArrayList<>(Arrays.asList(MainActivity.remoteImagesIterator.next())),
                         new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
-                    @Override
-                    public void blockUI() {
+                            @Override
+                            public void blockUI() {
 
-                    }
+                            }
 
-                    @Override
-                    public void unblockUI() {
+                            @Override
+                            public void unblockUI() {
 
-                    }
+                            }
 
-                    @Override
-                    public void retrieve(List<? extends FurImage> images) {
-                        if (MainActivity.downloadedImages.size() == fIndex)
-                            MainActivity.downloadedImages.addAll(images);
-                        Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                        intent.putExtra("imageIndex", fIndex);
-                        intent.putExtra("driver", getIntent().getStringExtra("driver"));
-                        startActivity(intent);
-                        finish();
-                    }
-                })));
+                            @Override
+                            public void retrieve(List<? extends FurImage> images) {
+                                if (MainActivity.downloadedImages.size() == fIndex)
+                                    MainActivity.downloadedImages.addAll(images);
+                                Intent intent = new Intent("ru.furry.furview2.fullscreen");
+                                intent.putExtra("imageIndex", fIndex);
+                                intent.putExtra("driver", getIntent().getStringExtra("driver"));
+                                startActivity(intent);
+                                finish();
+                            }
+                        })));
             }
         }
     };
@@ -168,7 +167,8 @@ public class FullscreenActivity extends Activity {
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
         try {
-            driver = Drivers.drivers.get(getIntent().getStringExtra("driver")).newInstance();
+            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
+            driver = driverEnum.driverclass.newInstance();
         } catch (Exception e) {
             Utils.printError(e);
         }
@@ -295,8 +295,8 @@ public class FullscreenActivity extends Activity {
                     MainActivity.remoteImagesIterator.previous();
                     i++;
                 }*/
-                boolean needLoadNext = Math.max(-1, MainActivity.cursor-2) > -1;
-                MainActivity.cursor = Math.max(-1, MainActivity.cursor-2);
+                boolean needLoadNext = Math.max(-1, MainActivity.cursor - 2) > -1;
+                MainActivity.cursor = Math.max(-1, MainActivity.cursor - 2);
                 Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 if (needLoadNext) {
                     fIndex -= 1;
@@ -348,6 +348,12 @@ public class FullscreenActivity extends Activity {
         int id = item.getItemId();
 
         switch (id) {
+            case (R.id.action_searchelp): {
+                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                intent.putExtra("helptextId", driverEnum.searchHelpId);
+                startActivity(intent);
+                return true;
+            }
             case R.id.action_settings:
                 return true;
             case R.id.action_save:

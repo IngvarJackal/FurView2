@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FurView2</string>
+    <string name="app_name" translatable="false">FurView2</string>
     <string name="title_activity_fullscreen">Полноэкранный режим</string>
     <string name="title_activity_initial_screen">FurView2</string>
     <string name="title_activity_manual_proxy">Ручной ввод прокси</string>
@@ -38,6 +38,36 @@
     <string name="manual_port">8080</string>
     <string name="button_set_proxy">Установить прокси</string>
     <string name="search_button_content_description">Поиск</string>
+    <string name="action_searchelp">Помощь</string>
+    <string name="close_text">Закрыть</string>
+    <string name="title_help_screen">Помощь</string>
 
+    <string name="e621help"><![CDATA[
+<b>cat dog</b>
+<br>
+Search for posts that are tagged with both cat and dog. Tags are separated by spaces.
+<br>
+<b>red_panda african_wild_dog</b>
+<br>
+Words within each tag are separated by underscores.
+<br>
+<b>~cat ~dog</b>
+<br>
+Search for posts that are tagged either cat or dog (or both).
+<br>
+<b>-chicken</b>
+<br>
+Search for posts that don\'t have the chicken tag.
+<br>
+<b>rating:safe</b>
+<br>
+<b>rating:questionable</b>
+<br>
+<b>rating:explicit</b>
+<br>
+Search for posts that are rated safe, questionable, or explicit. rating:s, rating:q, and rating:e also work.
+<br>
+For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
+    ]]></string>
 
 </resources>

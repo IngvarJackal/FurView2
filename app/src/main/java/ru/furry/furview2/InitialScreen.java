@@ -1,11 +1,11 @@
 package ru.furry.furview2;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.furry.furview2.drivers.Drivers;
-import ru.furry.furview2.system.GetProxiedConnection;
+import ru.furry.furview2.proxy.GetProxiedConnection;
 import ru.furry.furview2.system.ProxiedBaseImageDownloader;
-import ru.furry.furview2.system.ProxyTypes;
+import ru.furry.furview2.proxy.ProxyTypes;
 
-public class InitialScreen extends Activity {
+public class InitialScreen extends AppCompatActivity {
 
     ImageButton mSearchButtonInitial;
     EditText mSearchFieldInitial;
@@ -88,7 +88,7 @@ public class InitialScreen extends Activity {
         mDriversList = (ListView) findViewById(R.id.listOfDrivers);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_single_choice,
-                new ArrayList<String>(Drivers.drivers.keySet()));
+                Drivers.getDriverList());
         mDriversList.setAdapter(adapter);
         mDriversList.setItemChecked(0, true);
 
@@ -114,23 +114,23 @@ public class InitialScreen extends Activity {
     protected void onResume() {
         super.onResume();
         //Restore settings
-            //Proxy type
+        //Proxy type
         if (mSettings.contains(APP_PREFERENCES_PROXY)) {
             int num = mSettings.getInt(APP_PREFERENCES_PROXY, 0);
             GetProxiedConnection.proxyType = ProxyTypes.values()[num];
             Log.d("fgsfds", "Restore proxy setting: " + ProxyTypes.values()[num].name());
         }
-            //Manual proxy adress
+        //Manual proxy adress
         if (mSettings.contains(APP_PREFERENCES_MANUAL_ADDRESS)) {
-            GetProxiedConnection.ManualProxyAddress=mSettings.getString(APP_PREFERENCES_MANUAL_ADDRESS, "");
+            GetProxiedConnection.manualProxyAddress = mSettings.getString(APP_PREFERENCES_MANUAL_ADDRESS, "");
         }
-            //Manual proxy port
+        //Manual proxy port
         if (mSettings.contains(APP_PREFERENCES_MANUAL_PORT)) {
-            GetProxiedConnection.ManualProxyPort=mSettings.getInt(APP_PREFERENCES_MANUAL_PORT, 0);
+            GetProxiedConnection.manualProxyPort = mSettings.getInt(APP_PREFERENCES_MANUAL_PORT, 0);
         }
-            //swf button
+        //swf button
         if (mSettings.contains(APP_PREFERENCES_SWF)) {
-            MainActivity.swf=mSettings.getBoolean(APP_PREFERENCES_SWF, false);
+            MainActivity.swf = mSettings.getBoolean(APP_PREFERENCES_SWF, false);
         }
 
         sfwButton.setChecked(MainActivity.swf);
@@ -147,8 +147,8 @@ public class InitialScreen extends Activity {
         // Store settings
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
-        editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
-        editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
+        editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.manualProxyAddress);
+        editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.manualProxyPort);
         editor.putBoolean(APP_PREFERENCES_SWF, MainActivity.swf);
         editor.apply();
 //        Log.d("fgsfds", "Save proxy setting: " + GetProxiedConnection.proxyType.name());
@@ -174,18 +174,15 @@ public class InitialScreen extends Activity {
         return true;
     }
 
-    private void setCheckingProxyMenu()
-    {
+    private void setCheckingProxyMenu() {
         int i;
-        String val1="",val2="";
-        for (i=0;i<SubMenuProxy.size();i++)
-        {
-            val1=SubMenuProxy.get(i).getTitle().toString();
-            val2=getString(GetProxiedConnection.proxyType.getProxyStringId());
-            if(val1.equals(val2)){
+        String val1 = "", val2 = "";
+        for (i = 0; i < SubMenuProxy.size(); i++) {
+            val1 = SubMenuProxy.get(i).getTitle().toString();
+            val2 = getString(GetProxiedConnection.proxyType.getProxyStringId());
+            if (val1.equals(val2)) {
                 SubMenuProxy.get(i).setChecked(true);
-            }
-            else {
+            } else {
                 SubMenuProxy.get(i).setChecked(false);
             }
         }
@@ -195,8 +192,7 @@ public class InitialScreen extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        switch (id)
-        {
+        switch (id) {
             case (R.id.action_settings): {
                 Log.d("fgsfds", "Initial menu: " + item.getTitle());
                 return true;
@@ -222,7 +218,7 @@ public class InitialScreen extends Activity {
             case (R.id.sub_proxy_menu_4): {
                 setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
-                startActivityForResult(new Intent("ru.furry.furview2.ManualProxy"),REQUEST_CODE);
+                startActivityForResult(new Intent("ru.furry.furview2.ManualProxy"), REQUEST_CODE);
                 return true;
             }
             case (R.id.sub_proxy_menu_5): {
@@ -231,7 +227,14 @@ public class InitialScreen extends Activity {
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
-            default: return super.onOptionsItemSelected(item);
+            case (R.id.action_searchelp): {
+                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                intent.putExtra("helptextId", Drivers.getDriver(mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString()).searchHelpId);
+                startActivity(intent);
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -243,8 +246,8 @@ public class InitialScreen extends Activity {
             if (resultCode == RESULT_OK) {
                 SharedPreferences.Editor editor = mSettings.edit();
                 editor.putInt(APP_PREFERENCES_PROXY, GetProxiedConnection.proxyType.ordinal());
-                editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.ManualProxyAddress);
-                editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.ManualProxyPort);
+                editor.putString(APP_PREFERENCES_MANUAL_ADDRESS, GetProxiedConnection.manualProxyAddress);
+                editor.putInt(APP_PREFERENCES_MANUAL_PORT, GetProxiedConnection.manualProxyPort);
                 editor.apply();
             }
         }
