@@ -21,7 +21,6 @@ import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
 import ru.furry.furview2.system.AsyncHandlerUI;
-import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.Utils;
 
 import static ru.furry.furview2.system.Utils.joinList;
@@ -37,11 +36,9 @@ public class FurryDatabase {
 
     private FurryDatabaseOpenHelper dbHelper;
     protected SQLiteDatabase database;
-    private AsyncHandlerUI<FurImage> dbResponseHandler;
 
-    public FurryDatabase(AsyncHandlerUI dbResponseHandler, Context context) {
+    public FurryDatabase(Context context) {
         Log.d("fgsfds", "Enabling database...");
-        this.dbResponseHandler = dbResponseHandler;
         dbHelper = new FurryDatabaseOpenHelper(context, DB_NAME, null, DB_VERSION);
         database = dbHelper.getWritableDatabase();
     }
@@ -186,9 +183,9 @@ public class FurryDatabase {
     }
 
     private static Utils.Tuple<String, String[]> constructQuery(String query) {
-        query = query.replaceAll("\\s", " ");
+        query = query.replaceAll("\\s+", " ");
         if (query.replace(" ", "").equals("")) {
-            return new Utils.Tuple<>("select * from images", new String[0]);
+            return new Utils.Tuple<>("select * from images where deleted == 'FALSE'", new String[0]);
         }
 
         String[] tags = query.split(" ");
@@ -206,7 +203,7 @@ public class FurryDatabase {
                 not.add(tag.substring(1));
             } else if (tag.startsWith("~")) {
                 or.add(tag.substring(1));
-            } else {
+            } else if (!tag.isEmpty()) {
                 and.add(tag);
             }
         }
@@ -221,9 +218,13 @@ public class FurryDatabase {
         if (specTags.rating != null) {
             sqlQuery.append("and i.rating ");
             if (specTags.rating.startsWith("-"))
-                sqlQuery.append("not");
-            sqlQuery.append(" in (?) ");
+                sqlQuery.append("!= ");
+            else {
+                sqlQuery.append("== ");
+            }
+            sqlQuery.append("? ");
             arguments.add(specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
+            Log.d("fgsfds", "rating: " + specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
         }
 
 
@@ -286,7 +287,6 @@ public class FurryDatabase {
             sqlQuery.append("group by i.imageId");
         }
 
-
         return new Utils.Tuple<>(sqlQuery.toString(), arguments.toArray(new String[arguments.size()]));
     }
 
@@ -296,6 +296,8 @@ public class FurryDatabase {
 
         String sqlQuery = tQuery.x;
         String[] arguments = tQuery.y;
+
+        Log.d("fgsfds", "DB request: " + sqlQuery + " " + Arrays.toString(arguments));
 
         Cursor cursor = db.rawQuery(sqlQuery, arguments);
 
@@ -330,7 +332,7 @@ public class FurryDatabase {
         }
     }
 
-    public void search(String query) {
+    public void search(String query, AsyncHandlerUI<FurImage> dbResponseHandler) {
         // TODO add search by: rating, score, localscore, downloaddate, creationdate, artist
         Log.d("fgsfds", "DB searching: " + query);
         dbResponseHandler.blockUI();
@@ -354,7 +356,7 @@ public class FurryDatabase {
         }
     }
 
-    public void searchByMD5(BigInteger md5) {
+    public void searchByMD5(BigInteger md5, AsyncHandlerUI<FurImage> dbResponseHandler) {
         Log.d("fgsfds", "Searchin image in DB by MD5: " + md5);
         dbResponseHandler.blockUI();
         new AsyncSearchMD5().execute(new Utils.Tuple<BigInteger, AsyncHandlerUI<FurImage>>(md5, dbResponseHandler));

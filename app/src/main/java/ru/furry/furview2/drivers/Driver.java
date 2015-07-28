@@ -1,5 +1,7 @@
 package ru.furry.furview2.drivers;
 
+import android.content.Context;
+
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
@@ -16,13 +18,11 @@ public abstract class Driver {
     public abstract void getNext(AsyncHandlerUI<RemoteFurImage> remoteImagesHandler);
     public abstract boolean hasNext();
     public abstract void downloadFurImage(List<RemoteFurImage> images, List<AsyncHandlerUI<FurImage>> furImagesHandlers);
-    // public abstract void downloadImageFile(String imageUrl, ImageAware listener);
-    public abstract void downloadImageFile(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener);
+    public abstract void downloadImageFile(FurImage image, ImageAware listener, ImageLoadingListener loadingListener);
     public abstract void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners);
-    public abstract void loadFileFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners);
     public abstract void saveToDBandStorage(FurImage image, FurryDatabase database);
     public abstract void deleteFromDBandStorage(FurImage image, FurryDatabase database);
     public abstract void setSfw(boolean sfw);
-    public abstract void init(String permanentStorage);
+    public abstract void init(String permanentStorage, Context context);
 
 }

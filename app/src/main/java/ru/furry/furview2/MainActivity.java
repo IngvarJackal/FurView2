@@ -22,10 +22,12 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ru.furry.furview2.UI.DataImageView;
 import ru.furry.furview2.UI.OnSwipeAncClickTouchListener;
@@ -42,6 +44,7 @@ import ru.furry.furview2.system.Utils;
 public class MainActivity extends AppCompatActivity {
 
     public static final int NUM_OF_PICS = 4;
+    public static String permanentStorage;
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = false;
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
+    public static AtomicInteger shownImages = new AtomicInteger(0);
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -118,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void check(AsyncHandlerUI<Boolean> remoteImagesHandler) {
-            if (downloadedRemoteImages.size() > cursor) {
+            if (downloadedRemoteImages.size()-1 > cursor) {
                 remoteImagesHandler.retrieve(new ArrayList<>(Arrays.asList(true)));
             } else {
                 if (driver.hasNext()) {
@@ -242,6 +246,12 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                for (FurImage image: currtenlyDownloadedImages) {
+                    if (image != null) {
+                        downloadedImages.add(image);
+                    }
+                }
+                Log.d("fgsfds", downloadedImages.toString());
                 Intent intent = new Intent("ru.furry.furview2.fullscreen");
                 intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
                 intent.putExtra("driver", getIntent().getStringExtra("driver"));
@@ -257,20 +267,14 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+                shownImages.set(0);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
                 int i = 0;
-                /*
-                while (i < NUM_OF_PICS*2 && remoteImagesIterator.hasPrevious()) {
-                    i++;
-                    remoteImagesIterator.previous();
-                }*/
-                cursor = Math.max(-1, cursor - NUM_OF_PICS * 2);
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+                cursor = Math.max(-1, cursor - (shownImages.get() + 1) * 2);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
         };
@@ -280,17 +284,18 @@ public class MainActivity extends AppCompatActivity {
         mImageView3.setOnTouchListener(mImageButtonSwitchListener);
         mImageView4.setOnTouchListener(mImageButtonSwitchListener);
 
-        String permanentStorage = getApplicationContext().getExternalFilesDir(
+        permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();
+        Log.d("fgsfds", "storage: " + permanentStorage);
 
+        driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {
-            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
             driver = driverEnum.driverclass.newInstance();
         } catch (Exception e) {
             Utils.printError(e);
         }
-        driver.init(permanentStorage);
+        driver.init(permanentStorage, getApplicationContext());
 
         mOnSearchButtonListener = new View.OnClickListener() {
             @Override
@@ -310,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("fgsfds", "Search: " + searchQuery);
         procCounter.reset();
         cursor = -1;
+        shownImages.set(0);
         previousQuery = searchQuery;
         mSearchField.setText(searchQuery);
         driver.setSfw(MainActivity.swf);
@@ -325,6 +331,7 @@ public class MainActivity extends AppCompatActivity {
     private void setPicture(final int imageButtonIndex, RemoteFurImage image) {
         final int imageIndex = cursor;
         Log.d("fgsfds", "Setting image " + cursor + " to place " + imageButtonIndex);
+        shownImages.incrementAndGet();
         ArrayList<RemoteFurImage> fImage = new ArrayList<>(Arrays.asList(image));
         driver.downloadPreviewFile(fImage,
                 new ArrayList<>(Arrays.asList(imageViewListeners.get(imageButtonIndex))),
@@ -348,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 })));
-        if (cursor >= downloadedImages.size()) {
+        if (cursor + NUM_OF_PICS*2 >= downloadedImages.size()) {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
@@ -363,7 +370,11 @@ public class MainActivity extends AppCompatActivity {
                 public void retrieve(List<? extends FurImage> images) {
                     currtenlyDownloadedImages.set(imageButtonIndex, images.get(0));
                     if (!currtenlyDownloadedImages.contains(null)) {
-                        downloadedImages.addAll(currtenlyDownloadedImages);
+                        for (FurImage img : currtenlyDownloadedImages) {
+                            if (!downloadedImages.contains(img)) {
+                                downloadedImages.add(img);
+                            }
+                        }
                         currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
                     }
                     imageViews.get(imageButtonIndex).setImageIndex(imageIndex);
@@ -375,6 +386,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void clearImage(int index) {
+        Log.d("fgsfds", "Clearing image " + index);
         imageViews.get(index).setImageResource(android.R.color.transparent);
     }
 
@@ -398,6 +410,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        Log.d("fgsfds", "Cursor: " + cursor);
         if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
             searchDriver();
         } else {

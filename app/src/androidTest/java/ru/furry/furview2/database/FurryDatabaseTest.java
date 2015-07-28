@@ -1,6 +1,7 @@
 package ru.furry.furview2.database;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import org.joda.time.DateTime;
 
@@ -12,14 +13,12 @@ import java.util.List;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
 import ru.furry.furview2.images.Rating;
-import ru.furry.furview2.system.AsyncDatabaseResponseHandlerGUI;
 
 import static ru.furry.furview2.system.Utils.assertImageEquality;
 
 public class FurryDatabaseTest extends AndroidTestCase {
 
     private FurryDatabase database;
-    private List<FurImage> dbImages;
     private FurImage testImage = new FurImageBuilder()
             .setSearchQuery("ururu :3")
             .setDescription("ur ur ur ur")
@@ -45,27 +44,19 @@ public class FurryDatabaseTest extends AndroidTestCase {
             .setLocalScore(21)
             .setLocalTags(new ArrayList<String>(Arrays.asList("localtag1", "localtag2", "localtag3")));
 
+    private FurImage emptyImage = new FurImageBuilder()
+            .setRating(Rating.NA)
+            .setDownloadedAt(new DateTime())
+            .setMd5(new BigInteger("b1946ac92492d2347c6235b4d2611184", 36))
+            .createFurImage()
+            .setFilePath(null);
+
 
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        database = new FurryDatabase(new AsyncDatabaseResponseHandlerGUI() {
-            @Override
-            public void blockInterfaceForDBResponse() {
-
-            }
-
-            @Override
-            public void unblockInterfaceForDBResponse() {
-
-            }
-
-            @Override
-            public void retrieveDBResponse(List<FurImage> images) {
-
-            }
-        }, this.getContext());
+        database = new FurryDatabase(this.getContext());
         database.storeImage(testImage, database.getWritableDatabase());
     }
 
@@ -86,6 +77,13 @@ public class FurryDatabaseTest extends AndroidTestCase {
         assertTrue(images.size() == 0);
         images = database.getImages("~tag1 ~tag2 -tag10 tag3 -rating:e", database.getWritableDatabase());
         assertTrue(images.size() == 1);
+
+        database.deleteImage(testImage.getMd5(), database.getWritableDatabase());
+        database.storeImage(emptyImage, database.getWritableDatabase());
+        images = database.getImages("", database.getWritableDatabase());
+        assertTrue(images.size() == 1);
+        database.deleteImage(emptyImage.getMd5(), database.getWritableDatabase());
+
     }
 
     public void testSearchByMD5() throws Exception {
@@ -95,7 +93,9 @@ public class FurryDatabaseTest extends AndroidTestCase {
 
     public void testDeletion() throws Exception {
         database.deleteImage(testImage.getMd5(), database.getWritableDatabase());
-        List<FurImage> images = database.getImageByMD5(testImage.getMd5(), database.getWritableDatabase());
+        List<FurImage> images = database.getImages("", database.getWritableDatabase());
+        assertTrue(images.size() == 0);
+        images = database.getImageByMD5(testImage.getMd5(), database.getWritableDatabase());
         assertTrue(images.size() == 0);
         database.storeImage(testImage, database.getWritableDatabase());
     }

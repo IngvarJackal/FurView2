@@ -1,5 +1,6 @@
 package ru.furry.furview2.drivers.e621;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -49,6 +50,8 @@ import ru.furry.furview2.system.Files;
 import ru.furry.furview2.system.ProxiedHTTPSLoader;
 import ru.furry.furview2.system.Utils;
 
+import static ru.furry.furview2.drivers.DriverUtils.checkPathStructureForImages;
+
 public class DriverE621 extends Driver {
 
     private static final String SEARCH_PATH = "https://e621.net/post/index.xml";
@@ -76,9 +79,9 @@ public class DriverE621 extends Driver {
     private String searchQuery;
 
     @Override
-    public void init(String permanentStorage) {
+    public void init(String permanentStorage, Context context) {
         this.permanentStorage = permanentStorage;
-        checkPathStructure(permanentStorage);
+        checkPathStructureForImages(permanentStorage);
     }
 
     // UTILITY
@@ -135,25 +138,8 @@ public class DriverE621 extends Driver {
                 .setFileHeight(remoteImage.getFileHeight())
                 .setDownloadedAt(new DateTime())
                 .setPageUrl("https://e621.net/post/show/" + remoteImage.getIdE621())
+                .setFilePath(remoteImage.getFileUrl())
                 .createFurImage();
-    }
-
-    private void checkPathStructure(String path) {
-        try {
-            checkDir(new File(path));
-            checkDir(new File(String.format("%s/%s", path, Files.E621_IMAGES)));
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
-    }
-
-    private void checkDir(File path) throws IOException {
-        if (!path.exists()) {
-            path.mkdirs();
-        } else if (!path.isDirectory()) {
-            path.delete();
-            path.mkdir();
-        }
     }
 
 
@@ -269,61 +255,25 @@ public class DriverE621 extends Driver {
         }
     }
 
-    private static void fetchImage(String url, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
-        imageLoader.displayImage(url, listener, displayOptions, loadingListener);
-    }
-
-    private static FurImage fetchPreviews(RemoteFurImageE621 remoteImage, ImageAware listener, ImageLoadingListener loadingListener) throws IOException {
-        imageLoader.displayImage(remoteImage.getPreviewUrl(), listener, displayOptions, loadingListener);
-        return remoteFurImagetoFurImageE621(remoteImage);
-    }
-
-    /*
     @Override
-    public void downloadImageFile(String imageUrl, ImageAware listener) {
-        Log.d("fgsfds", "downloading image: " + imageUrl);
-        try {
-            fetchImage(imageUrl, listener, null);
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
-    }
-    */
-
-    @Override
-    public void downloadImageFile(String imageUrl, ImageAware listener, ImageLoadingListener loadingListener) {
-        Log.d("fgsfds", "downloading image: " + imageUrl);
-        try {
-            fetchImage(imageUrl, listener, loadingListener);
-        } catch (IOException e) {
-            Utils.printError(e);
-        }
+    public void downloadImageFile(FurImage image, ImageAware listener, ImageLoadingListener loadingListener) {
+        Log.d("fgsfds", "downloading image: " + image.getFileUrl());
+        imageLoader.displayImage(image.getFileUrl(), listener, displayOptions, loadingListener);
     }
 
     @Override
     public void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
         for (int i = 0; i < images.size(); i++) {
-            try {
-                fetchPreviews((RemoteFurImageE621)images.get(i), listeners.get(i), loadingListeners.get(i));
-            } catch (IOException e) {
-                Utils.printError(e);
-            }
-            ;
-        }
-    }
-
-    @Override
-    public void loadFileFromLocalStorage(List<FurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
-        for (int i = 0; i < images.size(); i++) {
-            imageLoader.displayImage(images.get(i).getFilePath(), listeners.get(i), displayOptions, loadingListeners.get(i));
+            imageLoader.displayImage(images.get(i).getPreviewUrl(), listeners.get(i), displayOptions, loadingListeners.get(i));
         }
     }
 
     @Override
     public void saveToDBandStorage(FurImage image, FurryDatabase database) {
-        image.setFilePath(String.format("%s/%s/", permanentStorage, Files.E621_IMAGES) + image.getMd5() + "." + image.getFileExt());
+        image.setFilePath(String.format("%s/%s/", permanentStorage, Files.IMAGES) + image.getMd5() + "." + image.getFileExt());
         database.create(image);
         final String imagePath = image.getFilePath();
+        Log.d("fgsfds", "saving image to " + imagePath);
         imageLoader.loadImage(image.getFileUrl(), downloadOptions, new SimpleImageLoadingListener() {
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {

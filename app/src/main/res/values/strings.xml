@@ -69,5 +69,6 @@ Search for posts that are rated safe, questionable, or explicit. rating:s, ratin
 <br>
 For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     ]]></string>
+    <string name="local_search_help">hi!</string>
 
 </resources>
