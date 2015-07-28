@@ -2,9 +2,10 @@ package ru.furry.furview2.system;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import ru.furry.furview2.proxy.GetProxiedConnection;
 
 public class ProxiedHTTPSLoader {
     private static final String CHARSET = "UTF-8";

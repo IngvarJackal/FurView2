@@ -1,4 +1,4 @@
-package ru.furry.furview2.system;
+package ru.furry.furview2.proxy;
 
 public class ProxyItem {
 
