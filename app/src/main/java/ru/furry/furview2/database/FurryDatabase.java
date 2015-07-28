@@ -183,7 +183,7 @@ public class FurryDatabase {
     }
 
     private static Utils.Tuple<String, String[]> constructQuery(String query) {
-        query = query.replaceAll("\\s", " ");
+        query = query.replaceAll("\\s+", " ");
         if (query.replace(" ", "").equals("")) {
             return new Utils.Tuple<>("select * from images where deleted == 'FALSE'", new String[0]);
         }
@@ -203,7 +203,7 @@ public class FurryDatabase {
                 not.add(tag.substring(1));
             } else if (tag.startsWith("~")) {
                 or.add(tag.substring(1));
-            } else {
+            } else if (!tag.isEmpty()) {
                 and.add(tag);
             }
         }
@@ -218,9 +218,13 @@ public class FurryDatabase {
         if (specTags.rating != null) {
             sqlQuery.append("and i.rating ");
             if (specTags.rating.startsWith("-"))
-                sqlQuery.append("not");
-            sqlQuery.append(" in (?) ");
+                sqlQuery.append("!= ");
+            else {
+                sqlQuery.append("== ");
+            }
+            sqlQuery.append("? ");
             arguments.add(specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
+            Log.d("fgsfds", "rating: " + specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
         }
 
 
@@ -293,7 +297,7 @@ public class FurryDatabase {
         String sqlQuery = tQuery.x;
         String[] arguments = tQuery.y;
 
-        Log.d("suckfuck", sqlQuery);
+        Log.d("fgsfds", "DB request: " + sqlQuery + " " + Arrays.toString(arguments));
 
         Cursor cursor = db.rawQuery(sqlQuery, arguments);
 
