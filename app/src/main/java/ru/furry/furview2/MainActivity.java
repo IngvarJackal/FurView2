@@ -22,7 +22,6 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -267,14 +266,19 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
+                procCounter.reset();
                 shownImages.set(0);
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
-                int i = 0;
-                cursor = Math.max(-1, cursor - (shownImages.get() + 1) * 2);
+
+                if (procCounter.getVal() != 0)
+                    cursor = Math.max(-1, cursor - (shownImages.get()) * 2 - 2);
+                else
+                    cursor = Math.max(-1, cursor - (shownImages.get()));
+                procCounter.reset();
                 remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
         };
