@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:id="@+id/mainScreenLayout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/app_name"
+        android:id="@+id/topLabel"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="52dp"
+        android:id="@+id/searchField"
+        android:hint="@string/search_text"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:singleLine="true"
+        android:layout_toStartOf="@+id/topLabel"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_toLeftOf="@+id/topLabel" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout6"
+        android:layout_above="@+id/picturesLayout"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:id="@+id/downloadButton"
+            android:layout_weight="1"
+            android:text="@string/download" />
+
+        <ToggleButton
+            android:layout_width="24dp"
+            android:layout_height="44dp"
+            android:id="@+id/sfwButton"
+            android:textSize="12sp"
+            android:textOff="S\nF\nW"
+            android:textOn="S\nF\nW"
+            android:layout_weight="1"
+            android:background="#ccb3b3b3"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <EditText
+        android:layout_width="104dp"
+        android:layout_height="52dp"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/numOfPicsEditText"
+        android:layout_alignBottom="@+id/searchField"
+        android:layout_toRightOf="@+id/searchField"
+        android:layout_toLeftOf="@+id/linearLayout6"
+        android:layout_toStartOf="@+id/linearLayout6"
+        android:singleLine="false"
+        android:numeric="integer"
+        android:nestedScrollingEnabled="false"
+        android:hint="@string/num_of_images_hint"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:id="@+id/listView"
+        android:layout_weight="1"
+        android:layout_below="@+id/searchField" />
+
+</RelativeLayout>

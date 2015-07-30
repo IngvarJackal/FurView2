@@ -70,5 +70,11 @@ Search for posts that are rated safe, questionable, or explicit. rating:s, ratin
 For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     ]]></string>
     <string name="local_search_help">hi!</string>
+    <string name="title_downloading_screen">Массовая загрузка</string>
+    <string name="download">Скачать</string>
+    <string name="imageboard_name">имиджборда</string>
+    <string name="gallery_name">галерея</string>
+    <string name="action_downloading">Массовое скачивание</string>
+    <string name="num_of_images_hint"># изобр.</string>
 
 </resources>

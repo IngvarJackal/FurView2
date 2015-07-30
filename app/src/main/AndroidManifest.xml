@@ -66,6 +66,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DownloadingActivity"
+            android:label="@string/title_downloading_screen">
+            <intent-filter>
+                <action android:name="ru.furry.furview2.DownloadingActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

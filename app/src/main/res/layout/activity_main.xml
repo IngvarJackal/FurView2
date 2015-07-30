@@ -51,6 +51,7 @@
             android:layout_height="44dp"
             android:id="@+id/sfwButton"
             android:layout_alignBottom="@+id/searchField"
+            android:layout_toRightOf="@+id/picturesLayout"
             android:layout_toEndOf="@+id/picturesLayout"
             android:layout_alignTop="@+id/SearchButton"
             android:textSize="12sp"
@@ -70,6 +71,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:id="@+id/picturesLayout"
+
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/searchField">
