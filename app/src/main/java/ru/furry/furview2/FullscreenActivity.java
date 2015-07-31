@@ -1,6 +1,7 @@
 package ru.furry.furview2;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -52,8 +53,6 @@ public class FullscreenActivity extends AppCompatActivity {
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW = 5;
 
-    private BlockUnblockUI ui;
-
     ImageView mPictureImageView;
     ScrollView mScrollVew;
     TableLayout mTagsTable;
@@ -67,23 +66,24 @@ public class FullscreenActivity extends AppCompatActivity {
     ImageButton mSearchButton;
     ImageButton mSaveButton;
     ProgressBar mSaveButtonProgress;
-    RelativeLayout mRelativeLayout;
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
     Drivers driverEnum;
     int fIndex;
+    RelativeLayout mRelativeLayout;
+    BlockUnblockUI blocking;
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
         public void blockUI() {
-            ui.blockUI();
+            blocking.blockUI();
             Log.d("fgsfds", "1");
         }
 
         @Override
         public void unblockUI() {
-            ui.unblockUI();
+            blocking.unblockUI();
             Log.d("fgsfds", "2");
         }
 
@@ -95,14 +95,14 @@ public class FullscreenActivity extends AppCompatActivity {
                         new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                             @Override
                             public void blockUI() {
+                                blocking.blockUI();
                                 Log.d("fgsfds", "3");
-
                             }
 
                             @Override
                             public void unblockUI() {
+                                blocking.blockUI();
                                 Log.d("fgsfds", "4");
-
                             }
 
                             @Override
@@ -156,7 +156,7 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+        Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
         mPictureImageView = (ImageView) findViewById(R.id.picImgView);
         mScrollVew = (ScrollView) findViewById(R.id.scrollView);
@@ -172,46 +172,25 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
-        mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
 
-        ui = new BlockUnblockUI(mRelativeLayout);
+        mRelativeLayout = (RelativeLayout)findViewById(R.id.fullscreenLayout);
+        blocking = new BlockUnblockUI(mRelativeLayout);
 
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
+        Log.d("fgsfds", fImage.toString());
+        driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {
-            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
             driver = driverEnum.driverclass.newInstance();
         } catch (Exception e) {
             Utils.printError(e);
         }
         driver.setSfw(MainActivity.swf);
-        //driver.init(); // don't need to do it!
+        driver.init(MainActivity.permanentStorage, getApplicationContext());
 
-        database = new FurryDatabase(new AsyncHandlerUI<FurImage>() {
-            @Override
-            public void blockUI() {
-                ui.blockUI();
-                Log.d("fgsfds", "5");
-            }
+        database = new FurryDatabase(getApplicationContext());
 
-            @Override
-            public void unblockUI() {
-                ui.unblockUI();
-                Log.d("fgsfds", "6");
-                mSaveButtonProgress.setVisibility(View.GONE);
-                mSaveButton.setEnabled(true);
-            }
-
-            @Override
-            public void retrieve(List<? extends FurImage> images) {
-                if (images.size() > 0) {
-                    enableDeleteMode();
-                } else {
-                    enableDownloadMode();
-                }
-            }
-        },
-                getApplicationContext());
+        Log.d("fgsfds database", database.getTableAsString("images"));
 
         ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
             @Override
@@ -272,7 +251,7 @@ public class FullscreenActivity extends AppCompatActivity {
         });
 
 
-        driver.downloadImageFile(fImage.getFileUrl(), new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
+        driver.downloadImageFile(fImage, new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
 
@@ -297,24 +276,17 @@ public class FullscreenActivity extends AppCompatActivity {
         mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
             @Override
             public void onSwipeLeft() {
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
                 fIndex += 1;
                 MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
             }
 
             @Override
             public void onSwipeRight() {
-                /*int i = 0;
-                int LIMIT = 2;
-                while (MainActivity.remoteImagesIterator.hasPrevious() && i < LIMIT) {
-                    MainActivity.remoteImagesIterator.previous();
-                    i++;
-                }*/
-                boolean needLoadNext = Math.max(-1, MainActivity.cursor - 2) > -1;
-                MainActivity.cursor = Math.max(-1, MainActivity.cursor - 2);
-                Log.d("fgsfds", "Current cursor: " + MainActivity.cursor);
+                boolean needLoadNext = fIndex > 0;
                 if (needLoadNext) {
-                    fIndex -= 1;
+                    MainActivity.cursor = fIndex - 1;
+                    fIndex = MainActivity.cursor;
+                    Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor + " fIndex " + fIndex);
                     MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
                 }
             }
@@ -326,7 +298,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database.delete(fImage);
+                driver.deleteFromDBandStorage(fImage, database);
                 enableDownloadMode();
             }
         });
@@ -337,7 +309,8 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                database.create(fImage);
+                driver.saveToDBandStorage(fImage, database);
+                Log.d("fgsfds", fImage.toString());
                 enableDeleteMode();
             }
         });
@@ -345,7 +318,30 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private void imageLoaded() {
         mProgress.setVisibility(View.GONE);
-        database.searchByMD5(fImage.getMd5());
+        database.searchByMD5(fImage.getMd5(), new AsyncHandlerUI<FurImage>() {
+            @Override
+            public void blockUI() {
+                blocking.blockUI();
+                Log.d("fgsfds", "5");
+            }
+
+            @Override
+            public void unblockUI() {
+                blocking.unblockUI();
+                Log.d("fgsfds", "6");
+                mSaveButtonProgress.setVisibility(View.GONE);
+                mSaveButton.setEnabled(true);
+            }
+
+            @Override
+            public void retrieve(List<? extends FurImage> images) {
+                if (images.size() > 0) {
+                    enableDeleteMode();
+                } else {
+                    enableDownloadMode();
+                }
+            }
+        });
     }
 
     @Override
