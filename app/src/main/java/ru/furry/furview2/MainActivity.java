@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -35,6 +36,7 @@ import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncCounter;
 import ru.furry.furview2.system.AsyncHandlerUI;
+import ru.furry.furview2.system.BlockUnblockUI;
 import ru.furry.furview2.system.ListlikeIterator;
 import ru.furry.furview2.system.Utils;
 
@@ -50,15 +52,17 @@ public class MainActivity extends AppCompatActivity {
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
 
+    private BlockUnblockUI ui;
+
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
         public void blockUI() {
-
+            ui.blockUI();
         }
 
         @Override
         public void unblockUI() {
-
+            ui.unblockUI();
         }
 
         @Override
@@ -98,12 +102,14 @@ public class MainActivity extends AppCompatActivity {
                 driver.search(searchQuery, new AsyncHandlerUI<RemoteFurImage>() {
                     @Override
                     public void blockUI() {
-                        remoteImagesHandler2.blockUI();
+                        //remoteImagesHandler2.blockUI();
+                        ui.blockUI();
                     }
 
                     @Override
                     public void unblockUI() {
-                        remoteImagesHandler2.unblockUI();
+                        //remoteImagesHandler2.unblockUI();
+                        ui.unblockUI();
                     }
 
                     @Override
@@ -135,12 +141,14 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void blockUI() {
-                    remoteImagesHandler2.blockUI();
+                    //remoteImagesHandler2.blockUI();
+                    ui.blockUI();
                 }
 
                 @Override
                 public void unblockUI() {
-                    remoteImagesHandler2.unblockUI();
+                    //remoteImagesHandler2.unblockUI();
+                    ui.unblockUI();
                 }
 
                 @Override
@@ -174,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
     List<DataImageView> imageViews;
     ToggleButton sfwButton;
     LinearLayout picturesLayout;
+    RelativeLayout mRelativeLayout;
 
     View.OnTouchListener mImageButtonSwitchListener;
     View.OnClickListener mImageButtonClickListener;
@@ -215,6 +224,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
+        Log.d("fgsfds", "id picturesLayout =" + picturesLayout.getId());
+
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
+        ui = new BlockUnblockUI(mRelativeLayout);
 
         mSearchField = (EditText) findViewById(R.id.searchField);
         mSearchButton = (ImageButton) findViewById(R.id.searchButton);
@@ -352,11 +365,12 @@ public class MainActivity extends AppCompatActivity {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
+                    ui.blockUI();
                 }
 
                 @Override
                 public void unblockUI() {
-
+                    ui.unblockUI();
                 }
 
                 @Override
@@ -407,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.d("fgsfds", "Clearing cache.");
+        Log.d("fgsfds", "This place for delete cache.");
         super.onDestroy();
     }
 

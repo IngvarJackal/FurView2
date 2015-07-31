@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -40,6 +41,7 @@ import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
+import ru.furry.furview2.system.BlockUnblockUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -49,6 +51,8 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW = 5;
+
+    private BlockUnblockUI ui;
 
     ImageView mPictureImageView;
     ScrollView mScrollVew;
@@ -63,6 +67,7 @@ public class FullscreenActivity extends AppCompatActivity {
     ImageButton mSearchButton;
     ImageButton mSaveButton;
     ProgressBar mSaveButtonProgress;
+    RelativeLayout mRelativeLayout;
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
@@ -72,12 +77,14 @@ public class FullscreenActivity extends AppCompatActivity {
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
         public void blockUI() {
-
+            ui.blockUI();
+            Log.d("fgsfds", "1");
         }
 
         @Override
         public void unblockUI() {
-
+            ui.unblockUI();
+            Log.d("fgsfds", "2");
         }
 
         @Override
@@ -88,11 +95,13 @@ public class FullscreenActivity extends AppCompatActivity {
                         new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                             @Override
                             public void blockUI() {
+                                Log.d("fgsfds", "3");
 
                             }
 
                             @Override
                             public void unblockUI() {
+                                Log.d("fgsfds", "4");
 
                             }
 
@@ -163,6 +172,9 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
+
+        ui = new BlockUnblockUI(mRelativeLayout);
 
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
@@ -178,11 +190,14 @@ public class FullscreenActivity extends AppCompatActivity {
         database = new FurryDatabase(new AsyncHandlerUI<FurImage>() {
             @Override
             public void blockUI() {
-
+                ui.blockUI();
+                Log.d("fgsfds", "5");
             }
 
             @Override
             public void unblockUI() {
+                ui.unblockUI();
+                Log.d("fgsfds", "6");
                 mSaveButtonProgress.setVisibility(View.GONE);
                 mSaveButton.setEnabled(true);
             }
