@@ -76,5 +76,11 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="gallery_name">галерея</string>
     <string name="action_downloading">Массовое скачивание</string>
     <string name="num_of_images_hint"># изобр.</string>
+    <string name="too_many_pics">Много изображений</string>
+    <string name="too_many_pics_body">Множество изображений для закачивания может привести к исчерапнию памяти или длительной загрузке. Продолжить?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="no_zero">Необходимо заполнить поле числа картинок ненулевым значением</string>
+    <string name="images_downloaded">Изображений скачано:</string>
 
 </resources>

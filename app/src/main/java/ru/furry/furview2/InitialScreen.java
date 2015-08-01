@@ -60,10 +60,15 @@ public class InitialScreen extends AppCompatActivity {
         setContentView(R.layout.activity_initial_screen);
         context = getApplicationContext();
 
+        MainActivity.permanentStorage = getApplicationContext().getExternalFilesDir(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
+                .getAbsolutePath();
+
         //Initial settings
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         sfwButton.setOnClickListener(new View.OnClickListener() {

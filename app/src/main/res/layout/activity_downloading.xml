@@ -77,6 +77,35 @@
         android:layout_height="fill_parent"
         android:id="@+id/listView"
         android:layout_weight="1"
-        android:layout_below="@+id/searchField" />
+        android:layout_below="@+id/linearLayout6"
+        android:layout_above="@+id/linearLayout5" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/linearLayout5">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/counterTextEdit"
+            android:inputType="none"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:enabled="false"
+            android:focusable="false"
+            android:editable="false" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="36dp"
+            android:id="@+id/massDownloadingProgressBar"
+            android:layout_weight="1"
+            android:indeterminate="false" />
+    </LinearLayout>
 
 </RelativeLayout>

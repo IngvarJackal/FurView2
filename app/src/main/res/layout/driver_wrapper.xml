@@ -12,16 +12,18 @@
         android:layout_alignParentLeft="true"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:text="CheckBox" />
+        android:text="CheckBox"
+        android:layout_alignRight="@+id/type"
+        android:layout_alignEnd="@+id/type" />
 
     <TextView
         android:id="@+id/type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/code"
-        android:layout_alignBottom="@+id/code"
-        android:layout_toRightOf="@+id/code"
-        android:text="TextView" />
+        android:text="TextView"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
 

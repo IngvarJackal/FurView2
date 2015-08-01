@@ -4,8 +4,8 @@ package ru.furry.furview2;
 import android.app.Application;
 import android.os.Environment;
 
-public class GlobalData extends Application{
-    private String appPath;
+public class GlobalData extends Application {
+    private static String appPath;
 
     public String getState(){
         return appPath;

@@ -288,9 +288,6 @@ public class MainActivity extends AppCompatActivity {
         mImageView3.setOnTouchListener(mImageButtonSwitchListener);
         mImageView4.setOnTouchListener(mImageButtonSwitchListener);
 
-        permanentStorage = getApplicationContext().getExternalFilesDir(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
-                .getAbsolutePath();
         Log.d("fgsfds", "storage: " + permanentStorage);
 
         driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
