@@ -56,12 +56,12 @@ public class MainActivity extends AppCompatActivity {
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
         public void blockUI() {
-
+            Log.d("fgsfds", "remoteImagesIteratorHandler block");
         }
 
         @Override
         public void unblockUI() {
-
+            Log.d("fgsfds", "remoteImagesIteratorHandler unblock");
         }
 
         @Override
@@ -101,11 +101,13 @@ public class MainActivity extends AppCompatActivity {
                 driver.search(searchQuery, new AsyncHandlerUI<RemoteFurImage>() {
                     @Override
                     public void blockUI() {
+                        Log.d("fgsfds", "driver.search block");
                         remoteImagesHandler2.blockUI();
                     }
 
                     @Override
                     public void unblockUI() {
+                        Log.d("fgsfds", "driver.search unblock");
                         remoteImagesHandler2.unblockUI();
                     }
 
@@ -138,11 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void blockUI() {
+                    Log.d("fgsfds", "driver.getNext block");
                     remoteImagesHandler2.blockUI();
                 }
 
                 @Override
                 public void unblockUI() {
+                    Log.d("fgsfds", "driver.getNext unblock");
                     remoteImagesHandler2.unblockUI();
                 }
 
@@ -342,20 +346,22 @@ public class MainActivity extends AppCompatActivity {
                 new ArrayList<ImageLoadingListener>(Arrays.asList(new ImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
-
+                        Log.d("fgsfds", "onLoadingStarted block");
                     }
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
+                        Log.d("fgsfds", "onLoadingStarted unblock");
                     }
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        Log.d("fgsfds", "onLoadingStarted unblock");
                     }
 
                     @Override
                     public void onLoadingCancelled(String imageUri, View view) {
+                        Log.d("fgsfds", "onLoadingStarted unblock");
 
                     }
                 })));
@@ -363,11 +369,12 @@ public class MainActivity extends AppCompatActivity {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
+                    Log.d("fgsfds", "driver.downloadFurImage block");
                 }
 
                 @Override
                 public void unblockUI() {
-
+                    Log.d("fgsfds", "driver.downloadFurImage unblock");
                 }
 
                 @Override
@@ -452,5 +459,4 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }
