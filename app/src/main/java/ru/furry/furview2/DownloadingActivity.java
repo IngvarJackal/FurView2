@@ -142,11 +142,13 @@ public class DownloadingActivity extends AppCompatActivity {
             this.size = 0;
             counterTextEdit.setText("");
             massDownloadingProgressBar.setMax(maxSize);
+            Log.d("fgsfds", "max size: " + maxSize);
             blocking = new AtomicInteger(0);
         }
 
         public synchronized void increment() {
             size += 1;
+            Log.d("fgsfds", "size: " + size);
             counterTextEdit.setText(Integer.toString(size));
             massDownloadingProgressBar.setProgress(size);
             if (size == maxSize) {
