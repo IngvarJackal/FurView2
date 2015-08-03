@@ -21,7 +21,7 @@ public class BlockUnblockUI {
             relativeLayout.getChildAt(i).setEnabled(false);
         }
         counterTheads.set(counterTheads.incrementAndGet());
-        Log.d("fgsfds", "Lock UI! counterTheads ="+counterTheads.get());
+        Log.d("fgsfds", "Lock UI! counterTheads after locking ="+counterTheads.get());
     }
 
     public void unblockUI() {
@@ -29,9 +29,8 @@ public class BlockUnblockUI {
         if (counterTheads.get() < 1) {
             for (int i = 0; i < relativeLayout.getChildCount(); i++) {
                 relativeLayout.getChildAt(i).setEnabled(true);
-                Log.d("fgsfds", "id =" + relativeLayout.getChildAt(i).getId());
             }
-            Log.d("fgsfds", "Unblock UI! counterTheads ="+counterTheads.get());
+            Log.d("fgsfds", "Unblock UI! counterTheads after unlocking ="+counterTheads.get());
         }
     }
 }

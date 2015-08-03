@@ -107,15 +107,15 @@ public class MainActivity extends AppCompatActivity {
                 driver.search(searchQuery, new AsyncHandlerUI<RemoteFurImage>() {
                     @Override
                     public void blockUI() {
-                        //remoteImagesHandler2.blockUI();
-                        ui.blockUI();
+                        remoteImagesHandler2.blockUI();
+                        //ui.blockUI();
                         Log.d("fgsfds", "3");
                     }
 
                     @Override
                     public void unblockUI() {
-                        //remoteImagesHandler2.unblockUI();
-                        ui.unblockUI();
+                        remoteImagesHandler2.unblockUI();
+                        //ui.unblockUI();
                         Log.d("fgsfds", "4");
                     }
 
@@ -233,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
-        Log.d("fgsfds", "id picturesLayout =" + picturesLayout.getId());
 
         mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
         ui = new BlockUnblockUI(mRelativeLayout);
