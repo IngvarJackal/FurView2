@@ -159,18 +159,20 @@ public class DownloadingActivity extends AppCompatActivity {
     }
 
     private void unblockUI_() {
+        Log.d("fgsfds", "UI unblocked");
         Toast.makeText(getApplicationContext(), getResources().getString(R.string.images_downloaded) + " " + syncCounter.size,
                 Toast.LENGTH_SHORT).show();
     }
 
     private void blockUI_() {
-
+        Log.d("fgsfds", "UI blocked...");
     }
 
     private void startDownload() {
         blockUI_();
         for (final Drivers driver : drivers) {
             try {
+                Log.d("fgsfds", "init " + driver.drivername);
                 final Driver driverInstance = driver.driverclass.newInstance();
                 final AtomicInteger counter = new AtomicInteger(0);
                 final List<RemoteFurImage> remoteImages = new ArrayList<>(numOfPics);
@@ -195,9 +197,9 @@ public class DownloadingActivity extends AppCompatActivity {
                             driverInstance.saveToDBandStorage(image, database);
                             syncCounter.increment();
                         }
-                        if (syncCounter.blocking.decrementAndGet() == 0) {
-                            unblockUI_();
-                        }
+//                        if (syncCounter.blocking.decrementAndGet() == 0) {
+//                            unblockUI_();
+//                        }
                     }
                 };
 
