@@ -27,6 +27,7 @@
         android:layout_toLeftOf="@+id/linearLayout8"
         android:layout_toStartOf="@+id/linearLayout8"
         android:layout_below="@+id/imageLabel"
+        android:imeOptions="actionSearch"
         android:textSize="16sp" />
 
     <LinearLayout

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
@@ -69,6 +71,14 @@ public class InitialScreen extends AppCompatActivity {
 
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
         mSearchFieldInitial.setText(MainActivity.searchQuery);
+        mSearchFieldInitial.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                startSearch();
+                return true;
+            }
+        });
+
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         sfwButton.setOnClickListener(new View.OnClickListener() {
@@ -86,12 +96,7 @@ public class InitialScreen extends AppCompatActivity {
         mSearchButtonInitial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent("ru.furry.furview2.MainActivity");
-                String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
-                MainActivity.searchQuery = mSearchQuery;
-                //intent.putExtra("SearchQuery", mSearchQuery);
-                intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
-                startActivity(intent);
+                startSearch();
             }
 
         });
@@ -123,6 +128,16 @@ public class InitialScreen extends AppCompatActivity {
             Utils.printError(e);
         }
         ImageLoader.getInstance().init(uilConfig);
+    }
+
+    private void startSearch()
+    {
+        Intent intent = new Intent("ru.furry.furview2.MainActivity");
+        String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
+        MainActivity.searchQuery = mSearchQuery;
+        //intent.putExtra("SearchQuery", mSearchQuery);
+        intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
+        startActivity(intent);
     }
 
     @Override

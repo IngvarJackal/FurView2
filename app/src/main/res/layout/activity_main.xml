@@ -25,6 +25,7 @@
         android:singleLine="true"
         android:layout_toStartOf="@+id/linearLayout6"
         android:layout_toLeftOf="@+id/linearLayout6"
+        android:imeOptions="actionSearch"
         android:textSize="16sp" />
 
     <LinearLayout
