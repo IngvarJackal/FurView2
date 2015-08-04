@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -36,6 +37,7 @@ import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncCounter;
 import ru.furry.furview2.system.AsyncHandlerUI;
+import ru.furry.furview2.system.BlockUnblockUI;
 import ru.furry.furview2.system.ListlikeIterator;
 import ru.furry.furview2.system.Utils;
 
@@ -56,12 +58,12 @@ public class MainActivity extends AppCompatActivity {
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
         public void blockUI() {
-
+            blocking.blockUI();
         }
 
         @Override
         public void unblockUI() {
-
+            blocking.unblockUI();
         }
 
         @Override
@@ -132,24 +134,23 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private void downloadImages(AsyncHandlerUI<Boolean> remoteImagesHandler) {
-            final AsyncHandlerUI<Boolean> remoteImagesHandler2 = remoteImagesHandler;
+        private void downloadImages(final AsyncHandlerUI<Boolean> remoteImagesHandler) {
             driver.getNext(new AsyncHandlerUI<RemoteFurImage>() {
 
                 @Override
                 public void blockUI() {
-                    remoteImagesHandler2.blockUI();
+                    remoteImagesHandler.blockUI();
                 }
 
                 @Override
                 public void unblockUI() {
-                    remoteImagesHandler2.unblockUI();
+                    remoteImagesHandler.unblockUI();
                 }
 
                 @Override
                 public void retrieve(List<? extends RemoteFurImage> images) {
                     downloadedRemoteImages.addAll(images);
-                    remoteImagesHandler2.retrieve(new ArrayList<>(Arrays.asList(driver.hasNext())));
+                    remoteImagesHandler.retrieve(new ArrayList<>(Arrays.asList(driver.hasNext())));
                 }
             });
         }
@@ -177,6 +178,9 @@ public class MainActivity extends AppCompatActivity {
     List<DataImageView> imageViews;
     ToggleButton sfwButton;
     LinearLayout picturesLayout;
+    RelativeLayout mRelativeLayout;
+
+    BlockUnblockUI blocking;
 
     View.OnTouchListener mImageButtonSwitchListener;
     View.OnClickListener mImageButtonClickListener;
@@ -218,6 +222,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
+
+        mRelativeLayout=(RelativeLayout)findViewById(R.id.mainScreenLayout);
+        blocking = new BlockUnblockUI(mRelativeLayout);
 
         mSearchField = (EditText) findViewById(R.id.searchField);
         mSearchButton = (ImageButton) findViewById(R.id.searchButton);
@@ -342,32 +349,34 @@ public class MainActivity extends AppCompatActivity {
                 new ArrayList<ImageLoadingListener>(Arrays.asList(new ImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
-
+                        blocking.blockUI();
                     }
 
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
+                        blocking.unblockUI();
                     }
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        blocking.unblockUI();
                     }
 
                     @Override
                     public void onLoadingCancelled(String imageUri, View view) {
-
+                        blocking.unblockUI();
                     }
                 })));
         if (cursor + NUM_OF_PICS*2 >= downloadedImages.size()) {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
+                    blocking.blockUI();
                 }
 
                 @Override
                 public void unblockUI() {
-
+                    blocking.unblockUI();
                 }
 
                 @Override
@@ -452,5 +461,4 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }
