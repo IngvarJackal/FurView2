@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     public static String permanentStorage;
     public static String searchQuery = "";
     private static String previousQuery = null;
-    public static boolean swf = false;
+    public static boolean swf = true;
     public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);

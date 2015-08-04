@@ -160,7 +160,7 @@ public class InitialScreen extends AppCompatActivity {
         }
         //swf button
         if (mSettings.contains(APP_PREFERENCES_SWF)) {
-            MainActivity.swf = mSettings.getBoolean(APP_PREFERENCES_SWF, false);
+            MainActivity.swf = mSettings.getBoolean(APP_PREFERENCES_SWF, true);
         }
 
         sfwButton.setChecked(MainActivity.swf);
