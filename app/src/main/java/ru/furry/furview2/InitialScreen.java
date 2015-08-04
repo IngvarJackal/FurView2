@@ -60,10 +60,15 @@ public class InitialScreen extends AppCompatActivity {
         setContentView(R.layout.activity_initial_screen);
         context = getApplicationContext();
 
+        MainActivity.permanentStorage = getApplicationContext().getExternalFilesDir(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
+                .getAbsolutePath();
+
         //Initial settings
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
         mSearchFieldInitial = (EditText) findViewById(R.id.searchFieldInitial);
+        mSearchFieldInitial.setText(MainActivity.searchQuery);
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButtonInitial);
         sfwButton.setOnClickListener(new View.OnClickListener() {
@@ -240,6 +245,12 @@ public class InitialScreen extends AppCompatActivity {
             case (R.id.action_searchelp): {
                 Intent intent = new Intent("ru.furry.furview2.HelpScreen");
                 intent.putExtra("helptextId", Drivers.getDriver(mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString()).searchHelpId);
+                startActivity(intent);
+                return true;
+            }
+            case (R.id.action_downloading): {
+                Intent intent = new Intent("ru.furry.furview2.DownloadingActivity");
+                intent.putExtra("drivername", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
                 startActivity(intent);
                 return true;
             }

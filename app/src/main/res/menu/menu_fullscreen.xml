@@ -22,5 +22,10 @@
         android:orderInCategory="100"
         android:title="@string/action_searchelp"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_downloading"
+        android:orderInCategory="100"
+        android:title="@string/action_downloading"
+        app:showAsAction="never" />
 
 </menu>

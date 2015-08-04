@@ -295,9 +295,6 @@ public class MainActivity extends AppCompatActivity {
         mImageView3.setOnTouchListener(mImageButtonSwitchListener);
         mImageView4.setOnTouchListener(mImageButtonSwitchListener);
 
-        permanentStorage = getApplicationContext().getExternalFilesDir(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
-                .getAbsolutePath();
         Log.d("fgsfds", "storage: " + permanentStorage);
 
         driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
@@ -452,6 +449,12 @@ public class MainActivity extends AppCompatActivity {
             case (R.id.action_searchelp): {
                 Intent intent = new Intent("ru.furry.furview2.HelpScreen");
                 intent.putExtra("helptextId", driverEnum.searchHelpId);
+                startActivity(intent);
+                return true;
+            }
+            case (R.id.action_downloading): {
+                Intent intent = new Intent("ru.furry.furview2.DownloadingActivity");
+                intent.putExtra("drivername", driverEnum.drivername);
                 startActivity(intent);
                 return true;
             }
