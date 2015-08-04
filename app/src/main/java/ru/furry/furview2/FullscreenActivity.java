@@ -6,13 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -168,7 +171,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
-        mRelativeLayout = (RelativeLayout)findViewById(R.id.fullscreenLayout);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
 
         blocking = new BlockUnblockUI(mRelativeLayout);
 
@@ -238,11 +241,18 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
+        mTagsEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                startSearch();
+                return true;
+            }
+        });
+
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity.searchQuery = mTagsEditText.getText().toString();
-                finish();
+                startSearch();
             }
         });
 
@@ -290,6 +300,11 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void startSearch() {
+        MainActivity.searchQuery = mTagsEditText.getText().toString();
+        finish();
     }
 
     private void enableDeleteMode() {
