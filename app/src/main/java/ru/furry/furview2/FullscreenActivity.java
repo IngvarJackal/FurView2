@@ -19,6 +19,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -41,6 +42,7 @@ import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
+import ru.furry.furview2.system.BlockUnblockUI;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -69,16 +71,18 @@ public class FullscreenActivity extends AppCompatActivity {
     Driver driver;
     Drivers driverEnum;
     int fIndex;
+    RelativeLayout mRelativeLayout;
+    BlockUnblockUI blocking;
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
         public void blockUI() {
-
+            blocking.blockUI();
         }
 
         @Override
         public void unblockUI() {
-
+            blocking.unblockUI();
         }
 
         @Override
@@ -89,12 +93,12 @@ public class FullscreenActivity extends AppCompatActivity {
                         new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                             @Override
                             public void blockUI() {
-
+                                blocking.blockUI();
                             }
 
                             @Override
                             public void unblockUI() {
-
+                                blocking.unblockUI();
                             }
 
                             @Override
@@ -164,6 +168,9 @@ public class FullscreenActivity extends AppCompatActivity {
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+        mRelativeLayout = (RelativeLayout)findViewById(R.id.fullscreenLayout);
+
+        blocking = new BlockUnblockUI(mRelativeLayout);
 
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
@@ -243,22 +250,25 @@ public class FullscreenActivity extends AppCompatActivity {
         driver.downloadImageFile(fImage, new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
-
+                blocking.blockUI();
             }
 
             @Override
             public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                 imageLoaded();
+                blocking.unblockUI();
             }
 
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                 imageLoaded();
+                blocking.unblockUI();
             }
 
             @Override
             public void onLoadingCancelled(String imageUri, View view) {
                 imageLoaded();
+                blocking.unblockUI();
             }
         });
 
@@ -310,13 +320,14 @@ public class FullscreenActivity extends AppCompatActivity {
         database.searchByMD5(fImage.getMd5(), new AsyncHandlerUI<FurImage>() {
             @Override
             public void blockUI() {
-
+                blocking.blockUI();
             }
 
             @Override
             public void unblockUI() {
                 mSaveButtonProgress.setVisibility(View.GONE);
                 mSaveButton.setEnabled(true);
+                blocking.unblockUI();
             }
 
             @Override
