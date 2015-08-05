@@ -201,9 +201,18 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         };
 
+        View.OnClickListener setTagToSearch = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TextView textView = (TextView)v;
+                mTagsEditText.setText(textView.getText());
+            }
+        };
+
         for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
             for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
                 tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
+                tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
             }
         }
 
