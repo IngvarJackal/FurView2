@@ -56,6 +56,8 @@ public class DownloadingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_downloading);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
         database = new FurryDatabase(this);
 
         searchField = (EditText) findViewById(R.id.searchField);
