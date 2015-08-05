@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     public static String permanentStorage;
     public static String searchQuery = "";
     private static String previousQuery = null;
-    public static boolean swf = false;
+    public static boolean swf = true;
     public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void check(AsyncHandlerUI<Boolean> remoteImagesHandler) {
-            if (downloadedRemoteImages.size()-1 > cursor) {
+            if (downloadedRemoteImages.size() - 1 > cursor) {
                 remoteImagesHandler.retrieve(new ArrayList<>(Arrays.asList(true)));
             } else {
                 if (driver.hasNext()) {
@@ -185,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
     View.OnTouchListener mImageButtonSwitchListener;
     View.OnClickListener mImageButtonClickListener;
     View.OnClickListener mOnSearchButtonListener;
+    TextView.OnEditorActionListener mOnSearchFieldListener;
 
     Driver driver;
     Drivers driverEnum;
@@ -225,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
 
-        mRelativeLayout=(RelativeLayout)findViewById(R.id.mainScreenLayout);
+        mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
         blocking = new BlockUnblockUI(mRelativeLayout);
 
         mSearchField = (EditText) findViewById(R.id.searchField);
@@ -254,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
         mImageButtonClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (FurImage image: currtenlyDownloadedImages) {
+                for (FurImage image : currtenlyDownloadedImages) {
                     if (image != null) {
                         downloadedImages.add(image);
                     }
@@ -310,14 +313,27 @@ public class MainActivity extends AppCompatActivity {
         mOnSearchButtonListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                searchQuery = mSearchField.getText().toString();
-                hideSoftKeyboard(MainActivity.this);
-                searchDriver();
+                startSearch();
+            }
+        };
+
+        mOnSearchFieldListener = new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                startSearch();
+                return true;
             }
         };
 
         mSearchButton.setOnClickListener(mOnSearchButtonListener);
+        mSearchField.setOnEditorActionListener(mOnSearchFieldListener);
 
+        searchDriver();
+    }
+
+    private void startSearch() {
+        searchQuery = mSearchField.getText().toString();
+        hideSoftKeyboard(MainActivity.this);
         searchDriver();
     }
 
@@ -366,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
                         blocking.unblockUI();
                     }
                 })));
-        if (cursor + NUM_OF_PICS*2 >= downloadedImages.size()) {
+        if (cursor + NUM_OF_PICS * 2 >= downloadedImages.size()) {
             driver.downloadFurImage(fImage, new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
                 @Override
                 public void blockUI() {
