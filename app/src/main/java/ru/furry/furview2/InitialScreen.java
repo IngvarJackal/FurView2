@@ -60,6 +60,8 @@ public class InitialScreen extends AppCompatActivity {
         setContentView(R.layout.activity_initial_screen);
         context = getApplicationContext();
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
         MainActivity.permanentStorage = getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath();

@@ -152,6 +152,8 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
         Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
         mPictureImageView = (ImageView) findViewById(R.id.picImgView);
