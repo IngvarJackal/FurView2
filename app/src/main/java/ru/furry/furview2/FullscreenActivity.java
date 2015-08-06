@@ -66,6 +66,7 @@ public class FullscreenActivity extends AppCompatActivity {
     EditText mArtistEditText;
     EditText mDateEditText;
     EditText mTagsEditText;
+    TextView mDescriptionText;
     ImageButton mSearchButton;
     ImageButton mSaveButton;
     ProgressBar mSaveButtonProgress;
@@ -169,6 +170,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mArtistEditText = (EditText) findViewById(R.id.artistEditText);
         mDateEditText = (EditText) findViewById(R.id.dateEditText);
         mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
+        mDescriptionText = (TextView) findViewById(R.id.descriptionText);
         mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
@@ -240,14 +242,18 @@ public class FullscreenActivity extends AppCompatActivity {
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
         mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
+        //mDescriptionText.setText(fImage.getDescription());
+        mDescriptionText.setText(getString(R.string.descriptionLabel) + fImage.getDescription());
 
         mTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mTagsTable.isShown()) {
                     mTagsTable.setVisibility(View.GONE);
+                    mDescriptionText.setVisibility(View.GONE);
                 } else {
                     mTagsTable.setVisibility(View.VISIBLE);
+                    mDescriptionText.setVisibility(View.VISIBLE);
                 }
             }
         });
