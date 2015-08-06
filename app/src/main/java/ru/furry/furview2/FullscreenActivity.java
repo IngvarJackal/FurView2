@@ -209,7 +209,7 @@ public class FullscreenActivity extends AppCompatActivity {
         View.OnClickListener setTagToSearch = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView textView = (TextView)v;
+                TextView textView = (TextView) v;
                 mTagsEditText.setText(textView.getText());
             }
         };
@@ -238,12 +238,10 @@ public class FullscreenActivity extends AppCompatActivity {
 
         mTagsEditText.setText(MainActivity.searchQuery);
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
         mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
-        //mDescriptionText.setText(fImage.getDescription());
-        mDescriptionText.setText(getString(R.string.descriptionLabel) + fImage.getDescription());
+        if (!fImage.getDescription().equals(""))
+            mDescriptionText.setText(getString(R.string.descriptionLabel) + fImage.getDescription());
 
         mTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -253,7 +251,8 @@ public class FullscreenActivity extends AppCompatActivity {
                     mDescriptionText.setVisibility(View.GONE);
                 } else {
                     mTagsTable.setVisibility(View.VISIBLE);
-                    mDescriptionText.setVisibility(View.VISIBLE);
+                    if (!mDescriptionText.getText().equals(""))
+                        mDescriptionText.setVisibility(View.VISIBLE);
                 }
             }
         });
