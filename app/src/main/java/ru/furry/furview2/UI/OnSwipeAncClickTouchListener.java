@@ -26,8 +26,8 @@ public abstract class OnSwipeAncClickTouchListener implements View.OnTouchListen
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
-        private static final int SWIPE_DISTANCE_THRESHOLD = 60;
-        private static final int SWIPE_VELOCITY_THRESHOLD = 0;
+        private static final int SWIPE_DISTANCE_THRESHOLD = 250;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 3500;
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {;
