@@ -1,21 +1,23 @@
 package ru.furry.furview2;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,13 +30,23 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ViewScaleType;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.imageaware.ViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.L;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,10 +68,11 @@ public class FullscreenActivity extends AppCompatActivity {
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW = 5;
 
-    ImageView mPictureImageView;
+    SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
     TableLayout mTagsTable;
     Button mTagsButton;
+    Button mDescriptionButton;
     ProgressBar mProgress;
     ImageButton mRatingImageButton;
     EditText mScoreEditText;
@@ -77,6 +90,98 @@ public class FullscreenActivity extends AppCompatActivity {
     int fIndex;
     RelativeLayout mRelativeLayout;
     BlockUnblockUI blocking;
+
+    class SubsamplingScaleImageViewAware implements ImageAware {
+
+        public static final String WARN_CANT_SET_DRAWABLE = "Can't set a drawable into view. You should call ImageLoader on UI thread for it.";
+        public static final String WARN_CANT_SET_BITMAP = "Can't set a bitmap into view. You should call ImageLoader on UI thread for it.";
+
+        protected Reference<SubsamplingScaleImageView> viewRef;
+        protected boolean checkActualViewSize;
+
+        public SubsamplingScaleImageViewAware(SubsamplingScaleImageView view) {
+            this(view, true);
+        }
+
+        public SubsamplingScaleImageViewAware(SubsamplingScaleImageView view, boolean checkActualViewSize) {
+            this.viewRef = new WeakReference<>(view);
+        }
+
+        @Override
+        public int getWidth() {
+            SubsamplingScaleImageView view = viewRef.get();
+            if (view != null) {
+                return view.getWidth();
+            }
+            return 0;
+        }
+
+        @Override
+        public int getHeight() {
+            SubsamplingScaleImageView view = viewRef.get();
+            if (view != null) {
+                return view.getHeight();
+            }
+            return 0;
+        }
+
+        @Override
+        public ViewScaleType getScaleType() {
+            return ViewScaleType.CROP;
+        }
+
+        @Override
+        public SubsamplingScaleImageView getWrappedView() {
+            return viewRef.get();
+        }
+
+        @Override
+        public boolean isCollected() {
+            return viewRef.get() == null;
+        }
+
+        @Override
+        public int getId() {
+            SubsamplingScaleImageView view = viewRef.get();
+            return view == null ? super.hashCode() : view.hashCode();
+        }
+
+        @Override
+        public boolean setImageDrawable(Drawable drawable) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                SubsamplingScaleImageView view = viewRef.get();
+                if (view != null) {
+                    setImageDrawableInto(drawable, view);
+                    return true;
+                }
+            } else {
+                L.w(WARN_CANT_SET_DRAWABLE);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean setImageBitmap(Bitmap bitmap) {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                SubsamplingScaleImageView view = viewRef.get();
+                if (view != null) {
+                    setImageBitmapInto(bitmap, view);
+                    return true;
+                }
+            } else {
+                L.w(WARN_CANT_SET_BITMAP);
+            }
+            return false;
+        }
+
+        protected void setImageDrawableInto(Drawable drawable, SubsamplingScaleImageView view) {
+            view.setImage(ImageSource.bitmap(((BitmapDrawable) drawable).getBitmap()));
+        }
+
+        protected void setImageBitmapInto(Bitmap bitmap, SubsamplingScaleImageView view) {
+            view.setImage(ImageSource.bitmap(bitmap));
+        }
+    }
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -156,26 +261,27 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
         Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
-        mPictureImageView = (ImageView) findViewById(R.id.picImgView);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
         mScrollVew = (ScrollView) findViewById(R.id.scrollView);
         mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
         mTagsButton = (Button) findViewById(R.id.tagsButton);
+        mDescriptionButton = (Button) findViewById(R.id.descriptionButton);
         mProgress = (ProgressBar) findViewById(R.id.progressBar);
         mRatingImageButton = (ImageButton) findViewById(R.id.ratingImageButton);
         mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
         mArtistEditText = (EditText) findViewById(R.id.artistEditText);
         mDateEditText = (EditText) findViewById(R.id.dateEditText);
         mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
-        mDescriptionText = (TextView) findViewById(R.id.descriptionText);
         mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
+        mDescriptionText = (TextView) findViewById(R.id.descriptionText);
 
         blocking = new BlockUnblockUI(mRelativeLayout);
 
@@ -209,10 +315,10 @@ public class FullscreenActivity extends AppCompatActivity {
         View.OnClickListener setTagToSearch = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView textView = (TextView) v;
+                TextView textView = (TextView)v;
                 mTagsEditText.setText(textView.getText());
-            }
-        };
+                }
+            };
 
         for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
             for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
@@ -238,42 +344,50 @@ public class FullscreenActivity extends AppCompatActivity {
 
         mTagsEditText.setText(MainActivity.searchQuery);
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
+        mScoreEditText.setText(Integer.toString(fImage.getScore()));
+        mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
         mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
-        if (!fImage.getDescription().equals(""))
-            mDescriptionText.setText(getString(R.string.descriptionLabel) + fImage.getDescription());
+        if (fImage.getDescription().equals(""))
+            mDescriptionButton.setEnabled(false);
+        else
+            mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
 
         mTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mTagsTable.isShown()) {
                     mTagsTable.setVisibility(View.GONE);
-                    mDescriptionText.setVisibility(View.GONE);
                 } else {
                     mTagsTable.setVisibility(View.VISIBLE);
-                    if (!mDescriptionText.getText().equals(""))
-                        mDescriptionText.setVisibility(View.VISIBLE);
                 }
             }
         });
 
-        mTagsEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mDescriptionButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                startSearch();
-                return true;
+            public void onClick(View view) {
+                if (mDescriptionText.isShown()) {
+                    mDescriptionText.setVisibility(View.GONE);
+                    //mPictureImageView.setVisibility(View.VISIBLE);
+                } else {
+                    if (!mDescriptionText.getText().equals(""))
+                        mDescriptionText.setVisibility(View.VISIBLE);
+                        //mPictureImageView.setVisibility(View.GONE);
+                }
             }
         });
 
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startSearch();
+                MainActivity.searchQuery = mTagsEditText.getText().toString();
+                finish();
             }
         });
 
 
-        driver.downloadImageFile(fImage, new ImageViewAware(mPictureImageView), new ImageLoadingListener() {
+        driver.downloadImageFile(fImage, new SubsamplingScaleImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
                 blocking.blockUI();
@@ -316,11 +430,6 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void startSearch() {
-        MainActivity.searchQuery = mTagsEditText.getText().toString();
-        finish();
     }
 
     private void enableDeleteMode() {

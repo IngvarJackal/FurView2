@@ -1,191 +1,220 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fullscreenLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="ru.furry.furview2.FullscreenActivity"
-    android:orientation="vertical"
-    android:id="@+id/fullscreenLayout">
+    tools:context="ru.furry.furview2.FullscreenActivity">
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayout3">
+        android:orientation="horizontal">
 
         <EditText
+            android:id="@+id/tagsEditText"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/tagsEditText"
-            android:hint="@string/search_text"
-            android:singleLine="true"
             android:layout_alignBottom="@+id/searchImageButton"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_gravity="left"
             android:layout_weight="1"
-            android:imeOptions="actionSearch"
+            android:hint="@string/search_text"
+            android:singleLine="true"
             android:textSize="16sp" />
 
         <ImageButton
+            android:id="@+id/searchImageButton"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:id="@+id/searchImageButton"
-            android:src="@android:drawable/ic_search_category_default"
+            android:layout_alignEnd="@+id/pictureImageView"
             android:layout_alignParentTop="true"
             android:layout_alignRight="@+id/pictureImageView"
-            android:layout_alignEnd="@+id/pictureImageView"
-            android:layout_weight="0" />
+            android:layout_weight="0"
+            android:src="@android:drawable/ic_search_category_default" />
 
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <ImageButton
+                android:id="@+id/saveButton"
                 android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:id="@+id/saveButton" />
+                android:layout_height="52dp" />
 
             <ProgressBar
+                android:id="@+id/saveImageButtonProgressBar"
                 style="?android:attr/progressBarStyleSmall"
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:id="@+id/saveImageButtonProgressBar"
                 android:indeterminate="true" />
         </FrameLayout>
 
     </LinearLayout>
 
     <ImageButton
+        android:id="@+id/ratingImageButton"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:id="@+id/ratingImageButton"
-        android:layout_gravity="center_vertical"
-        android:layout_below="@+id/linearLayout3"
+        android:layout_alignBottom="@+id/linearLayout4"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_alignBottom="@+id/linearLayout4"
+        android:layout_below="@+id/linearLayout3"
+        android:layout_gravity="center_vertical"
         android:clickable="false" />
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/linearLayout4"
         android:layout_width="100dp"
         android:layout_height="52dp"
-        android:id="@+id/linearLayout4"
-        android:layout_below="@+id/linearLayout3"
-        android:layout_alignRight="@+id/linearLayout7"
         android:layout_alignEnd="@+id/linearLayout7"
+        android:layout_alignRight="@+id/linearLayout7"
+        android:layout_below="@+id/linearLayout3"
+        android:layout_toEndOf="@+id/ratingImageButton"
         android:layout_toRightOf="@+id/ratingImageButton"
-        android:layout_toEndOf="@+id/ratingImageButton">
+        android:orientation="horizontal">
 
         <EditText
+            android:id="@+id/scoreEditText"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:id="@+id/scoreEditText"
-            android:editable="false"
-            android:enabled="false"
             android:layout_gravity="center_vertical"
             android:layout_weight="1.2"
+            android:editable="false"
+            android:enabled="false"
             android:gravity="center"
             android:textIsSelectable="false" />
 
         <EditText
+            android:id="@+id/artistEditText"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:id="@+id/artistEditText"
+            android:layout_gravity="center_vertical"
             android:layout_weight="0.85"
             android:editable="false"
             android:enabled="false"
-            android:layout_gravity="center_vertical"
             android:gravity="center"
             android:textSize="12sp" />
 
         <EditText
+            android:id="@+id/dateEditText"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:id="@+id/dateEditText"
+            android:layout_gravity="center_vertical"
             android:layout_weight="0.85"
             android:editable="false"
             android:enabled="false"
-            android:layout_gravity="center_vertical"
             android:gravity="center"
             android:textSize="12sp" />
 
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/linearLayout7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout4"
-        android:id="@+id/linearLayout7">
+        android:orientation="vertical">
 
         <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/scrollView">
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
                 <TableLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="0dp"
                     android:id="@+id/tagsTableLayout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/linearLayout3"
                     android:layout_weight="0.5"
-                    android:visibility="gone">
-                </TableLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/descriptionText"
-                    android:visibility="gone" />
+                    android:visibility="gone"></TableLayout>
 
                 <Button
+                    android:id="@+id/tagsButton"
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="fill_parent"
                     android:layout_height="30sp"
-                    android:text="@string/tags_and_description"
-                    android:id="@+id/tagsButton"
-                    android:textSize="10sp"
-                    android:clickable="true" />
+                    android:clickable="true"
+                    android:text="@string/tags"
+                    android:textSize="10sp" />
             </LinearLayout>
         </ScrollView>
 
     </LinearLayout>
 
-    <ImageView
+    <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/picImgView"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignWithParentIfMissing="false"
-        android:contentDescription="@string/imageName"
-        android:layout_alignParentStart="true"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/descriptionButton"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/linearLayout7"
-        android:layout_above="@+id/progressBar"
-        android:clickable="true" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/linearLayout7">
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+                android:id="@+id/picImgView"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_above="@+id/progressBar"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignWithParentIfMissing="false"
+                android:layout_below="@+id/linearLayout7"
+                android:layout_centerHorizontal="true"
+                android:clickable="true"
+                android:contentDescription="@string/imageName" />
+
+            <TextView
+                android:id="@+id/descriptionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:indeterminateOnly="true"
+                android:visibility="visible"
+                android:indeterminate="false"
+                android:layout_width="match_parent"
+                android:layout_height="347dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+    <Button
+        android:id="@+id/descriptionButton"
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/progressBar"
-        android:indeterminateOnly="true"
+        android:layout_height="30sp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/linearLayout7"
-        android:visibility="visible" />
+        android:clickable="true"
+        android:text="@string/description"
+        android:textSize="10sp" />
 
 
 </RelativeLayout>
