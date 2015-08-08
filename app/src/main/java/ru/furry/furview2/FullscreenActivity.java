@@ -82,6 +82,7 @@ public class FullscreenActivity extends AppCompatActivity {
     TextView mDescriptionText;
     ImageButton mSearchButton;
     ImageButton mSaveButton;
+    ImageButton mFullscreenButton;
     ProgressBar mSaveButtonProgress;
     FurryDatabase database;
     FurImage fImage;
@@ -90,6 +91,7 @@ public class FullscreenActivity extends AppCompatActivity {
     int fIndex;
     RelativeLayout mRelativeLayout;
     BlockUnblockUI blocking;
+    LinearLayout mLinearLayout01,mLinearLayout02,mLinearLayout03;
 
     class SubsamplingScaleImageViewAware implements ImageAware {
 
@@ -278,10 +280,14 @@ public class FullscreenActivity extends AppCompatActivity {
         mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
         mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
+        mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
         mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
         mDescriptionText = (TextView) findViewById(R.id.descriptionText);
+        mLinearLayout01 = (LinearLayout) findViewById(R.id.linearLayout01);
+        mLinearLayout02 = (LinearLayout) findViewById(R.id.linearLayout02);
+        mLinearLayout03 = (LinearLayout) findViewById(R.id.linearLayout03);
 
         blocking = new BlockUnblockUI(mRelativeLayout);
 
@@ -353,6 +359,18 @@ public class FullscreenActivity extends AppCompatActivity {
             mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
             mDescriptionButton.setEnabled(true);
         }
+
+        mFullscreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTagsEditText.isShown()) {
+                    fullIn();
+                }
+                else {
+                    fullOut();
+                }
+            }
+        });
 
         mTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -430,7 +448,32 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
+
+        fullIn();
     }
+
+    private void fullIn() {
+            mTagsEditText.setVisibility(View.GONE);
+            mSearchButton.setVisibility(View.GONE);
+            mRatingImageButton.setVisibility(View.GONE);
+            mLinearLayout02.setVisibility(View.GONE);
+            mLinearLayout03.setVisibility(View.GONE);
+            mDescriptionButton.setVisibility(View.GONE);
+            mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_in));
+            mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
+    }
+
+    private void fullOut() {
+            mTagsEditText.setVisibility(View.VISIBLE);
+            mSearchButton.setVisibility(View.VISIBLE);
+            mRatingImageButton.setVisibility(View.VISIBLE);
+            mLinearLayout02.setVisibility(View.VISIBLE);
+            mLinearLayout03.setVisibility(View.VISIBLE);
+            mDescriptionButton.setVisibility(View.VISIBLE);
+            mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_out));
+            mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
+    }
+
 
     private void enableDeleteMode() {
         mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);

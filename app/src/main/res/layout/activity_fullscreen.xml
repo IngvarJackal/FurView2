@@ -11,10 +11,11 @@
     tools:context="ru.furry.furview2.FullscreenActivity">
 
     <LinearLayout
-        android:id="@+id/linearLayout3"
+        android:id="@+id/linearLayout01"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="right">
 
         <EditText
             android:id="@+id/tagsEditText"
@@ -34,7 +35,8 @@
 
         <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="right">
 
             <ImageButton
                 android:id="@+id/saveButton"
@@ -46,28 +48,38 @@
                 style="?android:attr/progressBarStyleSmall"
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:indeterminate="true" />
+                android:indeterminate="true"
+                android:layout_gravity="right" />
         </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/fullscreenButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_weight="0"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_btn_square_out"
+            android:layout_gravity="right" />
     </LinearLayout>
 
     <ImageButton
         android:id="@+id/ratingImageButton"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:layout_alignBottom="@+id/linearLayout4"
+        android:layout_alignBottom="@+id/linearLayout02"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/linearLayout3"
+        android:layout_below="@+id/linearLayout01"
         android:layout_gravity="center_vertical"
         android:clickable="false" />
 
     <LinearLayout
-        android:id="@+id/linearLayout4"
+        android:id="@+id/linearLayout02"
         android:layout_width="100dp"
         android:layout_height="52dp"
-        android:layout_alignEnd="@+id/linearLayout7"
-        android:layout_alignRight="@+id/linearLayout7"
-        android:layout_below="@+id/linearLayout3"
+        android:layout_alignEnd="@+id/linearLayout03"
+        android:layout_alignRight="@+id/linearLayout03"
+        android:layout_below="@+id/linearLayout01"
         android:layout_toEndOf="@+id/ratingImageButton"
         android:layout_toRightOf="@+id/ratingImageButton"
         android:orientation="horizontal">
@@ -107,10 +119,10 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout7"
+        android:id="@+id/linearLayout03"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout4"
+        android:layout_below="@+id/linearLayout02"
         android:orientation="vertical">
 
         <ScrollView
@@ -129,7 +141,7 @@
                     android:layout_height="fill_parent"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:layout_below="@+id/linearLayout3"
+                    android:layout_below="@+id/linearLayout01"
                     android:layout_weight="0.5"
                     android:visibility="gone"/>
 
@@ -152,7 +164,7 @@
         android:layout_above="@+id/descriptionButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/linearLayout7">
+        android:layout_below="@+id/linearLayout03">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -179,7 +191,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_alignWithParentIfMissing="false"
-        android:layout_below="@+id/linearLayout7"
+        android:layout_below="@+id/linearLayout03"
         android:layout_centerHorizontal="true"
         android:clickable="true"
         android:contentDescription="@string/imageName" />
@@ -192,7 +204,7 @@
         android:layout_above="@+id/descriptionButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/linearLayout7"
+        android:layout_below="@+id/linearLayout03"
         android:indeterminateOnly="true"
         android:visibility="visible" />
 
