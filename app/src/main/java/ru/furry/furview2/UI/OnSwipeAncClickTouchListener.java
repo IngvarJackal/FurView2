@@ -11,6 +11,9 @@ public abstract class OnSwipeAncClickTouchListener implements View.OnTouchListen
     private final GestureDetector gestureDetector;
     protected Context context;
 
+    private int SWIPE_DISTANCE_THRESHOLD = 250;
+    private int SWIPE_VELOCITY_THRESHOLD = 3500;
+
     public OnSwipeAncClickTouchListener(Context context) {
         gestureDetector = new GestureDetector(context, new GestureListener());
         this.context = context;
@@ -25,9 +28,6 @@ public abstract class OnSwipeAncClickTouchListener implements View.OnTouchListen
     }
 
     private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        private static final int SWIPE_DISTANCE_THRESHOLD = 250;
-        private static final int SWIPE_VELOCITY_THRESHOLD = 3500;
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {;

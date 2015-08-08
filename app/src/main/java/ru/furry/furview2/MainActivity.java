@@ -276,6 +276,8 @@ public class MainActivity extends AppCompatActivity {
         mImageView4.setOnClickListener(mImageButtonClickListener);
 
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
+            private int SWIPE_VELOCITY_THRESHOLD = 0;
+
             @Override
             public void onSwipeLeft() {
                 procCounter.reset();
