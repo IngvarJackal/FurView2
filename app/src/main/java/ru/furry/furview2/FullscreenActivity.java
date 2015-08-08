@@ -315,10 +315,10 @@ public class FullscreenActivity extends AppCompatActivity {
         View.OnClickListener setTagToSearch = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TextView textView = (TextView)v;
+                TextView textView = (TextView) v;
                 mTagsEditText.setText(textView.getText());
-                }
-            };
+            }
+        };
 
         for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
             for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
@@ -348,10 +348,11 @@ public class FullscreenActivity extends AppCompatActivity {
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
         mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
-        if (fImage.getDescription().equals(""))
-            mDescriptionButton.setEnabled(false);
-        else
+
+        if (!fImage.getDescription().equals("")) {
             mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
+            mDescriptionButton.setEnabled(true);
+        }
 
         mTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -369,11 +370,10 @@ public class FullscreenActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (mDescriptionText.isShown()) {
                     mDescriptionText.setVisibility(View.GONE);
-                    //mPictureImageView.setVisibility(View.VISIBLE);
+                    mPictureImageView.setVisibility(View.VISIBLE);
                 } else {
-                    if (!mDescriptionText.getText().equals(""))
-                        mDescriptionText.setVisibility(View.VISIBLE);
-                        //mPictureImageView.setVisibility(View.GONE);
+                    mDescriptionText.setVisibility(View.VISIBLE);
+                    mPictureImageView.setVisibility(View.GONE);
                 }
             }
         });

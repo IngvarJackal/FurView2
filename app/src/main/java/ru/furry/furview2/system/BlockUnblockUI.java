@@ -31,7 +31,7 @@ public class BlockUnblockUI {
         ArrayList<View> viewArrayList = new ArrayList<View>();
 
         if (!(v instanceof ViewGroup)) {
-            if (v.isEnabled()){
+            if (v.isEnabled()) {
                 viewArrayList.add(v);
             }
             return viewArrayList;
