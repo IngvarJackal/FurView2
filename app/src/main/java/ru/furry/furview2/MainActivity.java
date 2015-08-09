@@ -280,9 +280,26 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwipeLeft() {
-                procCounter.reset();
-                shownImages.set(0);
-                remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                remoteImagesIterator.asyncLoad(new AsyncHandlerUI<Boolean>() {
+                    @Override
+                    public void blockUI() {
+                        blocking.blockUI();
+                    }
+
+                    @Override
+                    public void unblockUI() {
+                        blocking.unblockUI();
+                    }
+
+                    @Override
+                    public void retrieve(List<? extends Boolean> images) {
+                        if (images.get(0)) {
+                            procCounter.reset();
+                            shownImages.set(0);
+                            remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                        }
+                    }
+                });
             }
 
             @Override
