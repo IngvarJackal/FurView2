@@ -123,7 +123,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout02"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center">
 
         <ScrollView
             android:id="@+id/scrollView"
@@ -133,7 +134,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <TableLayout
                     android:id="@+id/tagsTableLayout"
@@ -143,7 +145,8 @@
                     android:layout_alignParentStart="true"
                     android:layout_below="@+id/linearLayout01"
                     android:layout_weight="0.5"
-                    android:visibility="gone"/>
+                    android:visibility="gone"
+                    android:gravity="center" />
 
                 <Button
                     android:id="@+id/tagsButton"

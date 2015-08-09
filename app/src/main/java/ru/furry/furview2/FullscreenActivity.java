@@ -2,6 +2,7 @@ package ru.furry.furview2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
@@ -91,7 +92,11 @@ public class FullscreenActivity extends AppCompatActivity {
     int fIndex;
     RelativeLayout mRelativeLayout;
     BlockUnblockUI blocking;
-    LinearLayout mLinearLayout01,mLinearLayout02,mLinearLayout03;
+    LinearLayout mLinearLayout01, mLinearLayout02, mLinearLayout03;
+
+    public static final String APP_PREFERENCES = "settings";
+    public static final String APP_PREFERENCES_FULLSCREEN = "swf";
+    private SharedPreferences mSettings;
 
     class SubsamplingScaleImageViewAware implements ImageAware {
 
@@ -263,6 +268,8 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+
         Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -365,8 +372,7 @@ public class FullscreenActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (mTagsEditText.isShown()) {
                     fullIn();
-                }
-                else {
+                } else {
                     fullOut();
                 }
             }
@@ -449,29 +455,54 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
-        fullIn();
+        //fullscreen on default.
+        //fullIn();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Restore settings
+        if (mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
+            if (mSettings.getBoolean(APP_PREFERENCES_FULLSCREEN, false)) {
+                fullOut();
+            } else {
+                fullIn();
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Store settings
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putBoolean(APP_PREFERENCES_FULLSCREEN, mTagsEditText.isShown());
+        editor.apply();
     }
 
     private void fullIn() {
-            mTagsEditText.setVisibility(View.GONE);
-            mSearchButton.setVisibility(View.GONE);
-            mRatingImageButton.setVisibility(View.GONE);
-            mLinearLayout02.setVisibility(View.GONE);
-            mLinearLayout03.setVisibility(View.GONE);
-            mDescriptionButton.setVisibility(View.GONE);
-            mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_in));
-            mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
+        mTagsEditText.setVisibility(View.GONE);
+        mSearchButton.setVisibility(View.GONE);
+        mRatingImageButton.setVisibility(View.GONE);
+        mLinearLayout02.setVisibility(View.GONE);
+        mLinearLayout03.setVisibility(View.GONE);
+        mDescriptionButton.setVisibility(View.GONE);
+        mDescriptionText.setVisibility(View.GONE);
+        mPictureImageView.setVisibility(View.VISIBLE);
+        mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_in));
+        mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
     }
 
     private void fullOut() {
-            mTagsEditText.setVisibility(View.VISIBLE);
-            mSearchButton.setVisibility(View.VISIBLE);
-            mRatingImageButton.setVisibility(View.VISIBLE);
-            mLinearLayout02.setVisibility(View.VISIBLE);
-            mLinearLayout03.setVisibility(View.VISIBLE);
-            mDescriptionButton.setVisibility(View.VISIBLE);
-            mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_out));
-            mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
+        mTagsEditText.setVisibility(View.VISIBLE);
+        mSearchButton.setVisibility(View.VISIBLE);
+        mRatingImageButton.setVisibility(View.VISIBLE);
+        mLinearLayout02.setVisibility(View.VISIBLE);
+        mLinearLayout03.setVisibility(View.VISIBLE);
+        mDescriptionButton.setVisibility(View.VISIBLE);
+        mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_out));
+        mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
     }
 
 
