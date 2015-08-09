@@ -224,4 +224,45 @@
         android:text="@string/description"
         android:textSize="10sp" />
 
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayoutFullscreenOut"
+        android:visibility="visible"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            >
+
+            <ImageButton
+                android:id="@+id/saveButton2"
+                android:layout_width="52dp"
+                android:layout_height="52dp" />
+
+            <ProgressBar
+                android:id="@+id/saveImageButtonProgressBar2"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:indeterminate="true"
+                android:layout_gravity="right" />
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/fullscreenButton2"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_btn_square_in"
+            android:layout_gravity="right"
+            android:layout_alignRight="@+id/descriptionButton" />
+    </LinearLayout>
+
+
 </RelativeLayout>

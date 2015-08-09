@@ -83,8 +83,9 @@ public class FullscreenActivity extends AppCompatActivity {
     TextView mDescriptionText;
     ImageButton mSearchButton;
     ImageButton mSaveButton;
-    ImageButton mFullscreenButton;
     ProgressBar mSaveButtonProgress;
+    ImageButton mFullscreenButton;
+    ImageButton mFullscreenButton2;
     FurryDatabase database;
     FurImage fImage;
     Driver driver;
@@ -92,11 +93,13 @@ public class FullscreenActivity extends AppCompatActivity {
     int fIndex;
     RelativeLayout mRelativeLayout;
     BlockUnblockUI blocking;
-    LinearLayout mLinearLayout01, mLinearLayout02, mLinearLayout03;
+    LinearLayout mLinearLayout01, mLinearLayout02, mLinearLayout03, mLinearLayoutFullscreenOut;
 
     public static final String APP_PREFERENCES = "settings";
-    public static final String APP_PREFERENCES_FULLSCREEN = "swf";
+    public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
+
+    private boolean checker = false;
 
     class SubsamplingScaleImageViewAware implements ImageAware {
 
@@ -287,14 +290,16 @@ public class FullscreenActivity extends AppCompatActivity {
         mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
         mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
-        mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
-        mSaveButton.setEnabled(false);
+        //mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+        mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
+        mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
         mDescriptionText = (TextView) findViewById(R.id.descriptionText);
         mLinearLayout01 = (LinearLayout) findViewById(R.id.linearLayout01);
         mLinearLayout02 = (LinearLayout) findViewById(R.id.linearLayout02);
         mLinearLayout03 = (LinearLayout) findViewById(R.id.linearLayout03);
+        mLinearLayoutFullscreenOut = (LinearLayout) findViewById(R.id.linearLayoutFullscreenOut);
 
         blocking = new BlockUnblockUI(mRelativeLayout);
 
@@ -357,8 +362,8 @@ public class FullscreenActivity extends AppCompatActivity {
 
         mTagsEditText.setText(MainActivity.searchQuery);
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        mScoreEditText.setText(Integer.toString(fImage.getScore()));
+        //mScoreEditText.setText(Integer.toString(fImage.getScore()));
+        //mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
         mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
 
@@ -370,11 +375,14 @@ public class FullscreenActivity extends AppCompatActivity {
         mFullscreenButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTagsEditText.isShown()) {
-                    fullIn();
-                } else {
-                    fullOut();
-                }
+                fullIn();
+            }
+        });
+
+        mFullscreenButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fullOut();
             }
         });
 
@@ -482,27 +490,42 @@ public class FullscreenActivity extends AppCompatActivity {
     }
 
     private void fullIn() {
-        mTagsEditText.setVisibility(View.GONE);
-        mSearchButton.setVisibility(View.GONE);
+        mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
+
+        mSaveButton = (ImageButton) findViewById(R.id.saveButton2);
+        mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar2);
+
+        if (checker) {
+            imageLoaded();
+        }
+
         mRatingImageButton.setVisibility(View.GONE);
+        mLinearLayout01.setVisibility(View.GONE);
         mLinearLayout02.setVisibility(View.GONE);
         mLinearLayout03.setVisibility(View.GONE);
         mDescriptionButton.setVisibility(View.GONE);
+        mLinearLayoutFullscreenOut.setVisibility(View.VISIBLE);
+
         mDescriptionText.setVisibility(View.GONE);
         mPictureImageView.setVisibility(View.VISIBLE);
-        mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_in));
-        mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
     }
 
     private void fullOut() {
-        mTagsEditText.setVisibility(View.VISIBLE);
-        mSearchButton.setVisibility(View.VISIBLE);
+        mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
+
+        mSaveButton = (ImageButton) findViewById(R.id.saveButton);
+        mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+
+        if (checker) {
+            imageLoaded();
+        }
+
         mRatingImageButton.setVisibility(View.VISIBLE);
+        mLinearLayout01.setVisibility(View.VISIBLE);
         mLinearLayout02.setVisibility(View.VISIBLE);
         mLinearLayout03.setVisibility(View.VISIBLE);
         mDescriptionButton.setVisibility(View.VISIBLE);
-        mFullscreenButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_btn_square_out));
-        mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
+        mLinearLayoutFullscreenOut.setVisibility(View.GONE);
     }
 
 
@@ -542,6 +565,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 mSaveButtonProgress.setVisibility(View.GONE);
                 mSaveButton.setEnabled(true);
                 blocking.unblockUI();
+                checker = true;
             }
 
             @Override
