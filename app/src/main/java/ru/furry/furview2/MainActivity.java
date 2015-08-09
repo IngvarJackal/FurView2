@@ -417,7 +417,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void clearImage(int index) {
         Log.d("fgsfds", "Clearing image " + index);
-        imageViews.get(index).setImageResource(android.R.color.transparent);
+        //imageViews.get(index).setImageResource(android.R.color.transparent);
+        imageViews.get(index).setVisibility(View.GONE);
     }
 
     public void hideSoftKeyboard(Activity activity) {
