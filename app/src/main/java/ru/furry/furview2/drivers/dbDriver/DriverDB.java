@@ -124,7 +124,7 @@ public class DriverDB extends Driver {
     public void downloadImageFile(FurImage image, ImageAware listener, ImageLoadingListener loadingListener) {
         String imagePath = image.getFilePath();
         if (!new File(imagePath).exists()) {
-            imagePath = image.getPreviewUrl();
+            imagePath = image.getFileUrl();
         } else {
             imagePath = Uri.decode(Uri.fromFile(new File(imagePath)).toString());
         }
@@ -132,6 +132,13 @@ public class DriverDB extends Driver {
         imageLoader.displayImage(imagePath, listener, displayOptions, loadingListener);
     }
 
+    @Override
+    public void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
+        for (int i = 0; i < images.size(); i++) {
+            downloadImageFile(((FurImage) images.get(i)), listeners.get(i), loadingListeners.get(i));
+        }
+    }
+/*
     @Override
     public void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
         for (int i = 0; i < images.size(); i++) {
@@ -145,7 +152,7 @@ public class DriverDB extends Driver {
             imageLoader.displayImage(imagePath, listeners.get(i), displayOptions, loadingListeners.get(i));
         }
     }
-
+*/
     @Override
     public void saveToDBandStorage(FurImage image, FurryDatabase database) {
         String imagePath_;
