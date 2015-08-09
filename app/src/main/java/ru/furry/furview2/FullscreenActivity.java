@@ -99,7 +99,7 @@ public class FullscreenActivity extends AppCompatActivity {
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
 
-    private boolean checker = false;
+    private boolean inFulscreenMode;
 
     class SubsamplingScaleImageViewAware implements ImageAware {
 
@@ -107,7 +107,6 @@ public class FullscreenActivity extends AppCompatActivity {
         public static final String WARN_CANT_SET_BITMAP = "Can't set a bitmap into view. You should call ImageLoader on UI thread for it.";
 
         protected Reference<SubsamplingScaleImageView> viewRef;
-        protected boolean checkActualViewSize;
 
         public SubsamplingScaleImageViewAware(SubsamplingScaleImageView view) {
             this(view, true);
@@ -290,7 +289,6 @@ public class FullscreenActivity extends AppCompatActivity {
         mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
         mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
         mSaveButton = (ImageButton) findViewById(R.id.saveButton);
-        //mSaveButton.setEnabled(false);
         mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
         mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
         mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
@@ -362,8 +360,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
         mTagsEditText.setText(MainActivity.searchQuery);
         mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        //mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        //mScoreEditText.setText(Integer.toString(fImage.getScore()));
         mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
         mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
 
@@ -418,6 +414,34 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
+        mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
+            @Override
+            public void onSwipeLeft() {
+                fIndex += 1;
+                MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+            }
+
+            @Override
+            public void onSwipeRight() {
+                boolean needLoadNext = fIndex > 0;
+                if (needLoadNext) {
+                    MainActivity.cursor = fIndex - 1;
+                    fIndex = MainActivity.cursor;
+                    Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor + " fIndex " + fIndex);
+                    MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                }
+            }
+        });
+
+        if (mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
+            if (mSettings.getBoolean(APP_PREFERENCES_FULLSCREEN, false)) {
+                fullOut();
+            } else {
+                fullIn();
+            }
+        } else {
+            fullOut();
+        }
 
         driver.downloadImageFile(fImage, new SubsamplingScaleImageViewAware(mPictureImageView), new ImageLoadingListener() {
             @Override
@@ -443,28 +467,6 @@ public class FullscreenActivity extends AppCompatActivity {
                 blocking.unblockUI();
             }
         });
-
-        mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
-            @Override
-            public void onSwipeLeft() {
-                fIndex += 1;
-                MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
-            }
-
-            @Override
-            public void onSwipeRight() {
-                boolean needLoadNext = fIndex > 0;
-                if (needLoadNext) {
-                    MainActivity.cursor = fIndex - 1;
-                    fIndex = MainActivity.cursor;
-                    Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor + " fIndex " + fIndex);
-                    MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
-                }
-            }
-        });
-
-        //fullscreen on default.
-        //fullIn();
     }
 
     @Override
@@ -491,14 +493,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private void fullIn() {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
-
-        mSaveButton = (ImageButton) findViewById(R.id.saveButton2);
-        mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar2);
-
-        if (checker) {
-            imageLoaded();
-        }
-
+        inFulscreenMode = true;
         mRatingImageButton.setVisibility(View.GONE);
         mLinearLayout01.setVisibility(View.GONE);
         mLinearLayout02.setVisibility(View.GONE);
@@ -512,14 +507,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private void fullOut() {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
-
-        mSaveButton = (ImageButton) findViewById(R.id.saveButton);
-        mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
-
-        if (checker) {
-            imageLoaded();
-        }
-
+        inFulscreenMode = false;
         mRatingImageButton.setVisibility(View.VISIBLE);
         mLinearLayout01.setVisibility(View.VISIBLE);
         mLinearLayout02.setVisibility(View.VISIBLE);
@@ -530,26 +518,32 @@ public class FullscreenActivity extends AppCompatActivity {
 
 
     private void enableDeleteMode() {
-        mSaveButton.setImageResource(android.R.drawable.ic_menu_delete);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 driver.deleteFromDBandStorage(fImage, database);
                 enableDownloadMode();
             }
-        });
+        };
+        ((ImageButton)findViewById(R.id.saveButton)).setImageResource(android.R.drawable.ic_menu_delete);
+        ((ImageButton)findViewById(R.id.saveButton2)).setImageResource(android.R.drawable.ic_menu_delete);
+        findViewById(R.id.saveButton).setOnClickListener(listener);
+        findViewById(R.id.saveButton2).setOnClickListener(listener);
     }
 
     private void enableDownloadMode() {
-        mSaveButton.setImageResource(android.R.drawable.ic_menu_save);
-        mSaveButton.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 driver.saveToDBandStorage(fImage, database);
                 Log.d("fgsfds", fImage.toString());
                 enableDeleteMode();
             }
-        });
+        };
+        ((ImageButton)findViewById(R.id.saveButton)).setImageResource(android.R.drawable.ic_menu_save);
+        ((ImageButton)findViewById(R.id.saveButton2)).setImageResource(android.R.drawable.ic_menu_save);
+        findViewById(R.id.saveButton).setOnClickListener(listener);
+        findViewById(R.id.saveButton2).setOnClickListener(listener);
     }
 
     private void imageLoaded() {
@@ -562,10 +556,20 @@ public class FullscreenActivity extends AppCompatActivity {
 
             @Override
             public void unblockUI() {
-                mSaveButtonProgress.setVisibility(View.GONE);
+                if (inFulscreenMode) {
+                    findViewById(R.id.saveButton).setEnabled(true);
+                    findViewById(R.id.saveImageButtonProgressBar).setVisibility(View.GONE);
+                    mSaveButton = (ImageButton) findViewById(R.id.saveButton2);
+                    mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar2);
+                } else {
+                    findViewById(R.id.saveButton2).setEnabled(true);
+                    findViewById(R.id.saveImageButtonProgressBar2).setVisibility(View.GONE);
+                    mSaveButton = (ImageButton) findViewById(R.id.saveButton);
+                    mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+                }
                 mSaveButton.setEnabled(true);
+                mSaveButtonProgress.setVisibility(View.GONE);
                 blocking.unblockUI();
-                checker = true;
             }
 
             @Override
@@ -581,16 +585,12 @@ public class FullscreenActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_fullscreen, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         switch (id) {
