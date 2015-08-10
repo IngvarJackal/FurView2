@@ -437,13 +437,8 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
-        if (mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
-            if (mSettings.getBoolean(APP_PREFERENCES_FULLSCREEN, false)) {
-                fullOut();
-            } else {
-                fullIn();
-            }
-        } else {
+        //set first state not fullscreen
+        if (!mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
             fullOut();
         }
 
@@ -479,9 +474,9 @@ public class FullscreenActivity extends AppCompatActivity {
         //Restore settings
         if (mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
             if (mSettings.getBoolean(APP_PREFERENCES_FULLSCREEN, false)) {
-                fullOut();
-            } else {
                 fullIn();
+            } else {
+                fullOut();
             }
         }
     }
@@ -491,7 +486,7 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onPause();
         // Store settings
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.putBoolean(APP_PREFERENCES_FULLSCREEN, mTagsEditText.isShown());
+        editor.putBoolean(APP_PREFERENCES_FULLSCREEN, inFulscreenMode);
         editor.apply();
     }
 
@@ -529,8 +524,8 @@ public class FullscreenActivity extends AppCompatActivity {
                 enableDownloadMode();
             }
         };
-        ((ImageButton)findViewById(R.id.buttonSaveDelInDB)).setImageResource(android.R.drawable.ic_menu_delete);
-        ((ImageButton)findViewById(R.id.buttonSaveDelInDBFullscreen)).setImageResource(android.R.drawable.ic_menu_delete);
+        ((ImageButton) findViewById(R.id.buttonSaveDelInDB)).setImageResource(android.R.drawable.ic_menu_delete);
+        ((ImageButton) findViewById(R.id.buttonSaveDelInDBFullscreen)).setImageResource(android.R.drawable.ic_menu_delete);
         findViewById(R.id.buttonSaveDelInDB).setOnClickListener(listener);
         findViewById(R.id.buttonSaveDelInDBFullscreen).setOnClickListener(listener);
     }
@@ -544,8 +539,8 @@ public class FullscreenActivity extends AppCompatActivity {
                 enableDeleteMode();
             }
         };
-        ((ImageButton)findViewById(R.id.buttonSaveDelInDB)).setImageResource(android.R.drawable.ic_menu_save);
-        ((ImageButton)findViewById(R.id.buttonSaveDelInDBFullscreen)).setImageResource(android.R.drawable.ic_menu_save);
+        ((ImageButton) findViewById(R.id.buttonSaveDelInDB)).setImageResource(android.R.drawable.ic_menu_save);
+        ((ImageButton) findViewById(R.id.buttonSaveDelInDBFullscreen)).setImageResource(android.R.drawable.ic_menu_save);
         findViewById(R.id.buttonSaveDelInDB).setOnClickListener(listener);
         findViewById(R.id.buttonSaveDelInDBFullscreen).setOnClickListener(listener);
     }
