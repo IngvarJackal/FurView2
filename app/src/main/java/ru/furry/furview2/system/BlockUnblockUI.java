@@ -10,17 +10,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BlockUnblockUI {
 
-    private RelativeLayout relativeLayout;
     private AtomicInteger counterTheads = new AtomicInteger(0);
     private ArrayList<View> views = new ArrayList<View>();
 
 
     public BlockUnblockUI(RelativeLayout incomingRelativeLayout) {
-        this.relativeLayout = incomingRelativeLayout;
-
+        //auto adding all found enabled views into ArrayList "views"
         if (views.size() == 0)
-            for (int i = 0; i < relativeLayout.getChildCount(); i++) {
-                views.addAll(getAllChildren(relativeLayout.getChildAt(i)));
+            for (int i = 0; i < incomingRelativeLayout.getChildCount(); i++) {
+                views.addAll(getAllChildren(incomingRelativeLayout.getChildAt(i)));
             }
 
         Log.d("fgsfds", "Enabled elements on screen = " + views.size() + " Ready to block.");
@@ -72,4 +70,13 @@ public class BlockUnblockUI {
         }
     }
 
+    public void addViewToBlock(View v) {
+        //manual adding view into ArrayList "views"
+        views.add(v);
+    }
+
+    public void delViewFromBlock(View v) {
+        //manual remove view from ArrayList "views"
+        views.remove(v);
+    }
 }

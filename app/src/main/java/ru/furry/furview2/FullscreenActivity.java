@@ -82,8 +82,8 @@ public class FullscreenActivity extends AppCompatActivity {
     EditText mTagsEditText;
     TextView mDescriptionText;
     ImageButton mSearchButton;
-    ImageButton mSaveButton;
-    ProgressBar mSaveButtonProgress;
+    ImageButton mButtonSaveDelInDB;
+    ProgressBar mButtonSaveDelInDBProgress;
     ImageButton mFullscreenButton;
     ImageButton mFullscreenButton2;
     FurryDatabase database;
@@ -93,7 +93,10 @@ public class FullscreenActivity extends AppCompatActivity {
     int fIndex;
     RelativeLayout mRelativeLayout;
     BlockUnblockUI blocking;
-    LinearLayout mLinearLayout01, mLinearLayout02, mLinearLayout03, mLinearLayoutFullscreenOut;
+    LinearLayout mLayoutSearchBar;
+    LinearLayout mLayoutInfoBar;
+    LinearLayout mLayoutTagBar;
+    LinearLayout mLayoutFullscreenOut;
 
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
@@ -288,16 +291,16 @@ public class FullscreenActivity extends AppCompatActivity {
         mDateEditText = (EditText) findViewById(R.id.dateEditText);
         mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
         mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
-        mSaveButton = (ImageButton) findViewById(R.id.saveButton);
-        mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+        mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDB);
+        mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
         mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
         mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
         mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
         mDescriptionText = (TextView) findViewById(R.id.descriptionText);
-        mLinearLayout01 = (LinearLayout) findViewById(R.id.linearLayout01);
-        mLinearLayout02 = (LinearLayout) findViewById(R.id.linearLayout02);
-        mLinearLayout03 = (LinearLayout) findViewById(R.id.linearLayout03);
-        mLinearLayoutFullscreenOut = (LinearLayout) findViewById(R.id.linearLayoutFullscreenOut);
+        mLayoutSearchBar = (LinearLayout) findViewById(R.id.layoutSearchBar);
+        mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
+        mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
+        mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
 
         blocking = new BlockUnblockUI(mRelativeLayout);
 
@@ -366,6 +369,7 @@ public class FullscreenActivity extends AppCompatActivity {
         if (!fImage.getDescription().equals("")) {
             mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
             mDescriptionButton.setEnabled(true);
+            blocking.addViewToBlock(mDescriptionButton);
         }
 
         mFullscreenButton.setOnClickListener(new View.OnClickListener() {
@@ -495,11 +499,11 @@ public class FullscreenActivity extends AppCompatActivity {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
         inFulscreenMode = true;
         mRatingImageButton.setVisibility(View.GONE);
-        mLinearLayout01.setVisibility(View.GONE);
-        mLinearLayout02.setVisibility(View.GONE);
-        mLinearLayout03.setVisibility(View.GONE);
+        mLayoutSearchBar.setVisibility(View.GONE);
+        mLayoutInfoBar.setVisibility(View.GONE);
+        mLayoutTagBar.setVisibility(View.GONE);
         mDescriptionButton.setVisibility(View.GONE);
-        mLinearLayoutFullscreenOut.setVisibility(View.VISIBLE);
+        mLayoutFullscreenOut.setVisibility(View.VISIBLE);
 
         mDescriptionText.setVisibility(View.GONE);
         mPictureImageView.setVisibility(View.VISIBLE);
@@ -509,11 +513,11 @@ public class FullscreenActivity extends AppCompatActivity {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
         inFulscreenMode = false;
         mRatingImageButton.setVisibility(View.VISIBLE);
-        mLinearLayout01.setVisibility(View.VISIBLE);
-        mLinearLayout02.setVisibility(View.VISIBLE);
-        mLinearLayout03.setVisibility(View.VISIBLE);
+        mLayoutSearchBar.setVisibility(View.VISIBLE);
+        mLayoutInfoBar.setVisibility(View.VISIBLE);
+        mLayoutTagBar.setVisibility(View.VISIBLE);
         mDescriptionButton.setVisibility(View.VISIBLE);
-        mLinearLayoutFullscreenOut.setVisibility(View.GONE);
+        mLayoutFullscreenOut.setVisibility(View.GONE);
     }
 
 
@@ -525,10 +529,10 @@ public class FullscreenActivity extends AppCompatActivity {
                 enableDownloadMode();
             }
         };
-        ((ImageButton)findViewById(R.id.saveButton)).setImageResource(android.R.drawable.ic_menu_delete);
-        ((ImageButton)findViewById(R.id.saveButton2)).setImageResource(android.R.drawable.ic_menu_delete);
-        findViewById(R.id.saveButton).setOnClickListener(listener);
-        findViewById(R.id.saveButton2).setOnClickListener(listener);
+        ((ImageButton)findViewById(R.id.buttonSaveDelInDB)).setImageResource(android.R.drawable.ic_menu_delete);
+        ((ImageButton)findViewById(R.id.buttonSaveDelInDBFullscreen)).setImageResource(android.R.drawable.ic_menu_delete);
+        findViewById(R.id.buttonSaveDelInDB).setOnClickListener(listener);
+        findViewById(R.id.buttonSaveDelInDBFullscreen).setOnClickListener(listener);
     }
 
     private void enableDownloadMode() {
@@ -540,10 +544,10 @@ public class FullscreenActivity extends AppCompatActivity {
                 enableDeleteMode();
             }
         };
-        ((ImageButton)findViewById(R.id.saveButton)).setImageResource(android.R.drawable.ic_menu_save);
-        ((ImageButton)findViewById(R.id.saveButton2)).setImageResource(android.R.drawable.ic_menu_save);
-        findViewById(R.id.saveButton).setOnClickListener(listener);
-        findViewById(R.id.saveButton2).setOnClickListener(listener);
+        ((ImageButton)findViewById(R.id.buttonSaveDelInDB)).setImageResource(android.R.drawable.ic_menu_save);
+        ((ImageButton)findViewById(R.id.buttonSaveDelInDBFullscreen)).setImageResource(android.R.drawable.ic_menu_save);
+        findViewById(R.id.buttonSaveDelInDB).setOnClickListener(listener);
+        findViewById(R.id.buttonSaveDelInDBFullscreen).setOnClickListener(listener);
     }
 
     private void imageLoaded() {
@@ -557,18 +561,18 @@ public class FullscreenActivity extends AppCompatActivity {
             @Override
             public void unblockUI() {
                 if (inFulscreenMode) {
-                    findViewById(R.id.saveButton).setEnabled(true);
+                    findViewById(R.id.buttonSaveDelInDB).setEnabled(true);
                     findViewById(R.id.saveImageButtonProgressBar).setVisibility(View.GONE);
-                    mSaveButton = (ImageButton) findViewById(R.id.saveButton2);
-                    mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar2);
+                    mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDBFullscreen);
+                    mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar2);
                 } else {
-                    findViewById(R.id.saveButton2).setEnabled(true);
+                    findViewById(R.id.buttonSaveDelInDBFullscreen).setEnabled(true);
                     findViewById(R.id.saveImageButtonProgressBar2).setVisibility(View.GONE);
-                    mSaveButton = (ImageButton) findViewById(R.id.saveButton);
-                    mSaveButtonProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+                    mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDB);
+                    mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
                 }
-                mSaveButton.setEnabled(true);
-                mSaveButtonProgress.setVisibility(View.GONE);
+                mButtonSaveDelInDB.setEnabled(true);
+                mButtonSaveDelInDBProgress.setVisibility(View.GONE);
                 blocking.unblockUI();
             }
 
