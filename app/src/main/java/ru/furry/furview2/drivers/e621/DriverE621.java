@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
@@ -187,7 +189,7 @@ public class DriverE621 extends Driver {
                 else
                     images.add(new RemoteFurImageE621Builder()
                             .setSearchQuery(searchQuery)
-                            .setDescription(element.getAttribute("description"))
+                            .setDescription(deleteTags(element.getAttribute("description")))
                             .setScore(Integer.parseInt(element.getAttribute("score")))
                             .setRating(makeRating(element.getAttribute("rating")))
                             .setFileUrl(element.getAttribute("file_url"))
@@ -217,6 +219,12 @@ public class DriverE621 extends Driver {
             handler.retrieve(images);
             handler.unblockUI();
         }
+    }
+
+    protected String deleteTags(String incomingString){
+        Pattern pattern = Pattern.compile("\\[.*?\\]|<.*?>");
+        Matcher matcher = pattern.matcher(incomingString);
+        return matcher.replaceAll("");
     }
 
     private void startReadingRemoteImages(URL queryPage, AsyncHandlerUI<RemoteFurImage> remoteImagesHandler) {
