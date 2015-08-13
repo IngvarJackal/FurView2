@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -27,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -339,10 +341,20 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         };
 
+        View.OnLongClickListener addTagToSearch = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                TextView textView = (TextView) v;
+                mTagsEditText.setText(mTagsEditText.getText() + " " + textView.getText());
+                return true;
+            }
+        };
+
         for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
             for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
                 tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
                 tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
+                tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
             }
         }
 
