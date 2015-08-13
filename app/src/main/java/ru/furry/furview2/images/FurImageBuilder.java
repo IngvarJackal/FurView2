@@ -171,6 +171,7 @@ public class FurImageBuilder {
         this.fileExt = remoteImage.getFileExt();
         this.pageUrl = remoteImage.getPageUrl();
         this.previewUrl = remoteImage.getPreviewUrl();
+        this.filePath = remoteImage.getFileUrl();
         return this;
     }
 

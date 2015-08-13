@@ -30,5 +30,6 @@ public class DataImageView extends ImageView {
 
     public void setImageIndex(int index) {
         this.index = index;
+        this.setVisibility(VISIBLE);
     }
 }

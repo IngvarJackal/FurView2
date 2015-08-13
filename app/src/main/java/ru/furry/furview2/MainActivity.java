@@ -276,11 +276,30 @@ public class MainActivity extends AppCompatActivity {
         mImageView4.setOnClickListener(mImageButtonClickListener);
 
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
+            private int SWIPE_VELOCITY_THRESHOLD = 0;
+
             @Override
             public void onSwipeLeft() {
-                procCounter.reset();
-                shownImages.set(0);
-                remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                remoteImagesIterator.asyncLoad(new AsyncHandlerUI<Boolean>() {
+                    @Override
+                    public void blockUI() {
+                        blocking.blockUI();
+                    }
+
+                    @Override
+                    public void unblockUI() {
+                        blocking.unblockUI();
+                    }
+
+                    @Override
+                    public void retrieve(List<? extends Boolean> images) {
+                        if (images.get(0)) {
+                            procCounter.reset();
+                            shownImages.set(0);
+                            remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                        }
+                    }
+                });
             }
 
             @Override
@@ -415,7 +434,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void clearImage(int index) {
         Log.d("fgsfds", "Clearing image " + index);
-        imageViews.get(index).setImageResource(android.R.color.transparent);
+        //imageViews.get(index).setImageResource(android.R.color.transparent);
+        imageViews.get(index).setVisibility(View.GONE);
     }
 
     public void hideSoftKeyboard(Activity activity) {
