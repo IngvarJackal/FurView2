@@ -82,5 +82,7 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="no">Нет</string>
     <string name="no_zero">Необходимо заполнить поле числа картинок ненулевым значением</string>
     <string name="images_downloaded">Изображений скачано:</string>
+    <string name="descriptionLabel">Описание:</string>
+    <string name="description">Описание</string>
 
 </resources>
