@@ -138,21 +138,13 @@ public class DriverDB extends Driver {
             downloadImageFile(((FurImage) images.get(i)), listeners.get(i), loadingListeners.get(i));
         }
     }
-/*
+
     @Override
-    public void downloadPreviewFile(List<? extends RemoteFurImage> images, List<? extends ImageAware> listeners, List<ImageLoadingListener> loadingListeners) {
-        for (int i = 0; i < images.size(); i++) {
-            String imagePath = (((FurImage) images.get(i)).getFilePath());
-            if (!new File(imagePath).exists()) {
-                imagePath = images.get(i).getPreviewUrl();
-            } else {
-                imagePath = Uri.decode(Uri.fromFile(new File(imagePath)).toString());
-            }
-            Log.d("fgsfds", "loading image " + imagePath);
-            imageLoader.displayImage(imagePath, listeners.get(i), displayOptions, loadingListeners.get(i));
-        }
+    public void saveToDBandStorage(FurImage image, FurryDatabase database, AsyncHandlerUI<FurImage> furImageHandler) {
+        saveToDBandStorage(image, database);
     }
-*/
+
+
     @Override
     public void saveToDBandStorage(FurImage image, FurryDatabase database) {
         String imagePath_;

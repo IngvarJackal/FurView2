@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -277,12 +278,22 @@ public class DriverE621 extends Driver {
     }
 
     @Override
-    public void saveToDBandStorage(FurImage image, FurryDatabase database) {
+    public void saveToDBandStorage(FurImage image, FurryDatabase database, final AsyncHandlerUI<FurImage> furImageHandler) {
         image.setFilePath(String.format("%s/%s/", permanentStorage, Files.IMAGES) + image.getMd5() + "." + image.getFileExt());
         database.create(image);
         final String imagePath = image.getFilePath();
         Log.d("fgsfds", "saving image to " + imagePath);
-        imageLoader.loadImage(image.getFileUrl(), downloadOptions, new SimpleImageLoadingListener() {
+        imageLoader.loadImage(image.getFileUrl(), downloadOptions, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String imageUri, View view) {
+                furImageHandler.blockUI();
+            }
+
+            @Override
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                furImageHandler.unblockUI();
+            }
+
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                 FileOutputStream out = null;
@@ -292,6 +303,7 @@ public class DriverE621 extends Driver {
                 } catch (Exception e) {
                     Utils.printError(e);
                 } finally {
+                    furImageHandler.unblockUI();
                     try {
                         if (out != null) {
                             out.close();
@@ -300,6 +312,31 @@ public class DriverE621 extends Driver {
                         Utils.printError(e);
                     }
                 }
+            }
+
+            @Override
+            public void onLoadingCancelled(String imageUri, View view) {
+                furImageHandler.unblockUI();
+            }
+        });
+    }
+
+    @Override
+    public void saveToDBandStorage(FurImage image, FurryDatabase database) {
+        saveToDBandStorage(image, database, new AsyncHandlerUI<FurImage>() {
+            @Override
+            public void blockUI() {
+
+            }
+
+            @Override
+            public void unblockUI() {
+
+            }
+
+            @Override
+            public void retrieve(List<? extends FurImage> images) {
+
             }
         });
     }
