@@ -224,7 +224,6 @@ public class FurryDatabase {
             }
             sqlQuery.append("? ");
             arguments.add(specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
-            Log.d("fgsfds", "rating: " + specTags.rating.replaceAll("-?rating:", "").replace("safe", "s").replace("questionable", "q").replace("explicit", "e"));
         }
 
 

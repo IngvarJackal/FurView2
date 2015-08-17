@@ -45,7 +45,7 @@ final public class GetProxiedConnection {
     public static int manualProxyPort = 0;
 
     private static HashSet<Integer> blockedIPsHashSet = new HashSet<>();
-    private static ArrayList<Integer> proxyPortsAntizpret = new ArrayList<>();
+    //private static ArrayList<Integer> proxyPortsAntizpret = new ArrayList<>(); // not Array but Set here! (btw, don't need at all)
 
     public static HttpsURLConnection getProxiedConnection(URL url) throws IOException {
         HttpsURLConnection conn = null;
@@ -82,6 +82,7 @@ final public class GetProxiedConnection {
 
 
     private static HttpsURLConnection setCheckedAntizapretProxy(URL testUrl) {
+        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
         HttpsURLConnection testConn = null;
         String url = "http://antizapret.prostovpn.org/proxy.pac";
         String BlockedIPsInpusStreamString = null;
@@ -103,10 +104,10 @@ final public class GetProxiedConnection {
                 while (matcher.find()) {
                     if (matcher.group(1)!=null){
                         blockedIPsHashSet.add(matcher.group(1).hashCode());
-                    }
+                    }/*
                     if (matcher.group(3)!=null){
                         proxyPortsAntizpret.add(Integer.valueOf(matcher.group(3)));
-                    }
+                    }*/
                 }
             } catch (IOException e) {
                 Log.d("fgsfds", "Fail getting and parse *.pac file from antizapret");
@@ -120,11 +121,12 @@ final public class GetProxiedConnection {
             int ipHashCode = address.getHostAddress().hashCode();
 
             if (blockedIPsHashSet.contains(ipHashCode)) {
-                for (int j = proxyPortsAntizpret.size() - 1; j >= 0; j--) {
+                /*for (int j = proxyPortsAntizpret.size() - 1; j >= 0; j--) {
                     testConn = setManualProxy(testUrl, "proxy.antizapret.prostovpn.org", proxyPortsAntizpret.get(j));
                     if (testConn != null)
                         break;
-                }
+                }*/
+                testConn = (HttpsURLConnection) testUrl.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.antizapret.prostovpn.org", 3128)));
             }
 
         } catch (IOException e) {

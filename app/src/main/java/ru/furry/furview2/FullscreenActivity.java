@@ -210,7 +210,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
         @Override
         public void retrieve(List<? extends Boolean> result) {
-            Log.d("fgsfds", result.toString());
             if (result.get(0)) {
                 driver.downloadFurImage(new ArrayList<>(Arrays.asList(MainActivity.remoteImagesIterator.next())),
                         new ArrayList<AsyncHandlerUI<FurImage>>(Arrays.asList(new AsyncHandlerUI<FurImage>() {
@@ -308,7 +307,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
         fIndex = getIntent().getIntExtra("imageIndex", 0);
         fImage = MainActivity.downloadedImages.get(fIndex);
-        Log.d("fgsfds", fImage.toString());
         driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
         try {
             driver = driverEnum.driverclass.newInstance();
@@ -319,8 +317,6 @@ public class FullscreenActivity extends AppCompatActivity {
         driver.init(MainActivity.permanentStorage, getApplicationContext());
 
         database = new FurryDatabase(getApplicationContext());
-
-        Log.d("fgsfds database", database.getTableAsString("images"));
 
         ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
             @Override
@@ -547,7 +543,6 @@ public class FullscreenActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 driver.saveToDBandStorage(fImage, database);
-                Log.d("fgsfds", fImage.toString());
                 enableDeleteMode();
             }
         };
