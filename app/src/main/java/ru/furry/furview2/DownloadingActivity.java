@@ -14,8 +14,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -31,6 +33,7 @@ import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.RemoteFurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
+import ru.furry.furview2.system.BlockUnblockUI;
 import ru.furry.furview2.system.Utils;
 
 public class DownloadingActivity extends AppCompatActivity {
@@ -50,6 +53,11 @@ public class DownloadingActivity extends AppCompatActivity {
     EditText searchField;
     private int numOfPics;
     FurryDatabase database;
+    RelativeLayout mMassDownloadLayout;
+    ListView mMassDownloadDriverList;
+    BlockUnblockUI blocking;
+
+    AtomicInteger currentSavedPic = new AtomicInteger(0);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,10 @@ public class DownloadingActivity extends AppCompatActivity {
         searchField = (EditText) findViewById(R.id.searchField);
         counterTextEdit = (EditText) findViewById(R.id.counterTextEdit);
         massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
+        mMassDownloadLayout = (RelativeLayout) findViewById(R.id.massDownloadLayout);
+        mMassDownloadDriverList =(ListView) findViewById(R.id.listView);
+
+        blocking = new BlockUnblockUI(mMassDownloadLayout);
 
         drivername = getIntent().getStringExtra("drivername");
         displayListView();
@@ -121,6 +133,7 @@ public class DownloadingActivity extends AppCompatActivity {
                 numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
                 Log.d("fgsfds", "downloading #" + numOfPics + " pics");
                 syncCounter = new SyncCounter(numOfPics);
+                massDownloadingProgressBar.setMax(numOfPics);
                 if (numOfPics > 0) {
                     if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
                         startDownload();
@@ -143,7 +156,7 @@ public class DownloadingActivity extends AppCompatActivity {
             this.maxSize = maxSize;
             this.size = 0;
             counterTextEdit.setText("");
-            massDownloadingProgressBar.setMax(maxSize);
+            //massDownloadingProgressBar.setMax(maxSize);
             Log.d("fgsfds", "max size: " + maxSize);
             blocking = new AtomicInteger(0);
         }
@@ -151,8 +164,8 @@ public class DownloadingActivity extends AppCompatActivity {
         public synchronized void increment() {
             size += 1;
             Log.d("fgsfds", "size: " + size);
-            counterTextEdit.setText(Integer.toString(size));
-            massDownloadingProgressBar.setProgress(size);
+            //counterTextEdit.setText(Integer.toString(size));
+            //massDownloadingProgressBar.setProgress(size);
             if (size == maxSize) {
                 unblockUI_();
                 blocking.set(9999);
@@ -162,12 +175,12 @@ public class DownloadingActivity extends AppCompatActivity {
 
     private void unblockUI_() {
         Log.d("fgsfds", "UI unblocked");
-        Toast.makeText(getApplicationContext(), getResources().getString(R.string.images_downloaded) + " " + syncCounter.size,
-                Toast.LENGTH_SHORT).show();
+        blocking.unblockUI();
     }
 
     private void blockUI_() {
         Log.d("fgsfds", "UI blocked...");
+        blocking.blockUI();
     }
 
     private void startDownload() {
@@ -196,12 +209,35 @@ public class DownloadingActivity extends AppCompatActivity {
                     @Override
                     public void retrieve(List<? extends FurImage> images) {
                         for (FurImage image : images) {
-                            driverInstance.saveToDBandStorage(image, database);
+                            driverInstance.saveToDBandStorage(image, database, new AsyncHandlerUI<FurImage>() {
+                                @Override
+                                public void blockUI() {
+                                    blocking.blockUI();
+                                }
+
+                                @Override
+                                public void unblockUI() {
+                                    //Log.d("fgsfds", "Downloaded " + currentSavedPic.get() + " pics !!! Yey!");
+                                    massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
+                                    counterTextEdit.setText(Integer.toString(currentSavedPic.get()));
+                                    blocking.unblockUI();
+                                    if (currentSavedPic.get()==numOfPics){
+                                        Toast.makeText(
+                                                getApplicationContext(),
+                                                getResources().getString(R.string.images_downloaded) + " " + syncCounter.size,
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void retrieve(List<? extends FurImage> images) {
+                                    Log.d("fgsfds", "This message don't shown( ");
+                                    //massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
+                                    //massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
+                                }
+                            });
                             syncCounter.increment();
                         }
-//                        if (syncCounter.blocking.decrementAndGet() == 0) {
-//                            unblockUI_();
-//                        }
                     }
                 };
 
@@ -289,6 +325,10 @@ public class DownloadingActivity extends AppCompatActivity {
                 holder.name = (CheckBox) convertView.findViewById(R.id.code);
                 convertView.setTag(holder);
 
+                //blocking.addViewToBlock((RelativeLayout) convertView.findViewById(R.id.driverWrapperAdapterLayout));
+                blocking.addViewToBlock((CheckBox) convertView.findViewById(R.id.code));
+                blocking.addViewToBlock((TextView) convertView.findViewById(R.id.type));
+
                 holder.name.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         CheckBox cb = (CheckBox) v;
@@ -307,7 +347,6 @@ public class DownloadingActivity extends AppCompatActivity {
             holder.name.setTag(driverContainer);
 
             return convertView;
-
         }
 
     }
