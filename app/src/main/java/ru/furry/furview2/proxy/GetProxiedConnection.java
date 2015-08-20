@@ -62,9 +62,6 @@ final public class GetProxiedConnection {
                     conn = setAndCheckFoxtolsProxies(url);
                 }
                 break;
-            case opera:
-                conn = (HttpsURLConnection) url.openConnection();
-                break;
             case antizapret:
                 conn = setCheckedAntizapretProxy(url);
                 //conn = setHardAntizapretProxy(url);

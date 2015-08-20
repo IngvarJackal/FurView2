@@ -203,7 +203,6 @@ public class InitialScreen extends AppCompatActivity {
         SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_2));
         SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_3));
         SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_4));
-        SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_5));
         setCheckingProxyMenu();
         return true;
     }
@@ -232,30 +231,24 @@ public class InitialScreen extends AppCompatActivity {
                 return true;
             }
             case (R.id.sub_proxy_menu_1): {
-                GetProxiedConnection.proxyType = ProxyTypes.foxtools;
-                setCheckingProxyMenu();
-                Log.d("fgsfds", "Proxy used: " + item.getTitle());
-                return true;
-            }
-            case (R.id.sub_proxy_menu_2): {
-                GetProxiedConnection.proxyType = ProxyTypes.opera;
-                setCheckingProxyMenu();
-                Log.d("fgsfds", "Proxy used: " + item.getTitle());
-                return true;
-            }
-            case (R.id.sub_proxy_menu_3): {
                 GetProxiedConnection.proxyType = ProxyTypes.antizapret;
                 setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 return true;
             }
-            case (R.id.sub_proxy_menu_4): {
+            case (R.id.sub_proxy_menu_2): {
+                GetProxiedConnection.proxyType = ProxyTypes.foxtools;
+                setCheckingProxyMenu();
+                Log.d("fgsfds", "Proxy used: " + item.getTitle());
+                return true;
+            }
+            case (R.id.sub_proxy_menu_3): {
                 setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
                 startActivityForResult(new Intent("ru.furry.furview2.ManualProxy"), REQUEST_CODE);
                 return true;
             }
-            case (R.id.sub_proxy_menu_5): {
+            case (R.id.sub_proxy_menu_4): {
                 GetProxiedConnection.proxyType = ProxyTypes.none;
                 setCheckingProxyMenu();
                 Log.d("fgsfds", "Proxy used: " + item.getTitle());
