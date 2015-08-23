@@ -27,11 +27,10 @@
     <string name="fail_set_manual_proxy">"Прокси не установлен. Введите корректные данные."</string>
 
     <string name="proxies">Прокси</string>
-    <string name="proxy1">FoxTools</string>
-    <string name="proxy2">Opera</string>
-    <string name="proxy3">AntiZapret</string>
-    <string name="proxy4">Пользовательский</string>
-    <string name="proxy5">Без прокси</string>
+    <string name="proxy1">AntiZapret</string>
+    <string name="proxy2">FoxTools</string>
+    <string name="proxy3">Пользовательский</string>
+    <string name="proxy4">Без прокси</string>
 
 
     <string name="manual_address">123.456.789.012, example.com</string>
