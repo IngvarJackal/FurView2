@@ -134,6 +134,8 @@ public class DownloadingActivity extends AppCompatActivity {
                 Log.d("fgsfds", "downloading #" + numOfPics + " pics");
                 syncCounter = new SyncCounter(numOfPics);
                 massDownloadingProgressBar.setMax(numOfPics);
+                massDownloadingProgressBar.setProgress(0);
+                currentSavedPic.set(0);
                 if (numOfPics > 0) {
                     if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
                         startDownload();
