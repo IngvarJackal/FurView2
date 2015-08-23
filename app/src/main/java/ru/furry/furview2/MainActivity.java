@@ -15,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -183,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
     RelativeLayout mRelativeLayout;
 
     BlockUnblockUI blocking;
+    ProgressBar uiBlockedProbressBar;
 
     View.OnTouchListener mImageButtonSwitchListener;
     View.OnClickListener mImageButtonClickListener;
@@ -205,6 +207,8 @@ public class MainActivity extends AppCompatActivity {
         JodaTimeAndroid.init(this);
 
         Collections.fill(currtenlyDownloadedImages, null);
+
+        uiBlockedProbressBar = (ProgressBar) findViewById(R.id.uiBlockedProbressBarr);
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
         if (MainActivity.swf) {
@@ -229,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
 
         mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
-        blocking = new BlockUnblockUI(mRelativeLayout);
+        blocking = new BlockUnblockUI(mRelativeLayout, uiBlockedProbressBar);
 
         mSearchField = (EditText) findViewById(R.id.searchField);
         mSearchButton = (ImageButton) findViewById(R.id.searchButton);
