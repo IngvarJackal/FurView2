@@ -88,6 +88,15 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/linearLayout5">
 
+        <ProgressBar
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/massDownloadWheel"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="false"
+            android:visibility="gone" />
+
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -97,7 +106,8 @@
             android:gravity="center_horizontal"
             android:enabled="false"
             android:focusable="false"
-            android:editable="false" />
+            android:editable="false"
+            android:visibility="gone" />
 
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"

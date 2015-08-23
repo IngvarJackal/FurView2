@@ -70,6 +70,18 @@ public class BlockUnblockUI {
         }
     }
 
+    public void blockUIall() {
+        for (int i = 0; i < views.size(); i++) {
+            views.get(i).setEnabled(false);
+        }
+    }
+
+    public void unblockUIall() {
+            for (int i = 0; i < views.size(); i++) {
+                views.get(i).setEnabled(true);
+            }
+    }
+
     public void addViewToBlock(View v) {
         //manual adding view into ArrayList "views"
         views.add(v);

@@ -56,6 +56,7 @@ public class DownloadingActivity extends AppCompatActivity {
     RelativeLayout mMassDownloadLayout;
     ListView mMassDownloadDriverList;
     BlockUnblockUI blocking;
+    ProgressBar mMassDownloadWheel;
 
     AtomicInteger currentSavedPic = new AtomicInteger(0);
 
@@ -71,6 +72,7 @@ public class DownloadingActivity extends AppCompatActivity {
         searchField = (EditText) findViewById(R.id.searchField);
         counterTextEdit = (EditText) findViewById(R.id.counterTextEdit);
         massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
+        mMassDownloadWheel = (ProgressBar) findViewById(R.id.massDownloadWheel);
         mMassDownloadLayout = (RelativeLayout) findViewById(R.id.massDownloadLayout);
         mMassDownloadDriverList =(ListView) findViewById(R.id.listView);
 
@@ -136,6 +138,7 @@ public class DownloadingActivity extends AppCompatActivity {
                 massDownloadingProgressBar.setMax(numOfPics);
                 massDownloadingProgressBar.setProgress(0);
                 currentSavedPic.set(0);
+                progress(false);
                 if (numOfPics > 0) {
                     if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
                         startDownload();
@@ -182,7 +185,20 @@ public class DownloadingActivity extends AppCompatActivity {
 
     private void blockUI_() {
         Log.d("fgsfds", "UI blocked...");
-        blocking.blockUI();
+        //blocking.blockUI();
+        blocking.blockUIall();
+    }
+
+    private void progress(boolean progressCheck)
+    {
+        if (progressCheck) {
+            mMassDownloadWheel.setVisibility(View.GONE);
+            counterTextEdit.setVisibility(View.VISIBLE);
+        }
+        else {
+            mMassDownloadWheel.setVisibility(View.VISIBLE);
+            counterTextEdit.setVisibility(View.GONE);
+        }
     }
 
     private void startDownload() {
@@ -214,28 +230,22 @@ public class DownloadingActivity extends AppCompatActivity {
                             driverInstance.saveToDBandStorage(image, database, new AsyncHandlerUI<FurImage>() {
                                 @Override
                                 public void blockUI() {
-                                    blocking.blockUI();
+                                    //blocking.blockUI();
                                 }
 
                                 @Override
                                 public void unblockUI() {
-                                    //Log.d("fgsfds", "Downloaded " + currentSavedPic.get() + " pics !!! Yey!");
+                                    progress(true);
                                     massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
-                                    counterTextEdit.setText(Integer.toString(currentSavedPic.get()));
-                                    blocking.unblockUI();
+                                    counterTextEdit.setText(getResources().getString(R.string.images_downloaded) + " " + Integer.toString(currentSavedPic.get()));
                                     if (currentSavedPic.get()==numOfPics){
-                                        Toast.makeText(
-                                                getApplicationContext(),
-                                                getResources().getString(R.string.images_downloaded) + " " + syncCounter.size,
-                                                Toast.LENGTH_SHORT).show();
+                                        blocking.unblockUIall();
                                     }
                                 }
 
                                 @Override
                                 public void retrieve(List<? extends FurImage> images) {
                                     Log.d("fgsfds", "This message don't shown( ");
-                                    //massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
-                                    //massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
                                 }
                             });
                             syncCounter.increment();
