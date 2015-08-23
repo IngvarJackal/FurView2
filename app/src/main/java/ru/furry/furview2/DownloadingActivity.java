@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +72,14 @@ public class DownloadingActivity extends AppCompatActivity {
         database = new FurryDatabase(this);
 
         searchField = (EditText) findViewById(R.id.searchField);
+        searchField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                numOfPicsEditText.requestFocus();
+                return true;
+            }
+        });
+
         counterTextEdit = (EditText) findViewById(R.id.counterTextEdit);
         massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
         mMassDownloadWheel = (ProgressBar) findViewById(R.id.massDownloadWheel);
@@ -124,6 +133,13 @@ public class DownloadingActivity extends AppCompatActivity {
         });
 
         numOfPicsEditText = (EditText) findViewById(R.id.numOfPicsEditText);
+        numOfPicsEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                preStartDownload();
+                return true;
+            }
+        });
 
         downloadButton = (Button) findViewById(R.id.downloadButton);
         downloadButton.setOnClickListener(new View.OnClickListener() {
@@ -131,26 +147,30 @@ public class DownloadingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                MainActivity.searchQuery = searchField.getText().toString();
-                drivers = getDrivers();
-                numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
-                Log.d("fgsfds", "downloading #" + numOfPics + " pics");
-                syncCounter = new SyncCounter(numOfPics);
-                massDownloadingProgressBar.setMax(numOfPics);
-                massDownloadingProgressBar.setProgress(0);
-                currentSavedPic.set(0);
-                progressLayout(false);
-                if (numOfPics > 0) {
-                    if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
-                        startDownload();
-                    else
-                        aBuilder.create().show();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.no_zero,
-                            Toast.LENGTH_SHORT).show();
-                }
+                preStartDownload();
             }
         });
+    }
+
+    private void preStartDownload() {
+        MainActivity.searchQuery = searchField.getText().toString();
+        drivers = getDrivers();
+        numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
+        Log.d("fgsfds", "downloading #" + numOfPics + " pics");
+        syncCounter = new SyncCounter(numOfPics);
+        massDownloadingProgressBar.setMax(numOfPics);
+        massDownloadingProgressBar.setProgress(0);
+        currentSavedPic.set(0);
+        progressLayout(false);
+        if (numOfPics > 0) {
+            if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
+                startDownload();
+            else
+                aBuilder.create().show();
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.no_zero,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     class SyncCounter {
