@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -62,12 +63,20 @@ public class DownloadingActivity extends AppCompatActivity {
     boolean blocked = false;
     AtomicInteger currentSavedPic = new AtomicInteger(0);
 
+    //for save and restore settings
+    public static final String APP_PREFERENCES = "settings";
+    public static final String APP_PREFERENCES_SWF = "swf";
+    private SharedPreferences mSettings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_downloading);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        //Initial settings
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
         database = new FurryDatabase(this);
 
@@ -464,8 +473,32 @@ public class DownloadingActivity extends AppCompatActivity {
             }
         });
 
-        //quitDialog.create().show();
-
         quitDialog.show();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Restore settings
+        //swf button
+        if (mSettings.contains(APP_PREFERENCES_SWF)) {
+            MainActivity.swf = mSettings.getBoolean(APP_PREFERENCES_SWF, true);
+        }
+
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Store settings
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putBoolean(APP_PREFERENCES_SWF, MainActivity.swf);
+        editor.apply();
+    }
+
 }
