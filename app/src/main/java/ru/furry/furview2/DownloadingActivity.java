@@ -102,15 +102,6 @@ public class DownloadingActivity extends AppCompatActivity {
         displayListView();
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
-/*
-        if (MainActivity.swf) {
-            sfwButton.setBackgroundColor(0xff63ec4f);
-            sfwButton.setChecked(true);
-        } else {
-            sfwButton.setBackgroundColor(0xccb3b3b3);
-            sfwButton.setChecked(false);
-        }
-*/
         sfwButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -369,7 +360,6 @@ public class DownloadingActivity extends AppCompatActivity {
                 holder.name = (CheckBox) convertView.findViewById(R.id.code);
                 convertView.setTag(holder);
 
-                //blocking.addViewToBlock((RelativeLayout) convertView.findViewById(R.id.driverWrapperAdapterLayout));
                 blocking.addViewToBlock((CheckBox) convertView.findViewById(R.id.code));
                 blocking.addViewToBlock((TextView) convertView.findViewById(R.id.type));
 
