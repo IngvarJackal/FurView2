@@ -3,9 +3,11 @@ package ru.furry.furview2;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,7 +60,13 @@ public class DownloadingActivity extends AppCompatActivity {
     BlockUnblockUI blocking;
     ProgressBar mMassDownloadWheel;
 
+    boolean blocked = false;
     AtomicInteger currentSavedPic = new AtomicInteger(0);
+
+    //for save and restore settings
+    public static final String APP_PREFERENCES = "settings";
+    public static final String APP_PREFERENCES_SWF = "swf";
+    private SharedPreferences mSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +75,26 @@ public class DownloadingActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+        //Initial settings
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+
         database = new FurryDatabase(this);
 
         searchField = (EditText) findViewById(R.id.searchField);
+        searchField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                numOfPicsEditText.requestFocus();
+                numOfPicsEditText.selectAll();
+                return true;
+            }
+        });
+
         counterTextEdit = (EditText) findViewById(R.id.counterTextEdit);
         massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
         mMassDownloadWheel = (ProgressBar) findViewById(R.id.massDownloadWheel);
         mMassDownloadLayout = (RelativeLayout) findViewById(R.id.massDownloadLayout);
-        mMassDownloadDriverList =(ListView) findViewById(R.id.listView);
+        mMassDownloadDriverList = (ListView) findViewById(R.id.listView);
 
         blocking = new BlockUnblockUI(mMassDownloadLayout);
 
@@ -82,14 +102,6 @@ public class DownloadingActivity extends AppCompatActivity {
         displayListView();
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
-        if (MainActivity.swf) {
-            sfwButton.setBackgroundColor(0xff63ec4f);
-            sfwButton.setChecked(true);
-        } else {
-            sfwButton.setBackgroundColor(0xccb3b3b3);
-            sfwButton.setChecked(false);
-        }
-
         sfwButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,33 +135,44 @@ public class DownloadingActivity extends AppCompatActivity {
         });
 
         numOfPicsEditText = (EditText) findViewById(R.id.numOfPicsEditText);
+        numOfPicsEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                preStartDownload();
+                return true;
+            }
+        });
 
         downloadButton = (Button) findViewById(R.id.downloadButton);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                MainActivity.searchQuery = searchField.getText().toString();
-                drivers = getDrivers();
-                numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
-                Log.d("fgsfds", "downloading #" + numOfPics + " pics");
-                syncCounter = new SyncCounter(numOfPics);
-                massDownloadingProgressBar.setMax(numOfPics);
-                massDownloadingProgressBar.setProgress(0);
-                currentSavedPic.set(0);
-                progress(false);
-                if (numOfPics > 0) {
-                    if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
-                        startDownload();
-                    else
-                        aBuilder.create().show();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.no_zero,
-                            Toast.LENGTH_SHORT).show();
-                }
+                preStartDownload();
             }
         });
+    }
+
+    private void preStartDownload() {
+        MainActivity.searchQuery = searchField.getText().toString();
+        drivers = getDrivers();
+        numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
+        Log.d("fgsfds", "downloading #" + numOfPics + " pics");
+        syncCounter = new SyncCounter(numOfPics);
+        massDownloadingProgressBar.setMax(numOfPics);
+        massDownloadingProgressBar.setProgress(0);
+        currentSavedPic.set(0);
+        progressLayout(false);
+        if (numOfPics > 0) {
+            if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
+                startDownload();
+            else
+                aBuilder.create().show();
+        } else {
+            Toast.makeText(getApplicationContext(), R.string.no_zero,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     class SyncCounter {
@@ -180,22 +203,21 @@ public class DownloadingActivity extends AppCompatActivity {
 
     private void unblockUI_() {
         Log.d("fgsfds", "UI unblocked");
-        blocking.unblockUI();
+        //blocking.unblockUI();
     }
 
     private void blockUI_() {
         Log.d("fgsfds", "UI blocked...");
         //blocking.blockUI();
         blocking.blockUIall();
+        blocked = true;
     }
 
-    private void progress(boolean progressCheck)
-    {
+    private void progressLayout(boolean progressCheck) {
         if (progressCheck) {
             mMassDownloadWheel.setVisibility(View.GONE);
             counterTextEdit.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mMassDownloadWheel.setVisibility(View.VISIBLE);
             counterTextEdit.setVisibility(View.GONE);
         }
@@ -235,11 +257,12 @@ public class DownloadingActivity extends AppCompatActivity {
 
                                 @Override
                                 public void unblockUI() {
-                                    progress(true);
+                                    progressLayout(true);
                                     massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
                                     counterTextEdit.setText(getResources().getString(R.string.images_downloaded) + " " + Integer.toString(currentSavedPic.get()));
-                                    if (currentSavedPic.get()==numOfPics){
+                                    if (currentSavedPic.get() == numOfPics) {
                                         blocking.unblockUIall();
+                                        blocked = false;
                                     }
                                 }
 
@@ -337,7 +360,6 @@ public class DownloadingActivity extends AppCompatActivity {
                 holder.name = (CheckBox) convertView.findViewById(R.id.code);
                 convertView.setTag(holder);
 
-                //blocking.addViewToBlock((RelativeLayout) convertView.findViewById(R.id.driverWrapperAdapterLayout));
                 blocking.addViewToBlock((CheckBox) convertView.findViewById(R.id.code));
                 blocking.addViewToBlock((TextView) convertView.findViewById(R.id.type));
 
@@ -411,4 +433,64 @@ public class DownloadingActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    public void onBackPressed() {
+        if (blocked){
+            openQuitDialog();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
+    private void openQuitDialog() {
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(this);
+        quitDialog.setTitle(getString(R.string.warning));
+        quitDialog.setMessage(getString(R.string.massDownloadExit));
+
+        quitDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+
+        });
+
+        quitDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing but close the dialog
+                dialog.dismiss();
+            }
+        });
+
+        quitDialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Restore settings
+        //swf button
+        if (mSettings.contains(APP_PREFERENCES_SWF)) {
+            MainActivity.swf = mSettings.getBoolean(APP_PREFERENCES_SWF, true);
+        }
+
+        sfwButton.setChecked(MainActivity.swf);
+        if (MainActivity.swf)
+            sfwButton.setBackgroundColor(0xff63ec4f);
+        else
+            sfwButton.setBackgroundColor(0xccb3b3b3);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Store settings
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putBoolean(APP_PREFERENCES_SWF, MainActivity.swf);
+        editor.apply();
+    }
+
 }

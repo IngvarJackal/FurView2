@@ -83,5 +83,7 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="images_downloaded">Изображений скачано:</string>
     <string name="descriptionLabel">Описание:</string>
     <string name="description">Описание</string>
+    <string name="warning">Внимание</string>
+    <string name="massDownloadExit">При выходе закачка изображений может прерваться. Выйти?</string>
 
 </resources>

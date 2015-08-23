@@ -70,7 +70,9 @@
         android:numeric="integer"
         android:nestedScrollingEnabled="false"
         android:hint="@string/num_of_images_hint"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:imeOptions="actionDone"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:focusable="true" />
 
     <ListView
         android:layout_width="wrap_content"
