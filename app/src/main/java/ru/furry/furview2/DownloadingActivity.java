@@ -85,6 +85,7 @@ public class DownloadingActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 numOfPicsEditText.requestFocus();
+                numOfPicsEditText.selectAll();
                 return true;
             }
         });
@@ -101,6 +102,7 @@ public class DownloadingActivity extends AppCompatActivity {
         displayListView();
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
+/*
         if (MainActivity.swf) {
             sfwButton.setBackgroundColor(0xff63ec4f);
             sfwButton.setChecked(true);
@@ -108,7 +110,7 @@ public class DownloadingActivity extends AppCompatActivity {
             sfwButton.setBackgroundColor(0xccb3b3b3);
             sfwButton.setChecked(false);
         }
-
+*/
         sfwButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
