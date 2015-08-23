@@ -58,6 +58,7 @@ public class DownloadingActivity extends AppCompatActivity {
     BlockUnblockUI blocking;
     ProgressBar mMassDownloadWheel;
 
+    boolean blocked = false;
     AtomicInteger currentSavedPic = new AtomicInteger(0);
 
     @Override
@@ -74,7 +75,7 @@ public class DownloadingActivity extends AppCompatActivity {
         massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
         mMassDownloadWheel = (ProgressBar) findViewById(R.id.massDownloadWheel);
         mMassDownloadLayout = (RelativeLayout) findViewById(R.id.massDownloadLayout);
-        mMassDownloadDriverList =(ListView) findViewById(R.id.listView);
+        mMassDownloadDriverList = (ListView) findViewById(R.id.listView);
 
         blocking = new BlockUnblockUI(mMassDownloadLayout);
 
@@ -128,7 +129,7 @@ public class DownloadingActivity extends AppCompatActivity {
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 MainActivity.searchQuery = searchField.getText().toString();
                 drivers = getDrivers();
@@ -138,7 +139,7 @@ public class DownloadingActivity extends AppCompatActivity {
                 massDownloadingProgressBar.setMax(numOfPics);
                 massDownloadingProgressBar.setProgress(0);
                 currentSavedPic.set(0);
-                progress(false);
+                progressLayout(false);
                 if (numOfPics > 0) {
                     if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
                         startDownload();
@@ -180,22 +181,21 @@ public class DownloadingActivity extends AppCompatActivity {
 
     private void unblockUI_() {
         Log.d("fgsfds", "UI unblocked");
-        blocking.unblockUI();
+        //blocking.unblockUI();
     }
 
     private void blockUI_() {
         Log.d("fgsfds", "UI blocked...");
         //blocking.blockUI();
         blocking.blockUIall();
+        blocked = true;
     }
 
-    private void progress(boolean progressCheck)
-    {
+    private void progressLayout(boolean progressCheck) {
         if (progressCheck) {
             mMassDownloadWheel.setVisibility(View.GONE);
             counterTextEdit.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             mMassDownloadWheel.setVisibility(View.VISIBLE);
             counterTextEdit.setVisibility(View.GONE);
         }
@@ -235,11 +235,12 @@ public class DownloadingActivity extends AppCompatActivity {
 
                                 @Override
                                 public void unblockUI() {
-                                    progress(true);
+                                    progressLayout(true);
                                     massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
                                     counterTextEdit.setText(getResources().getString(R.string.images_downloaded) + " " + Integer.toString(currentSavedPic.get()));
-                                    if (currentSavedPic.get()==numOfPics){
+                                    if (currentSavedPic.get() == numOfPics) {
                                         blocking.unblockUIall();
+                                        blocked = false;
                                     }
                                 }
 
@@ -410,5 +411,41 @@ public class DownloadingActivity extends AppCompatActivity {
             this.selected = selected;
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (blocked){
+            openQuitDialog();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
+    private void openQuitDialog() {
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(this);
+        quitDialog.setTitle(getString(R.string.warning));
+        quitDialog.setMessage(getString(R.string.massDownloadExit));
+
+        quitDialog.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+
+        });
+
+        quitDialog.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing but close the dialog
+                dialog.dismiss();
+            }
+        });
+
+        //quitDialog.create().show();
+
+        quitDialog.show();
     }
 }
