@@ -198,156 +198,164 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-        JodaTimeAndroid.init(this);
-
-        Collections.fill(currtenlyDownloadedImages, null);
-
-        sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
-        if (MainActivity.swf) {
-            sfwButton.setBackgroundColor(0xff63ec4f);
-            sfwButton.setChecked(true);
+        if (!InitialScreen.isStarted) {
+            Intent intent = new Intent("ru.furry.furview2.InitialScreen");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // won't work on 10 API
+            startActivity(intent);
+            finish();
         } else {
-            sfwButton.setBackgroundColor(0xccb3b3b3);
-            sfwButton.setChecked(false);
-        }
 
-        sfwButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity.swf = !MainActivity.swf;
-                if (sfwButton.isChecked())
-                    sfwButton.setBackgroundColor(0xff63ec4f);
-                else
-                    sfwButton.setBackgroundColor(0xccb3b3b3);
+            setContentView(R.layout.activity_main);
+
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+            JodaTimeAndroid.init(this);
+
+            Collections.fill(currtenlyDownloadedImages, null);
+
+            sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
+            if (MainActivity.swf) {
+                sfwButton.setBackgroundColor(0xff63ec4f);
+                sfwButton.setChecked(true);
+            } else {
+                sfwButton.setBackgroundColor(0xccb3b3b3);
+                sfwButton.setChecked(false);
             }
-        });
 
-        picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
-
-        mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
-        blocking = new BlockUnblockUI(mRelativeLayout);
-
-        mSearchField = (EditText) findViewById(R.id.searchField);
-        mSearchButton = (ImageButton) findViewById(R.id.searchButton);
-
-        mSearchField.setText(searchQuery);
-
-        mImageView1 = (DataImageView) findViewById(R.id.imageView1);
-        mImageView2 = (DataImageView) findViewById(R.id.imageView2);
-        mImageView3 = (DataImageView) findViewById(R.id.imageView3);
-        mImageView4 = (DataImageView) findViewById(R.id.imageView4);
-
-        imageViews = new ArrayList<>(Arrays.asList(
-                mImageView1,
-                mImageView2,
-                mImageView3,
-                mImageView4
-        ));
-        imageViewListeners = new ArrayList<>(Arrays.asList(
-                new ImageViewAware(mImageView1),
-                new ImageViewAware(mImageView2),
-                new ImageViewAware(mImageView3),
-                new ImageViewAware(mImageView4)
-        ));
-
-        mImageButtonClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                for (FurImage image : currtenlyDownloadedImages) {
-                    if (image != null) {
-                        downloadedImages.add(image);
-                    }
+            sfwButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity.swf = !MainActivity.swf;
+                    if (sfwButton.isChecked())
+                        sfwButton.setBackgroundColor(0xff63ec4f);
+                    else
+                        sfwButton.setBackgroundColor(0xccb3b3b3);
                 }
-                Log.d("fgsfds", downloadedImages.toString());
-                Intent intent = new Intent("ru.furry.furview2.fullscreen");
-                intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
-                intent.putExtra("driver", getIntent().getStringExtra("driver"));
-                startActivity(intent);
-            }
-        };
+            });
 
-        mImageView1.setOnClickListener(mImageButtonClickListener);
-        mImageView2.setOnClickListener(mImageButtonClickListener);
-        mImageView3.setOnClickListener(mImageButtonClickListener);
-        mImageView4.setOnClickListener(mImageButtonClickListener);
+            picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
 
-        mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
-            private int SWIPE_VELOCITY_THRESHOLD = 0;
+            mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
+            blocking = new BlockUnblockUI(mRelativeLayout);
 
-            @Override
-            public void onSwipeLeft() {
-                remoteImagesIterator.asyncLoad(new AsyncHandlerUI<Boolean>() {
-                    @Override
-                    public void blockUI() {
-                        blocking.blockUI();
-                    }
+            mSearchField = (EditText) findViewById(R.id.searchField);
+            mSearchButton = (ImageButton) findViewById(R.id.searchButton);
 
-                    @Override
-                    public void unblockUI() {
-                        blocking.unblockUI();
-                    }
+            mSearchField.setText(searchQuery);
 
-                    @Override
-                    public void retrieve(List<? extends Boolean> images) {
-                        if (images.get(0)) {
-                            procCounter.reset();
-                            shownImages.set(0);
-                            remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+            mImageView1 = (DataImageView) findViewById(R.id.imageView1);
+            mImageView2 = (DataImageView) findViewById(R.id.imageView2);
+            mImageView3 = (DataImageView) findViewById(R.id.imageView3);
+            mImageView4 = (DataImageView) findViewById(R.id.imageView4);
+
+            imageViews = new ArrayList<>(Arrays.asList(
+                    mImageView1,
+                    mImageView2,
+                    mImageView3,
+                    mImageView4
+            ));
+            imageViewListeners = new ArrayList<>(Arrays.asList(
+                    new ImageViewAware(mImageView1),
+                    new ImageViewAware(mImageView2),
+                    new ImageViewAware(mImageView3),
+                    new ImageViewAware(mImageView4)
+            ));
+
+            mImageButtonClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    for (FurImage image : currtenlyDownloadedImages) {
+                        if (image != null) {
+                            downloadedImages.add(image);
                         }
                     }
-                });
+                    Log.d("fgsfds", downloadedImages.toString());
+                    Intent intent = new Intent("ru.furry.furview2.fullscreen");
+                    intent.putExtra("imageIndex", ((DataImageView) view).getIndex());
+                    intent.putExtra("driver", getIntent().getStringExtra("driver"));
+                    startActivity(intent);
+                }
+            };
+
+            mImageView1.setOnClickListener(mImageButtonClickListener);
+            mImageView2.setOnClickListener(mImageButtonClickListener);
+            mImageView3.setOnClickListener(mImageButtonClickListener);
+            mImageView4.setOnClickListener(mImageButtonClickListener);
+
+            mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
+                private int SWIPE_VELOCITY_THRESHOLD = 0;
+
+                @Override
+                public void onSwipeLeft() {
+                    remoteImagesIterator.asyncLoad(new AsyncHandlerUI<Boolean>() {
+                        @Override
+                        public void blockUI() {
+                            blocking.blockUI();
+                        }
+
+                        @Override
+                        public void unblockUI() {
+                            blocking.unblockUI();
+                        }
+
+                        @Override
+                        public void retrieve(List<? extends Boolean> images) {
+                            if (images.get(0)) {
+                                procCounter.reset();
+                                shownImages.set(0);
+                                remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onSwipeRight() {
+
+                    if (procCounter.getVal() != 0)
+                        cursor = Math.max(-1, cursor - (shownImages.get()) * 2 - 2);
+                    else
+                        cursor = Math.max(-1, cursor - (shownImages.get()));
+                    procCounter.reset();
+                    remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                }
+            };
+
+            mImageView1.setOnTouchListener(mImageButtonSwitchListener);
+            mImageView2.setOnTouchListener(mImageButtonSwitchListener);
+            mImageView3.setOnTouchListener(mImageButtonSwitchListener);
+            mImageView4.setOnTouchListener(mImageButtonSwitchListener);
+
+            Log.d("fgsfds", "storage: " + permanentStorage);
+
+            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
+            try {
+                driver = driverEnum.driverclass.newInstance();
+            } catch (Exception e) {
+                Utils.printError(e);
             }
+            driver.init(permanentStorage, getApplicationContext());
 
-            @Override
-            public void onSwipeRight() {
+            mOnSearchButtonListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startSearch();
+                }
+            };
 
-                if (procCounter.getVal() != 0)
-                    cursor = Math.max(-1, cursor - (shownImages.get()) * 2 - 2);
-                else
-                    cursor = Math.max(-1, cursor - (shownImages.get()));
-                procCounter.reset();
-                remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
-            }
-        };
+            mOnSearchFieldListener = new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    startSearch();
+                    return true;
+                }
+            };
 
-        mImageView1.setOnTouchListener(mImageButtonSwitchListener);
-        mImageView2.setOnTouchListener(mImageButtonSwitchListener);
-        mImageView3.setOnTouchListener(mImageButtonSwitchListener);
-        mImageView4.setOnTouchListener(mImageButtonSwitchListener);
+            mSearchButton.setOnClickListener(mOnSearchButtonListener);
+            mSearchField.setOnEditorActionListener(mOnSearchFieldListener);
 
-        Log.d("fgsfds", "storage: " + permanentStorage);
-
-        driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
-        try {
-            driver = driverEnum.driverclass.newInstance();
-        } catch (Exception e) {
-            Utils.printError(e);
+            searchDriver();
         }
-        driver.init(permanentStorage, getApplicationContext());
-
-        mOnSearchButtonListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startSearch();
-            }
-        };
-
-        mOnSearchFieldListener = new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                startSearch();
-                return true;
-            }
-        };
-
-        mSearchButton.setOnClickListener(mOnSearchButtonListener);
-        mSearchField.setOnEditorActionListener(mOnSearchFieldListener);
-
-        searchDriver();
     }
 
     private void startSearch() {
