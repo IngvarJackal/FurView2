@@ -84,6 +84,6 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="descriptionLabel">Описание:</string>
     <string name="description">Описание</string>
     <string name="warning">Внимание</string>
-    <string name="massDownloadExit">При выходе закачка изображений может прерваться. Выйти?</string>
+    <string name="massDownloadExit">При выходе изображения будут докачиваться в фоновом режиме. В это время работа с базой данных приложения будет невозможна. Выйти?</string>
 
 </resources>
