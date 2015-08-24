@@ -2,6 +2,7 @@ package ru.furry.furview2.UI;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,7 +13,7 @@ import ru.furry.furview2.R;
 import ru.furry.furview2.proxy.GetProxiedConnection;
 import ru.furry.furview2.proxy.ProxyTypes;
 
-public class ManualProxy extends Activity {
+public class ManualProxy extends AppCompatActivity {
 
     Button mButtonSetManualProxy;
     EditText mManual_address, mManual_port;
