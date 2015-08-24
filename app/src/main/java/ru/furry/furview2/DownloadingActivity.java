@@ -99,6 +99,10 @@ public class DownloadingActivity extends AppCompatActivity {
         blocking = new BlockUnblockUI(mMassDownloadLayout);
 
         drivername = getIntent().getStringExtra("drivername");
+        //if selected local store, change it to E621NET
+        if (drivername.equals(Drivers.DB_DRIVER.drivername))
+            drivername = Drivers.E621NET.drivername;
+
         displayListView();
 
         sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
@@ -319,8 +323,11 @@ public class DownloadingActivity extends AppCompatActivity {
 
         ArrayList<DriverContainer> driverContainerList = new ArrayList<DriverContainer>();
         for (Drivers driver : Drivers.values()) {
-            DriverContainer driverContainer = new DriverContainer(getResources().getString(driver.type.nameId), driver.drivername, drivername.equals(driver.drivername));
-            driverContainerList.add(driverContainer);
+            //include all drivers to the ArrayList except "local search"
+            if (!driver.drivername.equals(Drivers.DB_DRIVER.drivername)) {
+                DriverContainer driverContainer = new DriverContainer(getResources().getString(driver.type.nameId), driver.drivername, drivername.equals(driver.drivername));
+                driverContainerList.add(driverContainer);
+            }
         }
 
         dataAdapter = new DriverWrapperAdapter(this,
@@ -436,10 +443,9 @@ public class DownloadingActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (blocked){
+        if (blocked) {
             openQuitDialog();
-        }
-        else {
+        } else {
             super.onBackPressed();
         }
     }
