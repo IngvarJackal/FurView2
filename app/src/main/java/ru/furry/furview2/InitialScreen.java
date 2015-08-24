@@ -56,11 +56,14 @@ public class InitialScreen extends AppCompatActivity {
     private SharedPreferences mSettings;
     private static final int REQUEST_CODE = 0;
 
+    public static boolean isStarted = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
         context = getApplicationContext();
+        isStarted = true;
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 

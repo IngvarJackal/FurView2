@@ -272,208 +272,215 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fullscreen);
+        if (!InitialScreen.isStarted) {
+            Intent intent = new Intent("ru.furry.furview2.InitialScreen");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // won't work on 10 API
+            startActivity(intent);
+            finish();
+        } else {
+            setContentView(R.layout.activity_fullscreen);
 
-        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+            mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
-        Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
+            Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
-        mScrollVew = (ScrollView) findViewById(R.id.scrollView);
-        mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
-        mTagsButton = (Button) findViewById(R.id.tagsButton);
-        mDescriptionButton = (Button) findViewById(R.id.descriptionButton);
-        mProgress = (ProgressBar) findViewById(R.id.progressBar);
-        mRatingImageButton = (ImageButton) findViewById(R.id.ratingImageButton);
-        mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
-        mArtistEditText = (EditText) findViewById(R.id.artistEditText);
-        mDateEditText = (EditText) findViewById(R.id.dateEditText);
-        mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
-        mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
-        mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDB);
-        mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
-        mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
-        mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
-        mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
-        mDescriptionText = (TextView) findViewById(R.id.descriptionText);
-        mLayoutSearchBar = (LinearLayout) findViewById(R.id.layoutSearchBar);
-        mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
-        mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
-        mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
+            mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
+            mScrollVew = (ScrollView) findViewById(R.id.scrollView);
+            mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
+            mTagsButton = (Button) findViewById(R.id.tagsButton);
+            mDescriptionButton = (Button) findViewById(R.id.descriptionButton);
+            mProgress = (ProgressBar) findViewById(R.id.progressBar);
+            mRatingImageButton = (ImageButton) findViewById(R.id.ratingImageButton);
+            mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
+            mArtistEditText = (EditText) findViewById(R.id.artistEditText);
+            mDateEditText = (EditText) findViewById(R.id.dateEditText);
+            mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
+            mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
+            mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDB);
+            mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
+            mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
+            mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
+            mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
+            mDescriptionText = (TextView) findViewById(R.id.descriptionText);
+            mLayoutSearchBar = (LinearLayout) findViewById(R.id.layoutSearchBar);
+            mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
+            mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
+            mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
 
-        blocking = new BlockUnblockUI(mRelativeLayout);
+            blocking = new BlockUnblockUI(mRelativeLayout);
 
-        fIndex = getIntent().getIntExtra("imageIndex", 0);
-        fImage = MainActivity.downloadedImages.get(fIndex);
-        driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
-        try {
-            driver = driverEnum.driverclass.newInstance();
-        } catch (Exception e) {
-            Utils.printError(e);
-        }
-        driver.setSfw(MainActivity.swf);
-        driver.init(MainActivity.permanentStorage, getApplicationContext());
+            fIndex = getIntent().getIntExtra("imageIndex", 0);
+            fImage = MainActivity.downloadedImages.get(fIndex);
+            driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));
+            try {
+                driver = driverEnum.driverclass.newInstance();
+            } catch (Exception e) {
+                Utils.printError(e);
+            }
+            driver.setSfw(MainActivity.swf);
+            driver.init(MainActivity.permanentStorage, getApplicationContext());
 
-        database = new FurryDatabase(getApplicationContext());
+            database = new FurryDatabase(getApplicationContext());
 
-        ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
-            @Override
-            public void ensureCapacity(int index) {
-                if (entries.size() <= index) {
-                    for (int i = 0; i < ((index - entries.size()) * 3 / 2 + 1); i++) {
-                        entries.add(creator.getDefaultValue(mTagsTable, getApplicationContext()));
+            ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
+                @Override
+                public void ensureCapacity(int index) {
+                    if (entries.size() <= index) {
+                        for (int i = 0; i < ((index - entries.size()) * 3 / 2 + 1); i++) {
+                            entries.add(creator.getDefaultValue(mTagsTable, getApplicationContext()));
+                        }
                     }
                 }
-            }
-        };
+            };
 
-        View.OnClickListener setTagToSearch = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextView textView = (TextView) v;
-                mTagsEditText.setText(textView.getText());
-            }
-        };
+            View.OnClickListener setTagToSearch = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TextView textView = (TextView) v;
+                    mTagsEditText.setText(textView.getText());
+                }
+            };
 
-        View.OnLongClickListener addTagToSearch = new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                TextView textView = (TextView) v;
-                mTagsEditText.setText(mTagsEditText.getText() + " " + textView.getText());
-                return true;
-            }
-        };
+            View.OnLongClickListener addTagToSearch = new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    TextView textView = (TextView) v;
+                    mTagsEditText.setText(mTagsEditText.getText() + " " + textView.getText());
+                    return true;
+                }
+            };
 
-        for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
-            for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
-                tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
-                tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
-                tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
-            }
-        }
-
-        switch (fImage.getRating()) {
-            case SAFE:
-                mRatingImageButton.setBackgroundColor(0xCC31c128);
-                break;
-            case QUESTIONABLE:
-                mRatingImageButton.setBackgroundColor(0xCCe07b0a);
-                break;
-            case EXPLICIT:
-                mRatingImageButton.setBackgroundColor(0xCCe01d0a);
-                break;
-            case NA:
-                mRatingImageButton.setBackgroundColor(0xCCa2b6b5);
-                break;
-        }
-
-        mTagsEditText.setText(MainActivity.searchQuery);
-        mScoreEditText.setText(Integer.toString(fImage.getScore()));
-        mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
-        mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
-
-        if (!fImage.getDescription().equals("")) {
-            mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
-            mDescriptionButton.setEnabled(true);
-            blocking.addViewToBlock(mDescriptionButton);
-        }
-
-        mFullscreenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fullIn();
-            }
-        });
-
-        mFullscreenButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fullOut();
-            }
-        });
-
-        mTagsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mTagsTable.isShown()) {
-                    mTagsTable.setVisibility(View.GONE);
-                } else {
-                    mTagsTable.setVisibility(View.VISIBLE);
+            for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
+                for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
+                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
+                    tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
+                    tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
                 }
             }
-        });
 
-        mDescriptionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mDescriptionText.isShown()) {
-                    mDescriptionText.setVisibility(View.GONE);
-                    mPictureImageView.setVisibility(View.VISIBLE);
-                } else {
-                    mDescriptionText.setVisibility(View.VISIBLE);
-                    mPictureImageView.setVisibility(View.GONE);
+            switch (fImage.getRating()) {
+                case SAFE:
+                    mRatingImageButton.setBackgroundColor(0xCC31c128);
+                    break;
+                case QUESTIONABLE:
+                    mRatingImageButton.setBackgroundColor(0xCCe07b0a);
+                    break;
+                case EXPLICIT:
+                    mRatingImageButton.setBackgroundColor(0xCCe01d0a);
+                    break;
+                case NA:
+                    mRatingImageButton.setBackgroundColor(0xCCa2b6b5);
+                    break;
+            }
+
+            mTagsEditText.setText(MainActivity.searchQuery);
+            mScoreEditText.setText(Integer.toString(fImage.getScore()));
+            mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
+            mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
+
+            if (!fImage.getDescription().equals("")) {
+                mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
+                mDescriptionButton.setEnabled(true);
+                blocking.addViewToBlock(mDescriptionButton);
+            }
+
+            mFullscreenButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fullIn();
                 }
-            }
-        });
+            });
 
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity.searchQuery = mTagsEditText.getText().toString();
-                finish();
-            }
-        });
+            mFullscreenButton2.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fullOut();
+                }
+            });
 
-        mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
-            @Override
-            public void onSwipeLeft() {
-                fIndex += 1;
-                MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
-            }
+            mTagsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mTagsTable.isShown()) {
+                        mTagsTable.setVisibility(View.GONE);
+                    } else {
+                        mTagsTable.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
 
-            @Override
-            public void onSwipeRight() {
-                boolean needLoadNext = fIndex > 0;
-                if (needLoadNext) {
-                    MainActivity.cursor = fIndex - 1;
-                    fIndex = MainActivity.cursor;
-                    Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor + " fIndex " + fIndex);
+            mDescriptionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mDescriptionText.isShown()) {
+                        mDescriptionText.setVisibility(View.GONE);
+                        mPictureImageView.setVisibility(View.VISIBLE);
+                    } else {
+                        mDescriptionText.setVisibility(View.VISIBLE);
+                        mPictureImageView.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+            mSearchButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity.searchQuery = mTagsEditText.getText().toString();
+                    finish();
+                }
+            });
+
+            mPictureImageView.setOnTouchListener(new OnSwipeAncClickTouchListener(getApplicationContext()) {
+                @Override
+                public void onSwipeLeft() {
+                    fIndex += 1;
                     MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
                 }
-            }
-        });
 
-        //set first state not fullscreen
-        if (!mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
-            fullOut();
+                @Override
+                public void onSwipeRight() {
+                    boolean needLoadNext = fIndex > 0;
+                    if (needLoadNext) {
+                        MainActivity.cursor = fIndex - 1;
+                        fIndex = MainActivity.cursor;
+                        Log.d("fgsfds", "MainActivity.cursor " + MainActivity.cursor + " fIndex " + fIndex);
+                        MainActivity.remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+                    }
+                }
+            });
+
+            //set first state not fullscreen
+            if (!mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
+                fullOut();
+            }
+
+            driver.downloadImageFile(fImage, new SubsamplingScaleImageViewAware(mPictureImageView), new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+                    blocking.blockUI();
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    imageLoaded();
+                    blocking.unblockUI();
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    imageLoaded();
+                    blocking.unblockUI();
+                }
+
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+                    imageLoaded();
+                    blocking.unblockUI();
+                }
+            });
         }
-
-        driver.downloadImageFile(fImage, new SubsamplingScaleImageViewAware(mPictureImageView), new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                blocking.blockUI();
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                imageLoaded();
-                blocking.unblockUI();
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                imageLoaded();
-                blocking.unblockUI();
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-                imageLoaded();
-                blocking.unblockUI();
-            }
-        });
     }
 
     @Override

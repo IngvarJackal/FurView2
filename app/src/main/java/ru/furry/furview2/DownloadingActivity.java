@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -54,84 +55,91 @@ public class DownloadingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_downloading);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-        database = new FurryDatabase(this);
-
-        searchField = (EditText) findViewById(R.id.searchField);
-        counterTextEdit = (EditText) findViewById(R.id.counterTextEdit);
-        massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
-
-        drivername = getIntent().getStringExtra("drivername");
-        displayListView();
-
-        sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
-        if (MainActivity.swf) {
-            sfwButton.setBackgroundColor(0xff63ec4f);
-            sfwButton.setChecked(true);
+        if (!InitialScreen.isStarted) {
+            Intent intent = new Intent("ru.furry.furview2.InitialScreen");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // won't work on 10 API
+            startActivity(intent);
+            finish();
         } else {
-            sfwButton.setBackgroundColor(0xccb3b3b3);
-            sfwButton.setChecked(false);
-        }
+            setContentView(R.layout.activity_downloading);
 
-        sfwButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity.swf = !MainActivity.swf;
-                if (sfwButton.isChecked())
-                    sfwButton.setBackgroundColor(0xff63ec4f);
-                else
-                    sfwButton.setBackgroundColor(0xccb3b3b3);
-            }
-        });
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        aBuilder = new AlertDialog.Builder(this);
-        aBuilder.setTitle(R.string.too_many_pics);
-        aBuilder.setMessage(R.string.too_many_pics_body);
+            database = new FurryDatabase(this);
 
-        aBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            searchField = (EditText) findViewById(R.id.searchField);
+            counterTextEdit = (EditText) findViewById(R.id.counterTextEdit);
+            massDownloadingProgressBar = (ProgressBar) findViewById(R.id.massDownloadingProgressBar);
 
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                startDownload();
+            drivername = getIntent().getStringExtra("drivername");
+            displayListView();
+
+            sfwButton = (ToggleButton) findViewById(R.id.sfwButton);
+            if (MainActivity.swf) {
+                sfwButton.setBackgroundColor(0xff63ec4f);
+                sfwButton.setChecked(true);
+            } else {
+                sfwButton.setBackgroundColor(0xccb3b3b3);
+                sfwButton.setChecked(false);
             }
 
-        });
-
-        aBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface dialog, int which) {
-                // Do nothing but close the dialog
-                dialog.dismiss();
-            }
-        });
-
-        numOfPicsEditText = (EditText) findViewById(R.id.numOfPicsEditText);
-
-        downloadButton = (Button) findViewById(R.id.downloadButton);
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                MainActivity.searchQuery = searchField.getText().toString();
-                drivers = getDrivers();
-                numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
-                Log.d("fgsfds", "downloading #" + numOfPics + " pics");
-                syncCounter = new SyncCounter(numOfPics);
-                if (numOfPics > 0) {
-                    if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
-                        startDownload();
+            sfwButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity.swf = !MainActivity.swf;
+                    if (sfwButton.isChecked())
+                        sfwButton.setBackgroundColor(0xff63ec4f);
                     else
-                        aBuilder.create().show();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.no_zero,
-                            Toast.LENGTH_SHORT).show();
+                        sfwButton.setBackgroundColor(0xccb3b3b3);
                 }
-            }
-        });
+            });
+
+            aBuilder = new AlertDialog.Builder(this);
+            aBuilder.setTitle(R.string.too_many_pics);
+            aBuilder.setMessage(R.string.too_many_pics_body);
+
+            aBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    startDownload();
+                }
+
+            });
+
+            aBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int which) {
+                    // Do nothing but close the dialog
+                    dialog.dismiss();
+                }
+            });
+
+            numOfPicsEditText = (EditText) findViewById(R.id.numOfPicsEditText);
+
+            downloadButton = (Button) findViewById(R.id.downloadButton);
+            downloadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    MainActivity.searchQuery = searchField.getText().toString();
+                    drivers = getDrivers();
+                    numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
+                    Log.d("fgsfds", "downloading #" + numOfPics + " pics");
+                    syncCounter = new SyncCounter(numOfPics);
+                    if (numOfPics > 0) {
+                        if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
+                            startDownload();
+                        else
+                            aBuilder.create().show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.no_zero,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     class SyncCounter {
