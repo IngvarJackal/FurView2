@@ -51,6 +51,7 @@ public class DownloadingActivity extends AppCompatActivity {
     ProgressBar massDownloadingProgressBar;
     EditText counterTextEdit;
     List<Drivers> drivers;
+    List<CheckBox> driversCheckBoxes;
     SyncCounter syncCounter;
     EditText searchField;
     private int numOfPics;
@@ -78,6 +79,8 @@ public class DownloadingActivity extends AppCompatActivity {
         //Initial settings
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
+        driversCheckBoxes = new ArrayList<CheckBox>();
+
         database = new FurryDatabase(this);
 
         searchField = (EditText) findViewById(R.id.searchField);
@@ -99,7 +102,7 @@ public class DownloadingActivity extends AppCompatActivity {
         blocking = new BlockUnblockUI(mMassDownloadLayout);
 
         drivername = getIntent().getStringExtra("drivername");
-        //if selected local store, change it to E621NET
+        //if selected driver "local store", change it to "E621NET"
         if (drivername.equals(Drivers.DB_DRIVER.drivername))
             drivername = Drivers.E621NET.drivername;
 
@@ -156,11 +159,13 @@ public class DownloadingActivity extends AppCompatActivity {
                 preStartDownload();
             }
         });
+
+        drivers = getDrivers();
     }
 
     private void preStartDownload() {
         MainActivity.searchQuery = searchField.getText().toString();
-        drivers = getDrivers();
+        //drivers = getDrivers();
         numOfPics = Integer.parseInt("0" + numOfPicsEditText.getText().toString());
         Log.d("fgsfds", "downloading #" + numOfPics + " pics");
         syncCounter = new SyncCounter(numOfPics);
@@ -207,12 +212,10 @@ public class DownloadingActivity extends AppCompatActivity {
 
     private void unblockUI_() {
         Log.d("fgsfds", "UI unblocked");
-        //blocking.unblockUI();
     }
 
     private void blockUI_() {
         Log.d("fgsfds", "UI blocked...");
-        //blocking.blockUI();
         blocking.blockUIall();
         blocked = true;
     }
@@ -272,7 +275,6 @@ public class DownloadingActivity extends AppCompatActivity {
 
                                 @Override
                                 public void retrieve(List<? extends FurImage> images) {
-                                    Log.d("fgsfds", "This message don't shown( ");
                                 }
                             });
                             syncCounter.increment();
@@ -367,12 +369,30 @@ public class DownloadingActivity extends AppCompatActivity {
                 holder.name = (CheckBox) convertView.findViewById(R.id.code);
                 convertView.setTag(holder);
 
+                driversCheckBoxes.add((CheckBox) convertView.findViewById(R.id.code));
+
                 blocking.addViewToBlock((CheckBox) convertView.findViewById(R.id.code));
                 blocking.addViewToBlock((TextView) convertView.findViewById(R.id.type));
 
                 holder.name.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         CheckBox cb = (CheckBox) v;
+
+                        //checking. Is this CheckBox checked alone?
+                        int countCheked=0;
+                        for (int i=0;i<driversCheckBoxes.size();i++){
+                            if (driversCheckBoxes.get(i).isChecked()){
+                                countCheked++;
+                            }
+                        }
+                        if (countCheked>1 || cb.isChecked()){}
+                        else{
+                            Toast.makeText(getApplicationContext(),getString(R.string.at_least_one_source),Toast.LENGTH_SHORT).show();
+                            cb.setChecked(!cb.isChecked());
+                        }
+
+                        drivers = getDrivers();
+
                         DriverContainer driverContainer = (DriverContainer) cb.getTag();
                         driverContainer.setSelected(cb.isChecked());
                     }
