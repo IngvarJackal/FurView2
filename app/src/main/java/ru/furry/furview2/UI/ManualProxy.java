@@ -1,6 +1,5 @@
 package ru.furry.furview2.UI;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +11,7 @@ import android.widget.Toast;
 
 import ru.furry.furview2.InitialScreen;
 import ru.furry.furview2.R;
-import ru.furry.furview2.proxy.GetProxiedConnection;
+import ru.furry.furview2.proxy.ConnectionManager;
 import ru.furry.furview2.proxy.ProxyTypes;
 
 public class ManualProxy extends AppCompatActivity {
@@ -35,26 +34,26 @@ public class ManualProxy extends AppCompatActivity {
             mManual_address = (EditText) findViewById(R.id.manual_address);
             mManual_port = (EditText) findViewById(R.id.manual_port);
 
-            mManual_address.setText(GetProxiedConnection.manualProxyAddress);
-            if (GetProxiedConnection.manualProxyPort != 0) {
-                mManual_port.setText(String.valueOf(GetProxiedConnection.manualProxyPort));
+            mManual_address.setText(ConnectionManager.manualProxyAddress);
+            if (ConnectionManager.manualProxyPort != 0) {
+                mManual_port.setText(String.valueOf(ConnectionManager.manualProxyPort));
             }
 
             View.OnClickListener OnClickListenerSetManualProxy = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!"".equals(mManual_address.getText().toString()) && !"".equals(mManual_port.getText().toString())) {
-                        GetProxiedConnection.proxyType = ProxyTypes.manual;
-                        GetProxiedConnection.manualProxyAddress = mManual_address.getText().toString();
-                        GetProxiedConnection.manualProxyPort = Integer.valueOf(mManual_port.getText().toString());
-                        String str = getString(R.string.success_set_manual_proxy) + GetProxiedConnection.manualProxyAddress + ":" + GetProxiedConnection.manualProxyPort;
+                        ConnectionManager.proxyType = ProxyTypes.manual;
+                        ConnectionManager.manualProxyAddress = mManual_address.getText().toString();
+                        ConnectionManager.manualProxyPort = Integer.valueOf(mManual_port.getText().toString());
+                        String str = getString(R.string.success_set_manual_proxy) + ConnectionManager.manualProxyAddress + ":" + ConnectionManager.manualProxyPort;
                         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
-                        Log.d("fgsfds", "GetProxiedConnection.proxyType is: " + GetProxiedConnection.proxyType.name());
+                        Log.d("fgsfds", "ConnectionManager.proxyType is: " + ConnectionManager.proxyType.name());
                         setResult(RESULT_OK);
                         finish();
                     } else {
-                        GetProxiedConnection.manualProxyAddress = "";
-                        GetProxiedConnection.manualProxyPort = 0;
+                        ConnectionManager.manualProxyAddress = "";
+                        ConnectionManager.manualProxyPort = 0;
                         Toast.makeText(getApplicationContext(), getString(R.string.fail_set_manual_proxy), Toast.LENGTH_SHORT).show();
                         Log.d("fgsfds", "Invalid manual proxy!");
                     }
