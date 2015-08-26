@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -70,7 +71,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW = 5;
-    private static final int TAG_TEXT_LENGTH = 8;
+    private static final int TAG_TEXT_LENGTH = 9;
 
     SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
@@ -267,12 +268,10 @@ public class FullscreenActivity extends AppCompatActivity {
         @Override
         public void setText(CharSequence text, BufferType type) {
             this.trueContent=text;
-
             if (text.length()>TAG_TEXT_LENGTH){
                 text=text.subSequence(0,TAG_TEXT_LENGTH-3)+"...";
             }
-
-            Log.d("fgsfds","Yey! Overrided setText() is working. Lengh tag is "+text.length()+" ("+text+")");
+            Log.d("fgsfds","Yey! Overrided setText() is working. Lengh tag is "+text.length()+" Text before: "+trueContent+" Text after: "+text);
             super.setText(text, type);
         }
     }
@@ -283,7 +282,7 @@ public class FullscreenActivity extends AppCompatActivity {
         public Labelled6Row(TableLayout table, Context context) {
             LinearLayout linLay = new LinearLayout(context);
             linLay.setOrientation(LinearLayout.HORIZONTAL);
-            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT,1));
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
             for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
@@ -387,7 +386,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 @Override
                 public boolean onLongClick(View v) {
                     TextView textView = (TextView) v;
-                    mTagsEditText.setText(mTagsEditText.getText() + " " + textView.getText());
+                    mTagsEditText.setText(textView.getText()+ " " + mTagsEditText.getText());
                     return true;
                 }
             };
