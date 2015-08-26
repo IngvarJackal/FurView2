@@ -3,6 +3,7 @@ package ru.furry.furview2.system;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
@@ -12,9 +13,18 @@ public class BlockUnblockUI {
 
     private AtomicInteger counterTheads = new AtomicInteger(0);
     private ArrayList<View> views = new ArrayList<View>();
+    private ProgressBar progressBar;
 
+
+    public BlockUnblockUI(RelativeLayout incomingRelativeLayout, ProgressBar progressBar) {
+        init(incomingRelativeLayout, progressBar);
+    }
 
     public BlockUnblockUI(RelativeLayout incomingRelativeLayout) {
+        init(incomingRelativeLayout);
+    }
+
+    private void init(RelativeLayout incomingRelativeLayout) {
         //auto adding all found enabled views into ArrayList "views"
         if (views.size() == 0)
             for (int i = 0; i < incomingRelativeLayout.getChildCount(); i++) {
@@ -22,6 +32,11 @@ public class BlockUnblockUI {
             }
 
         Log.d("fgsfds", "Enabled elements on screen = " + views.size() + " Ready to block.");
+    }
+
+    private void init(RelativeLayout incomingRelativeLayout, ProgressBar progressBar) {
+        this.progressBar = progressBar;
+        init(incomingRelativeLayout);
     }
 
     private ArrayList<View> getAllChildren(View v) {
@@ -50,6 +65,11 @@ public class BlockUnblockUI {
 
     public void blockUI() {
 
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setIndeterminate(true);
+        }
+
         for (int i = 0; i < views.size(); i++) {
             views.get(i).setEnabled(false);
         }
@@ -58,6 +78,7 @@ public class BlockUnblockUI {
     }
 
     public void unblockUI() {
+
         if (counterTheads.get() > 1) {
             counterTheads.set(counterTheads.decrementAndGet());
         }
@@ -66,8 +87,23 @@ public class BlockUnblockUI {
             for (int i = 0; i < views.size(); i++) {
                 views.get(i).setEnabled(true);
             }
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
             Log.d("fgsfds", "Unblock UI! counterTheads after unlocking =" + counterTheads.get());
         }
+    }
+
+    public void blockUIall() {
+        for (int i = 0; i < views.size(); i++) {
+            views.get(i).setEnabled(false);
+        }
+    }
+
+    public void unblockUIall() {
+            for (int i = 0; i < views.size(); i++) {
+                views.get(i).setEnabled(true);
+            }
     }
 
     public void addViewToBlock(View v) {

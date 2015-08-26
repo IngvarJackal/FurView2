@@ -145,5 +145,18 @@
         </LinearLayout>
     </LinearLayout>
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/uiBlockedProbressBarr"
+        android:layout_alignBottom="@+id/picturesLayout"
+        android:layout_alignTop="@+id/picturesLayout"
+        android:layout_alignRight="@+id/picturesLayout"
+        android:layout_alignEnd="@+id/picturesLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone" />
+
 
 </RelativeLayout>
