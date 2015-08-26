@@ -70,6 +70,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW = 5;
+    private static final int TAG_TEXT_LENGTH = 8;
 
     SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
@@ -238,8 +239,46 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
 
+    private class TagTextView extends TextView{
+        CharSequence trueContent;
+
+        public TagTextView(Context context, CharSequence incomingContetn) {
+            super(context);
+            this.trueContent=incomingContetn;
+        }
+
+        public TagTextView(Context context) {
+            super(context);
+        }
+
+        public void setTrueContent (CharSequence incomingContetn){
+            this.trueContent=incomingContetn;
+        }
+
+        public CharSequence getTrueContent() {
+            return trueContent;
+        }
+
+        @Override
+        public CharSequence getText() {
+            return trueContent;
+        }
+
+        @Override
+        public void setText(CharSequence text, BufferType type) {
+            this.trueContent=text;
+
+            if (text.length()>TAG_TEXT_LENGTH){
+                text=text.subSequence(0,TAG_TEXT_LENGTH-3)+"...";
+            }
+
+            Log.d("fgsfds","Yey! Overrided setText() is working. Lengh tag is "+text.length()+" ("+text+")");
+            super.setText(text, type);
+        }
+    }
+
     class Labelled6Row {
-        public List<TextView> items = new ArrayList<>();
+        public List<TagTextView> items = new ArrayList<>();
 
         public Labelled6Row(TableLayout table, Context context) {
             LinearLayout linLay = new LinearLayout(context);
@@ -248,9 +287,10 @@ public class FullscreenActivity extends AppCompatActivity {
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
             for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
-                TextView t = new TextView(context);
+                TagTextView t = new TagTextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
+                t.setLines(1);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                 int padding = (int) (1.5 * getResources().getDisplayMetrics().density + 0.5f);
                 t.setPadding(padding, 0, padding, 0);
@@ -354,7 +394,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
             for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
                 for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
-                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
+                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)), TextView.BufferType.NORMAL);
                     tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
                     tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
                 }
