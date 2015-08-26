@@ -28,8 +28,8 @@ import static ru.furry.furview2.system.Utils.reduceMD5;
 
 public class FurryDatabase {
 
-    private static String DB_NAME = "furryDB";
-    private static int DB_VERSION = 27;
+    private static String DB_NAME = FurryDatabaseOpenHelper.DB_NAME;
+    private static int DB_VERSION = FurryDatabaseOpenHelper.DB_VERSION;
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final String SEPARATOR = "q#za0"; // just random string
     private static final int RADIX = 36;
@@ -182,7 +182,26 @@ public class FurryDatabase {
         }
     }
 
-    private static Utils.Tuple<String, String[]> constructQuery(String query) {
+    private static List<String> getAliases(String alias, SQLiteDatabase db) {
+        Cursor cursor = db.rawQuery("select b from aliases where a = ?", new String[]{alias});
+        ArrayList<String> results = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            results.add(cursor.getString(cursor.getColumnIndex("b")));
+        }
+        return results;
+    }
+
+    private static void addAliasQuery(String tag, SQLiteDatabase db, StringBuilder sqlQuery, List<String> arguments) {
+        List<String> aliases = getAliases(tag, db);
+        for (String alias : aliases) {
+            sqlQuery.append("?, ");
+            arguments.add(alias);
+        }
+        sqlQuery.append("?");
+        arguments.add(tag);
+    }
+
+    private static Utils.Tuple<String, String[]> constructQuery(String query, SQLiteDatabase db) {
         query = query.replaceAll("\\s+", " ");
         if (query.replace(" ", "").equals("")) {
             return new Utils.Tuple<>("select * from images where deleted == 'FALSE'", new String[0]);
@@ -235,14 +254,19 @@ public class FurryDatabase {
             sqlQuery.append("and (tt.tagName in (");
             if (not.size() - 2 > 0) {
                 for (String tag : not.subList(0, not.size() - 1)) {
-                    arguments.add(tag);
-                    sqlQuery.append("?, '");
+//                    arguments.add(tag);
+//                    sqlQuery.append("?, '");
+                    addAliasQuery(tag, db, sqlQuery, arguments);
                 }
-                arguments.add(not.get(not.size() - 1));
-                sqlQuery.append("?))) ");
+                addAliasQuery(not.get(not.size() - 1), db, sqlQuery, arguments);
+                sqlQuery.append("))) ");
+//                arguments.add(not.get(not.size() - 1));
+//                sqlQuery.append("?))) ");
             } else {
-                arguments.add(not.get(0));
-                sqlQuery.append("?))) ");
+                addAliasQuery(not.get(0), db, sqlQuery, arguments);
+                sqlQuery.append("))) ");
+//                arguments.add(not.get(0));
+//                sqlQuery.append("?))) ");
             }
         }
 
@@ -255,14 +279,19 @@ public class FurryDatabase {
             sqlQuery.append("and (ttt.tagName in (");
             if (or.size() - 2 > 0) {
                 for (String tag : or.subList(0, or.size() - 1)) {
-                    arguments.add(tag);
-                    sqlQuery.append("?, '");
+                    addAliasQuery(tag, db, sqlQuery, arguments);
+//                    arguments.add(tag);
+//                    sqlQuery.append("?, '");
                 }
-                arguments.add(or.get(or.size() - 1));
-                sqlQuery.append("?))) ");
+                addAliasQuery(or.get(not.size() - 1), db, sqlQuery, arguments);
+                sqlQuery.append("))) ");
+//                arguments.add(or.get(or.size() - 1));
+//                sqlQuery.append("?))) ");
             } else {
-                arguments.add(or.get(0));
-                sqlQuery.append("?))) ");
+                addAliasQuery(or.get(0), db, sqlQuery, arguments);
+                sqlQuery.append("))) ");
+//                arguments.add(or.get(0));
+//                sqlQuery.append("?))) ");
             }
         }
 
@@ -271,14 +300,19 @@ public class FurryDatabase {
             sqlQuery.append("and (t.tagName in (");
             if (and.size() - 2 > 0) {
                 for (String tag : and.subList(0, and.size() - 1)) {
-                    arguments.add(tag);
-                    sqlQuery.append("?, '");
+                    addAliasQuery(tag, db, sqlQuery, arguments);
+//                    arguments.add(tag);
+//                    sqlQuery.append("?, '");
                 }
-                arguments.add(and.get(and.size() - 1));
-                sqlQuery.append("?)) ");
+                addAliasQuery(and.get(not.size() - 1), db, sqlQuery, arguments);
+                sqlQuery.append(")) ");
+//                arguments.add(and.get(and.size() - 1));
+//                sqlQuery.append("?)) ");
             } else {
-                arguments.add(and.get(0));
-                sqlQuery.append("?)) ");
+                addAliasQuery(and.get(0), db, sqlQuery, arguments);
+                sqlQuery.append(")) ");
+//                arguments.add(and.get(0));
+//                sqlQuery.append("?)) ");
             }
             sqlQuery.append("group by i.imageId ");
             sqlQuery.append("having count (t.tagId) = ").append(and.size());
@@ -291,12 +325,13 @@ public class FurryDatabase {
 
     protected static ArrayList<FurImage> getImages(String query, SQLiteDatabase db) {
 
-        Utils.Tuple<String, String[]> tQuery = constructQuery(query);
+        Utils.Tuple<String, String[]> tQuery = constructQuery(query, db);
 
         String sqlQuery = tQuery.x;
         String[] arguments = tQuery.y;
 
-        Log.d("fgsfds", "DB request: " + sqlQuery + " " + Arrays.toString(arguments));
+        Log.d("fgsfds", "raw DB query: " + sqlQuery + " " + Arrays.toString(arguments));
+        Log.d("fgsfds", "DB query: " + Utils.joinQueryArgs(sqlQuery, arguments));
 
         Cursor cursor = db.rawQuery(sqlQuery, arguments);
 
@@ -422,7 +457,7 @@ public class FurryDatabase {
         new DeleteImage().execute(md5);
     }
 
-    public String getTableAsString(String tableName) {
+    public static String getTableAsString(SQLiteDatabase database, String tableName) {
         Log.d("fgsfds", "getTableAsString called");
         String tableString = String.format("Table %s:\n", tableName);
         Cursor allRows  = database.rawQuery("SELECT * FROM " + tableName, null);

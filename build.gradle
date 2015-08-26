@@ -12,6 +12,12 @@ buildscript {
     }
 }
 
+task genDB(type:Exec) {
+    workingDir 'gradle'
+
+    commandLine 'python', 'fill_database.py'
+}
+
 allprojects {
     repositories {
         jcenter()
