@@ -228,20 +228,20 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
 
-    private class TagTextView extends TextView{
+    private class TagTextView extends TextView {
         CharSequence trueContent;
 
         public TagTextView(Context context, CharSequence incomingContetn) {
             super(context);
-            this.trueContent=incomingContetn;
+            this.trueContent = incomingContetn;
         }
 
         public TagTextView(Context context) {
             super(context);
         }
 
-        public void setTrueContent (CharSequence incomingContetn){
-            this.trueContent=incomingContetn;
+        public void setTrueContent(CharSequence incomingContetn) {
+            this.trueContent = incomingContetn;
         }
 
         public CharSequence getTrueContent() {
@@ -255,11 +255,11 @@ public class FullscreenActivity extends AppCompatActivity {
 
         @Override
         public void setText(CharSequence text, BufferType type) {
-            this.trueContent=text;
-            if (text.length()>TAG_TEXT_LENGTH){
-                text=text.subSequence(0,TAG_TEXT_LENGTH-3)+"...";
+            this.trueContent = text;
+            if (text.length() > TAG_TEXT_LENGTH) {
+                text = text.subSequence(0, TAG_TEXT_LENGTH - 3) + "...";
             }
-            Log.d("fgsfds","Yey! Overrided setText() is working. Lengh tag is "+text.length()+" Text before: "+trueContent+" Text after: "+text);
+            Log.d("fgsfds", "Yey! Overrided setText() is working. Lengh tag is " + text.length() + " Text before: " + trueContent + " Text after: " + text);
             super.setText(text, type);
         }
     }
@@ -270,7 +270,7 @@ public class FullscreenActivity extends AppCompatActivity {
         public Labelled6Row(TableLayout table, Context context) {
             LinearLayout linLay = new LinearLayout(context);
             linLay.setOrientation(LinearLayout.HORIZONTAL);
-            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT,1));
+            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1));
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
             for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
@@ -374,7 +374,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 @Override
                 public boolean onLongClick(View v) {
                     TextView textView = (TextView) v;
-                    mTagsEditText.setText(textView.getText()+ " " + mTagsEditText.getText());
+                    mTagsEditText.setText(textView.getText() + " " + mTagsEditText.getText());
                     return true;
                 }
             };
