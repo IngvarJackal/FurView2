@@ -15,6 +15,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -298,6 +299,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         if (!InitialScreenActivity.isStarted) {
             Intent intent = new Intent("ru.furry.furview2.InitialScreenActivity");
@@ -311,7 +313,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
             Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            //getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
             mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
             mScrollVew = (ScrollView) findViewById(R.id.scrollView);

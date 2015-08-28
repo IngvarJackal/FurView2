@@ -9,12 +9,12 @@
         android:name=".GlobalData"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:label="@string/app_name">
         <activity
             android:name=".InitialScreenActivity"
             android:label="@string/title_activity_initial_screen"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,6 +28,7 @@
             android:label="@string/app_name"
             android:parentActivityName=".InitialScreenActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -41,7 +42,7 @@
             android:name=".FullscreenActivity"
             android:label="@string/title_activity_fullscreen"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -54,6 +55,7 @@
         <activity
             android:name=".UI.ManualProxyActivity"
             android:label="@string/title_activity_manual_proxy"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Dialog.MinWidth">
             <intent-filter>
                 <action android:name="ru.furry.furview2.ManualProxyActivity" />
@@ -62,6 +64,8 @@
         </activity>
         <activity
             android:name=".UI.HelpScreenActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
             android:label="@string/title_help_screen">
             <intent-filter>
                 <action android:name="ru.furry.furview2.HelpScreenActivity" />
@@ -70,6 +74,8 @@
         </activity>
         <activity
             android:name=".DownloadingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"
             android:label="@string/title_downloading_screen">
             <intent-filter>
                 <action android:name="ru.furry.furview2.DownloadingActivity" />
