@@ -44,7 +44,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
         if (dbExist) {
             //do nothing - database already exist
         } else {
-            this.getReadableDatabase();
+            getReadableDatabase();
             try {
                 copyDataBase();
             } catch (IOException e) {
@@ -110,11 +110,12 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
 
     protected static void initDatabase(SQLiteDatabase sqLiteDatabase) {
 
-        Log.d("fgsfds", "clearing database...");
+        Log.d("fgsfds", "clearing ad init database...");
         sqLiteDatabase.execSQL("drop table if exists images;");
         sqLiteDatabase.execSQL("drop table if exists tags;");
         sqLiteDatabase.execSQL("drop table if exists taggings;");
         sqLiteDatabase.execSQL("drop table if exists logins;");
+        sqLiteDatabase.execSQL("drop table if exists blacklist;");
 
         sqLiteDatabase.execSQL("create table images (imageId integer primary key on conflict replace," +
                 "searchQuery text," +
@@ -145,6 +146,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("create table tags (tagId integer primary key on conflict ignore, tagName text, unique (tagId));");
         sqLiteDatabase.execSQL("create table taggings (imageId integer, tagId integer, primary key(imageId, tagId) on conflict ignore, unique (imageId, tagId));");
         sqLiteDatabase.execSQL("create table logins (loginId integer primary key autoincrement, resource text, login text, password text);");
+        sqLiteDatabase.execSQL("create table blacklist (tagId integer primary key autoincrement, tag text);");
         //sqLiteDatabase.execSQL("create table aliases (aliasId integer primary key autoincrement, a text, b text);");
     }
 
@@ -153,7 +155,6 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
         @Override
         protected Boolean doInBackground(SQLiteDatabase... sqLiteDatabases) {
             SQLiteDatabase sqLiteDatabase = sqLiteDatabases[0];
-            Log.d("fgsfds", "init database...");
 
             FurryDatabaseOpenHelper.initDatabase(sqLiteDatabase);
 
@@ -169,7 +170,6 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
 
 
             //sqLiteDatabase.execSQL("drop table if exists aliases;");
-
 
             try {
                 copyDataBase();
