@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -64,11 +65,11 @@ public class FullscreenActivity extends AppCompatActivity {
 
     SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
+    ScrollView mScrollDescriptionText;
     TableLayout mTagsTable;
     Button mTagsButton;
     Button mDescriptionButton;
     ProgressBar mProgress;
-    ImageButton mRatingImageButton;
     EditText mScoreEditText;
     EditText mArtistEditText;
     EditText mDateEditText;
@@ -90,6 +91,7 @@ public class FullscreenActivity extends AppCompatActivity {
     LinearLayout mLayoutInfoBar;
     LinearLayout mLayoutTagBar;
     LinearLayout mLayoutFullscreenOut;
+    int CurrentOrientation;
 
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
@@ -298,7 +300,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        CurrentOrientation = getResources().getConfiguration().orientation;
         super.onCreate(savedInstanceState);
         if (!InitialScreenActivity.isStarted) {
             Intent intent = new Intent("ru.furry.furview2.InitialScreenActivity");
@@ -312,15 +314,15 @@ public class FullscreenActivity extends AppCompatActivity {
 
             Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
-            //getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
             mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
             mScrollVew = (ScrollView) findViewById(R.id.scrollView);
             mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
-            mTagsButton = (Button) findViewById(R.id.tagsButton);
+            if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                mTagsButton = (Button) findViewById(R.id.tagsButton);
+                mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
+            }
             mDescriptionButton = (Button) findViewById(R.id.descriptionButton);
             mProgress = (ProgressBar) findViewById(R.id.progressBar);
-            mRatingImageButton = (ImageButton) findViewById(R.id.ratingImageButton);
             mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
             mArtistEditText = (EditText) findViewById(R.id.artistEditText);
             mDateEditText = (EditText) findViewById(R.id.dateEditText);
@@ -332,9 +334,9 @@ public class FullscreenActivity extends AppCompatActivity {
             mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
             mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
             mDescriptionText = (TextView) findViewById(R.id.descriptionText);
+            mScrollDescriptionText = (ScrollView) findViewById(R.id.scrollDescriptionText);
             mLayoutSearchBar = (LinearLayout) findViewById(R.id.layoutSearchBar);
             mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
-            mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
             mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
 
             blocking = new BlockUnblockUI(mRelativeLayout);
@@ -390,16 +392,16 @@ public class FullscreenActivity extends AppCompatActivity {
 
             switch (fImage.getRating()) {
                 case SAFE:
-                    mRatingImageButton.setBackgroundColor(0xCC31c128);
+                    mScoreEditText.setBackgroundColor(0xCC31c128);
                     break;
                 case QUESTIONABLE:
-                    mRatingImageButton.setBackgroundColor(0xCCe07b0a);
+                    mScoreEditText.setBackgroundColor(0xCCe07b0a);
                     break;
                 case EXPLICIT:
-                    mRatingImageButton.setBackgroundColor(0xCCe01d0a);
+                    mScoreEditText.setBackgroundColor(0xCCe01d0a);
                     break;
                 case NA:
-                    mRatingImageButton.setBackgroundColor(0xCCa2b6b5);
+                    mScoreEditText.setBackgroundColor(0xCCa2b6b5);
                     break;
             }
 
@@ -428,25 +430,28 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             });
 
-            mTagsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mTagsTable.isShown()) {
-                        mTagsTable.setVisibility(View.GONE);
-                    } else {
-                        mTagsTable.setVisibility(View.VISIBLE);
+            if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+                mTagsButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (mTagsTable.isShown()) {
+                            mTagsTable.setVisibility(View.GONE);
+                        } else {
+                            mTagsTable.setVisibility(View.VISIBLE);
+                        }
                     }
-                }
-            });
+                });
+            }
+
 
             mDescriptionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mDescriptionText.isShown()) {
-                        mDescriptionText.setVisibility(View.GONE);
+                    if (mScrollDescriptionText.isShown()) {
+                        mScrollDescriptionText.setVisibility(View.GONE);
                         mPictureImageView.setVisibility(View.VISIBLE);
                     } else {
-                        mDescriptionText.setVisibility(View.VISIBLE);
+                        mScrollDescriptionText.setVisibility(View.VISIBLE);
                         mPictureImageView.setVisibility(View.GONE);
                     }
                 }
@@ -536,24 +541,32 @@ public class FullscreenActivity extends AppCompatActivity {
     private void fullIn() {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
         inFulscreenMode = true;
-        mRatingImageButton.setVisibility(View.GONE);
         mLayoutSearchBar.setVisibility(View.GONE);
+        mScoreEditText.setVisibility(View.GONE);
         mLayoutInfoBar.setVisibility(View.GONE);
-        mLayoutTagBar.setVisibility(View.GONE);
+        if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            mLayoutTagBar.setVisibility(View.GONE);
+        } else {
+            mScrollVew.setVisibility(View.GONE);
+        }
         mDescriptionButton.setVisibility(View.GONE);
         mLayoutFullscreenOut.setVisibility(View.VISIBLE);
 
-        mDescriptionText.setVisibility(View.GONE);
+        mScrollDescriptionText.setVisibility(View.GONE);
         mPictureImageView.setVisibility(View.VISIBLE);
     }
 
     private void fullOut() {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
         inFulscreenMode = false;
-        mRatingImageButton.setVisibility(View.VISIBLE);
         mLayoutSearchBar.setVisibility(View.VISIBLE);
+        mScoreEditText.setVisibility(View.VISIBLE);
         mLayoutInfoBar.setVisibility(View.VISIBLE);
-        mLayoutTagBar.setVisibility(View.VISIBLE);
+        if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            mLayoutTagBar.setVisibility(View.VISIBLE);
+        } else {
+            mScrollVew.setVisibility(View.VISIBLE);
+        }
         mDescriptionButton.setVisibility(View.VISIBLE);
         mLayoutFullscreenOut.setVisibility(View.GONE);
     }

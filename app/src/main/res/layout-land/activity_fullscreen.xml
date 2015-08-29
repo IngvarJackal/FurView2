@@ -62,46 +62,34 @@
             android:layout_gravity="right" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/ratingImageButton"
+    <EditText
+        android:id="@+id/scoreEditText"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:layout_alignBottom="@+id/layoutInfoBar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/layoutSearchBar"
         android:layout_gravity="center_vertical"
-        android:clickable="false" />
+        android:layout_weight="1.2"
+        android:enabled="false"
+        android:gravity="center"
+        android:textIsSelectable="false"
+        android:layout_below="@+id/layoutSearchBar"
+        android:layout_centerHorizontal="true" />
 
     <LinearLayout
         android:id="@+id/layoutInfoBar"
         android:layout_width="100dp"
         android:layout_height="52dp"
-        android:layout_alignEnd="@+id/layoutTagBar"
-        android:layout_alignRight="@+id/layoutTagBar"
         android:layout_below="@+id/layoutSearchBar"
-        android:layout_toEndOf="@+id/ratingImageButton"
-        android:layout_toRightOf="@+id/ratingImageButton"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/scoreEditText"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1.2"
-            android:editable="false"
-            android:enabled="false"
-            android:gravity="center"
-            android:textIsSelectable="false" />
+        android:orientation="horizontal"
+        android:layout_toRightOf="@+id/scoreEditText"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
 
         <EditText
             android:id="@+id/artistEditText"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.85"
-            android:editable="false"
+            android:layout_weight="6"
             android:enabled="false"
             android:gravity="center"
             android:textSize="12sp" />
@@ -111,63 +99,44 @@
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.85"
-            android:editable="false"
+            android:layout_weight="4"
             android:enabled="false"
             android:gravity="center"
             android:textSize="12sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layoutTagBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/layoutInfoBar"
-        android:orientation="vertical"
-        android:gravity="center">
-
-        <ScrollView
-            android:id="@+id/scrollView"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TableLayout
-                    android:id="@+id/tagsTableLayout"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_below="@+id/layoutSearchBar"
-                    android:layout_weight="0.5"
-                    android:visibility="gone"
-                    android:gravity="center" />
-
-                <Button
-                    android:id="@+id/tagsButton"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="fill_parent"
-                    android:layout_height="30sp"
-                    android:clickable="true"
-                    android:text="@string/tags"
-                    android:textSize="10sp" />
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
-
     <ScrollView
-        android:id="@+id/scrollView3"
+        android:id="@+id/scrollView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/descriptionButton"
+        android:layout_below="@+id/scoreEditText"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignLeft="@+id/scoreEditText"
+        android:layout_alignStart="@+id/scoreEditText"
+        android:layout_above="@+id/descriptionButton">
+
+        <TableLayout
+            android:id="@+id/tagsTableLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/layoutSearchBar"
+            android:gravity="center" />
+    </ScrollView>
+
+    <ScrollView
+        android:id="@+id/scrollDescriptionText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/layoutTagBar">
+        android:layout_below="@+id/layoutSearchBar"
+        android:visibility="gone"
+        android:layout_alignBottom="@+id/descriptionButton"
+        android:layout_toLeftOf="@+id/scoreEditText"
+        android:layout_toStartOf="@+id/scoreEditText">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -178,8 +147,7 @@
                 android:id="@+id/descriptionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:visibility="gone" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         </LinearLayout>
     </ScrollView>
@@ -188,28 +156,26 @@
         android:id="@+id/picImgView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/progressBar"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
         android:layout_alignWithParentIfMissing="false"
-        android:layout_below="@+id/layoutTagBar"
-        android:layout_centerHorizontal="true"
         android:clickable="true"
-        android:contentDescription="@string/imageName" />
+        android:contentDescription="@string/imageName"
+        android:layout_below="@+id/layoutSearchBar"
+        android:layout_toLeftOf="@+id/scoreEditText"
+        android:layout_toStartOf="@+id/scoreEditText" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/descriptionButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/layoutTagBar"
         android:indeterminateOnly="true"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:layout_toLeftOf="@+id/descriptionButton"
+        android:layout_toStartOf="@+id/descriptionButton"
+        android:layout_below="@+id/layoutSearchBar"
+        android:layout_alignBottom="@+id/descriptionButton" />
 
     <Button
         android:id="@+id/descriptionButton"
@@ -217,12 +183,12 @@
         android:layout_width="fill_parent"
         android:layout_height="30sp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:clickable="true"
         android:enabled="false"
         android:text="@string/description"
-        android:textSize="10sp" />
+        android:textSize="10sp"
+        android:layout_alignLeft="@+id/scoreEditText"
+        android:layout_alignStart="@+id/scoreEditText" />
 
 
     <LinearLayout

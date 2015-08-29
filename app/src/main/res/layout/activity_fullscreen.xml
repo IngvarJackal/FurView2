@@ -62,46 +62,35 @@
             android:layout_gravity="right" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/ratingImageButton"
+    <EditText
+        android:id="@+id/scoreEditText"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:layout_alignBottom="@+id/layoutInfoBar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/layoutSearchBar"
         android:layout_gravity="center_vertical"
-        android:clickable="false" />
+        android:layout_weight="1.2"
+        android:editable="false"
+        android:enabled="false"
+        android:gravity="center"
+        android:textIsSelectable="false"
+        android:layout_below="@+id/layoutSearchBar" />
 
     <LinearLayout
         android:id="@+id/layoutInfoBar"
-        android:layout_width="100dp"
+        android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_alignEnd="@+id/layoutTagBar"
         android:layout_alignRight="@+id/layoutTagBar"
         android:layout_below="@+id/layoutSearchBar"
-        android:layout_toEndOf="@+id/ratingImageButton"
-        android:layout_toRightOf="@+id/ratingImageButton"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/scoreEditText"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1.2"
-            android:editable="false"
-            android:enabled="false"
-            android:gravity="center"
-            android:textIsSelectable="false" />
+        android:orientation="horizontal"
+        android:layout_toRightOf="@+id/scoreEditText"
+        android:layout_toEndOf="@+id/scoreEditText">
 
         <EditText
             android:id="@+id/artistEditText"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.85"
-            android:editable="false"
+            android:layout_weight="6"
             android:enabled="false"
             android:gravity="center"
             android:textSize="12sp" />
@@ -111,8 +100,7 @@
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.85"
-            android:editable="false"
+            android:layout_weight="4"
             android:enabled="false"
             android:gravity="center"
             android:textSize="12sp" />
@@ -161,13 +149,14 @@
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/scrollView3"
+        android:id="@+id/scrollDescriptionText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/descriptionButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/layoutTagBar">
+        android:layout_below="@+id/layoutTagBar"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -178,8 +167,7 @@
                 android:id="@+id/descriptionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:visibility="gone" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         </LinearLayout>
     </ScrollView>
