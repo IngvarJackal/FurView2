@@ -59,8 +59,8 @@ import ru.furry.furview2.system.Utils;
 public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final int LEN_OF_TAGS_ROW = 5;
-    private static final int TAG_TEXT_LENGTH = 9;
+    private static final int LEN_OF_TAGS_ROW = 4;
+    private static final int TAG_TEXT_LENGTH = 12;
 
     SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
@@ -260,7 +260,6 @@ public class FullscreenActivity extends AppCompatActivity {
             if (text.length() > TAG_TEXT_LENGTH) {
                 text = text.subSequence(0, TAG_TEXT_LENGTH - 3) + "...";
             }
-            Log.d("fgsfds", "Yey! Overrided setText() is working. Lengh tag is " + text.length() + " Text before: " + trueContent + " Text after: " + text);
             super.setText(text, type);
         }
     }
