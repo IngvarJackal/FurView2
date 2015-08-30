@@ -12,10 +12,10 @@ buildscript {
     }
 }
 
-task genDB(type:Exec) {
+task fetchAliases(type:Exec) {
     workingDir 'gradle'
 
-    commandLine 'python', 'fill_database.py'
+    commandLine 'python', 'fetch_aliases.py'
 }
 
 allprojects {

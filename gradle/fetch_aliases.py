@@ -14,7 +14,7 @@ for numPage in range(1, 331):
 
 del aliases[0]
 
-with open("aliases.txt", "w") as out:
+with open("../app/src/main/res/raw/aliases.txt", "w") as out:
     while len(aliases) > 1:
         a = aliases.pop()
         b = aliases.pop()
