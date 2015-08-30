@@ -16,7 +16,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -62,23 +61,22 @@ public class FullscreenActivity extends AppCompatActivity {
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private static final int LEN_OF_TAGS_ROW_PORT = 4;
     private static final int TAG_TEXT_LENGTH_PORT = 12;
-    private static final int LEN_OF_TAGS_ROW_LAND = 6;
+    private static final int LEN_OF_TAGS_ROW_LAND = 8;
     private static final int TAG_TEXT_LENGTH_LAND = 12;
 
     int tag_text_lenght;
     int len_of_tags_row;
     SubsamplingScaleImageView mPictureImageView;
-    ScrollView mScrollVew;
     ScrollView mScrollDescriptionText;
     TableLayout mTagsTable;
-    Button mTagsButton;
     Button mDescriptionButton;
     ProgressBar mProgress;
     EditText mScoreEditText;
     EditText mArtistEditText;
-    EditText mDateEditText;
+    TextView mDateTextView;
     EditText mTagsEditText;
     TextView mDescriptionText;
+    TextView mDescriptionLabel;
     ImageButton mSearchButton;
     ImageButton mButtonSaveDelInDB;
     ProgressBar mButtonSaveDelInDBProgress;
@@ -93,7 +91,6 @@ public class FullscreenActivity extends AppCompatActivity {
     BlockUnblockUI blocking;
     LinearLayout mLayoutSearchBar;
     LinearLayout mLayoutInfoBar;
-    LinearLayout mLayoutTagBar;
     LinearLayout mLayoutFullscreenOut;
     int CurrentOrientation;
 
@@ -308,8 +305,7 @@ public class FullscreenActivity extends AppCompatActivity {
         if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
             tag_text_lenght = TAG_TEXT_LENGTH_PORT;
             len_of_tags_row = LEN_OF_TAGS_ROW_PORT;
-        }
-        else {
+        } else {
             tag_text_lenght = TAG_TEXT_LENGTH_LAND;
             len_of_tags_row = LEN_OF_TAGS_ROW_LAND;
         }
@@ -327,18 +323,14 @@ public class FullscreenActivity extends AppCompatActivity {
             Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
             mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
-            mScrollVew = (ScrollView) findViewById(R.id.scrollView);
             mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
-            if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                mTagsButton = (Button) findViewById(R.id.tagsButton);
-                mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
-            }
             mDescriptionButton = (Button) findViewById(R.id.descriptionButton);
             mProgress = (ProgressBar) findViewById(R.id.progressBar);
             mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
             mArtistEditText = (EditText) findViewById(R.id.artistEditText);
-            mDateEditText = (EditText) findViewById(R.id.dateEditText);
+            mDateTextView = (TextView) findViewById(R.id.dateEditText);
             mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
+            mDescriptionLabel = (TextView) findViewById(R.id.descriptionLabel);
             mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
             mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDB);
             mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
@@ -420,12 +412,13 @@ public class FullscreenActivity extends AppCompatActivity {
             mTagsEditText.setText(MainActivity.searchQuery);
             mScoreEditText.setText(Integer.toString(fImage.getScore()));
             mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
-            mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
+            mDateTextView.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
+            //mDescriptionText.setText(fImage.getDescription());
 
             if (!fImage.getDescription().equals("")) {
                 mDescriptionText.setText(fImage.getDescription());
-                mDescriptionButton.setEnabled(true);
-                blocking.addViewToBlock(mDescriptionButton);
+            } else {
+                mDescriptionLabel.setVisibility(View.GONE);
             }
 
             mFullscreenButton.setOnClickListener(new View.OnClickListener() {
@@ -441,20 +434,6 @@ public class FullscreenActivity extends AppCompatActivity {
                     fullOut();
                 }
             });
-
-            if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                mTagsButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (mTagsTable.isShown()) {
-                            mTagsTable.setVisibility(View.GONE);
-                        } else {
-                            mTagsTable.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-            }
-
 
             mDescriptionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -555,15 +534,8 @@ public class FullscreenActivity extends AppCompatActivity {
         inFulscreenMode = true;
         mLayoutSearchBar.setVisibility(View.GONE);
         mScoreEditText.setVisibility(View.GONE);
-        //mLayoutInfoBar.setVisibility(View.GONE);
         mArtistEditText.setVisibility(View.GONE);
-        mDateEditText.setVisibility(View.GONE);
-        if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            mLayoutTagBar.setVisibility(View.GONE);
-            mScrollVew.setVisibility(View.GONE);
-        } else {
 
-        }
         mDescriptionButton.setVisibility(View.GONE);
         mLayoutFullscreenOut.setVisibility(View.VISIBLE);
 
@@ -576,15 +548,8 @@ public class FullscreenActivity extends AppCompatActivity {
         inFulscreenMode = false;
         mLayoutSearchBar.setVisibility(View.VISIBLE);
         mScoreEditText.setVisibility(View.VISIBLE);
-        //mLayoutInfoBar.setVisibility(View.VISIBLE);
         mArtistEditText.setVisibility(View.VISIBLE);
-        mDateEditText.setVisibility(View.VISIBLE);
-        if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            mLayoutTagBar.setVisibility(View.VISIBLE);
-            mScrollVew.setVisibility(View.VISIBLE);
-        } else {
 
-        }
         mDescriptionButton.setVisibility(View.VISIBLE);
         mLayoutFullscreenOut.setVisibility(View.GONE);
     }
