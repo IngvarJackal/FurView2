@@ -146,7 +146,7 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("create table tags (tagId integer primary key on conflict ignore, tagName text, unique (tagId));");
         sqLiteDatabase.execSQL("create table taggings (imageId integer, tagId integer, primary key(imageId, tagId) on conflict ignore, unique (imageId, tagId));");
         sqLiteDatabase.execSQL("create table logins (loginId integer primary key autoincrement, resource text, login text, password text);");
-        sqLiteDatabase.execSQL("create table blacklist (tagId integer primary key autoincrement, tag text);");
+        sqLiteDatabase.execSQL("create table blacklist (tagId integer primary key autoincrement, tag text, unique(tag));");
         //sqLiteDatabase.execSQL("create table aliases (aliasId integer primary key autoincrement, a text, b text);");
     }
 

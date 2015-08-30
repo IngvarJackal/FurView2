@@ -16,7 +16,7 @@ conn = sqlite3.connect('../app/src/main/res/raw/furry_db')
 cur = conn.cursor()
 cur.execute("drop table if exists aliases;\n")
 cur.execute("drop table if exists android_metadata;\n")
-cur.execute("create table aliases (_id integer primary key autoincrement, a text, b text);\n")
+cur.execute("create table aliases (_id integer primary key autoincrement, a text, b text, unique (a, b));\n")
 
 cur.executemany("insert into aliases (a, b) values (?, ?);", aliases)
 

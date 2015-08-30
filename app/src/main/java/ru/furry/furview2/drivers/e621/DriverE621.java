@@ -32,6 +32,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -43,6 +44,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import ru.furry.furview2.database.FurryDatabase;
+import ru.furry.furview2.database.FurryDatabaseUtils;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.FurImageBuilder;
@@ -81,10 +83,15 @@ public class DriverE621 extends Driver {
     private int currentPage = 0;
     private String searchQuery;
 
+    private FurryDatabase furryDatabase;
+    private FurryDatabaseUtils databaseUtils;
+
     @Override
     public void init(String permanentStorage, Context context) {
         this.permanentStorage = permanentStorage;
         checkPathStructureForImages(permanentStorage);
+        furryDatabase = new FurryDatabase(context);
+        databaseUtils = new FurryDatabaseUtils(furryDatabase);
     }
 
     // UTILITY
@@ -209,7 +216,15 @@ public class DriverE621 extends Driver {
                             .setFileHeight(Integer.parseInt(element.getAttribute("height")))
                             .createRemoteFurImageE926());
             }
-            return images;
+
+            List<RemoteFurImageE621> filteredImages = new ArrayList<>(images.size());
+            for (RemoteFurImageE621 image : images) {
+                if (Collections.disjoint(image.getTags(), databaseUtils.getBlacklist())) {
+                    filteredImages.add(image);
+                }
+            }
+
+            return filteredImages;
         }
 
         @Override
