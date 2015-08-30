@@ -4,8 +4,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import ru.furry.furview2.MainActivity;
 import ru.furry.furview2.system.Utils;
 
 public class FurryDatabaseUtils {
@@ -71,5 +74,30 @@ public class FurryDatabaseUtils {
         }
         this.bTags = new ArrayList<>(tags);
         return tags;
+    }
+
+    private Map<String, List<String>> aliasedBTags = new HashMap<>();
+
+    public List<String> getAliasedBlackTag(String bTag) {
+        if (aliasedBTags.containsKey(bTag)) {
+            return new ArrayList<>(aliasedBTags.get(bTag));
+        } else {
+            ArrayList<String> tags = new ArrayList<>();
+            Cursor cursor = database.getWritableDatabase().query("aliases", new String[]{"b"}, "a = ?", new String[] {bTag}, null, null, null);
+            while (cursor.moveToNext()) {
+                tags.add(cursor.getString(cursor.getColumnIndex("b")));
+            }
+            tags.add(bTag);
+            aliasedBTags.put(bTag, tags);
+            return new ArrayList<>(tags);
+        }
+    }
+
+    public List<String> getAliasedBlacklist(List<String> blackList) {
+        ArrayList<String> aliasedBlackList = new ArrayList<>();
+        for (String bTag : blackList) {
+            aliasedBlackList.addAll(getAliasedBlackTag(bTag));
+        }
+        return aliasedBlackList;
     }
 }

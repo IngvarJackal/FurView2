@@ -81,7 +81,7 @@ public class DriverDB extends Driver {
                 public void retrieve(List<? extends FurImage> images) {
                     List<FurImage> filteredImages = new ArrayList<>(images.size());
                     for (FurImage image : images) {
-                        if (Collections.disjoint(image.getTags(), databaseUtils.getBlacklist())) {
+                        if (Collections.disjoint(image.getTags(), databaseUtils.getAliasedBlacklist(databaseUtils.getBlacklist()))) {
                             filteredImages.add(image);
                         }
                     }
@@ -112,7 +112,7 @@ public class DriverDB extends Driver {
                 public void retrieve(List<? extends FurImage> images) {
                     List<FurImage> filteredImages = new ArrayList<>(images.size());
                     for (FurImage image : images) {
-                        if (Collections.disjoint(image.getTags(), databaseUtils.getBlacklist())) {
+                        if (Collections.disjoint(image.getTags(), databaseUtils.getAliasedBlacklist(databaseUtils.getBlacklist()))) {
                             filteredImages.add(image);
                         }
                     }

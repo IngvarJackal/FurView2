@@ -219,7 +219,7 @@ public class DriverE621 extends Driver {
 
             List<RemoteFurImageE621> filteredImages = new ArrayList<>(images.size());
             for (RemoteFurImageE621 image : images) {
-                if (Collections.disjoint(image.getTags(), databaseUtils.getBlacklist())) {
+                if (Collections.disjoint(image.getTags(), databaseUtils.getAliasedBlacklist(databaseUtils.getBlacklist()))) {
                     filteredImages.add(image);
                 }
             }
