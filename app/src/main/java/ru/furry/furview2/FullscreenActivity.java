@@ -60,9 +60,13 @@ import ru.furry.furview2.system.Utils;
 public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final int LEN_OF_TAGS_ROW = 4;
-    private static final int TAG_TEXT_LENGTH = 12;
+    private static final int LEN_OF_TAGS_ROW_PORT = 4;
+    private static final int TAG_TEXT_LENGTH_PORT = 12;
+    private static final int LEN_OF_TAGS_ROW_LAND = 6;
+    private static final int TAG_TEXT_LENGTH_LAND = 12;
 
+    int tag_text_lenght;
+    int len_of_tags_row;
     SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
     ScrollView mScrollDescriptionText;
@@ -259,8 +263,8 @@ public class FullscreenActivity extends AppCompatActivity {
         @Override
         public void setText(CharSequence text, BufferType type) {
             this.trueContent = text;
-            if (text.length() > TAG_TEXT_LENGTH) {
-                text = text.subSequence(0, TAG_TEXT_LENGTH - 3) + "...";
+            if (text.length() > tag_text_lenght) {
+                text = text.subSequence(0, tag_text_lenght - 3) + "...";
             }
             super.setText(text, type);
         }
@@ -275,7 +279,7 @@ public class FullscreenActivity extends AppCompatActivity {
             linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1));
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
-            for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
+            for (int i = 0; i < len_of_tags_row; i++) {
                 TagTextView t = new TagTextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
@@ -301,6 +305,14 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         CurrentOrientation = getResources().getConfiguration().orientation;
+        if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            tag_text_lenght = TAG_TEXT_LENGTH_PORT;
+            len_of_tags_row = LEN_OF_TAGS_ROW_PORT;
+        }
+        else {
+            tag_text_lenght = TAG_TEXT_LENGTH_LAND;
+            len_of_tags_row = LEN_OF_TAGS_ROW_LAND;
+        }
         super.onCreate(savedInstanceState);
         if (!InitialScreenActivity.isStarted) {
             Intent intent = new Intent("ru.furry.furview2.InitialScreenActivity");
@@ -382,9 +394,9 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             };
 
-            for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
-                for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
-                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)), TextView.BufferType.NORMAL);
+            for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / len_of_tags_row); row++) {
+                for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < fImage.getTags().size()); column++) {
+                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * len_of_tags_row + column)), TextView.BufferType.NORMAL);
                     tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
                     tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
                 }
@@ -411,7 +423,7 @@ public class FullscreenActivity extends AppCompatActivity {
             mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
 
             if (!fImage.getDescription().equals("")) {
-                mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
+                mDescriptionText.setText(fImage.getDescription());
                 mDescriptionButton.setEnabled(true);
                 blocking.addViewToBlock(mDescriptionButton);
             }
@@ -543,11 +555,14 @@ public class FullscreenActivity extends AppCompatActivity {
         inFulscreenMode = true;
         mLayoutSearchBar.setVisibility(View.GONE);
         mScoreEditText.setVisibility(View.GONE);
-        mLayoutInfoBar.setVisibility(View.GONE);
+        //mLayoutInfoBar.setVisibility(View.GONE);
+        mArtistEditText.setVisibility(View.GONE);
+        mDateEditText.setVisibility(View.GONE);
         if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
             mLayoutTagBar.setVisibility(View.GONE);
-        } else {
             mScrollVew.setVisibility(View.GONE);
+        } else {
+
         }
         mDescriptionButton.setVisibility(View.GONE);
         mLayoutFullscreenOut.setVisibility(View.VISIBLE);
@@ -561,11 +576,14 @@ public class FullscreenActivity extends AppCompatActivity {
         inFulscreenMode = false;
         mLayoutSearchBar.setVisibility(View.VISIBLE);
         mScoreEditText.setVisibility(View.VISIBLE);
-        mLayoutInfoBar.setVisibility(View.VISIBLE);
+        //mLayoutInfoBar.setVisibility(View.VISIBLE);
+        mArtistEditText.setVisibility(View.VISIBLE);
+        mDateEditText.setVisibility(View.VISIBLE);
         if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
             mLayoutTagBar.setVisibility(View.VISIBLE);
-        } else {
             mScrollVew.setVisibility(View.VISIBLE);
+        } else {
+
         }
         mDescriptionButton.setVisibility(View.VISIBLE);
         mLayoutFullscreenOut.setVisibility(View.GONE);
