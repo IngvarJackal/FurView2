@@ -263,6 +263,7 @@ public class InitialScreenActivity extends AppCompatActivity {
             case (R.id.action_downloading): {
                 Intent intent = new Intent("ru.furry.furview2.DownloadingActivity");
                 intent.putExtra("drivername", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
+                intent.putExtra("searchQuery", mSearchFieldInitial.getText().toString());
                 startActivity(intent);
                 return true;
             }
