@@ -85,6 +85,7 @@ public class DownloadingActivity extends AppCompatActivity {
         database = new FurryDatabase(this);
 
         searchField = (EditText) findViewById(R.id.searchField);
+        searchField.setText(getIntent().getStringExtra("searchQuery"));
         searchField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

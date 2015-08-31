@@ -497,6 +497,7 @@ public class MainActivity extends AppCompatActivity {
             case (R.id.action_downloading): {
                 Intent intent = new Intent("ru.furry.furview2.DownloadingActivity");
                 intent.putExtra("drivername", driverEnum.drivername);
+                intent.putExtra("searchQuery", mSearchField.getText().toString());
                 startActivity(intent);
                 return true;
             }
