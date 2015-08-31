@@ -67,17 +67,13 @@
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_below="@+id/layoutSearchBar"
-        android:layout_toEndOf="@+id/scoreEditText"
-        android:layout_toRightOf="@+id/scoreEditText"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/scoreEditText"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_below="@+id/layoutSearchBar"
             android:layout_gravity="center_vertical"
-            android:editable="false"
             android:enabled="false"
             android:gravity="center"
             android:textIsSelectable="false" />
@@ -97,9 +93,6 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="52dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
             android:clickable="true"
             android:text="@string/info"
             android:textSize="15sp" />
@@ -144,10 +137,6 @@
                 android:id="@+id/tagsTableLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/layoutSearchBar"
-                android:layout_weight="0.5"
                 android:gravity="center"
                 android:visibility="visible" />
 
@@ -188,12 +177,14 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/descriptionButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/layoutInfoBar"
         android:indeterminateOnly="true"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
     <LinearLayout

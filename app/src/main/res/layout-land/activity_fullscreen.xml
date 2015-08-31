@@ -37,9 +37,6 @@
             android:id="@+id/scoreEditText"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/layoutSearchBar"
             android:layout_gravity="center_vertical"
             android:enabled="false"
             android:gravity="center"
@@ -60,8 +57,6 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="52dp"
-            android:layout_alignLeft="@+id/scoreEditText"
-            android:layout_alignStart="@+id/scoreEditText"
             android:layout_gravity="center"
             android:clickable="true"
             android:text="@string/info"
@@ -91,7 +86,6 @@
             android:id="@+id/fullscreenButton"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:layout_alignParentRight="true"
             android:layout_gravity="right"
             android:layout_weight="0"
             android:src="@drawable/ic_btn_square_out" />
@@ -107,7 +101,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/layoutSearchBar"
-        android:layout_toStartOf="@+id/scoreEditText"
         android:visibility="gone">
 
         <LinearLayout
@@ -139,9 +132,6 @@
                 android:id="@+id/tagsTableLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/layoutSearchBar"
                 android:gravity="center" />
 
             <TextView
@@ -169,9 +159,9 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="false"
         android:layout_below="@+id/layoutSearchBar"
-        android:layout_toStartOf="@+id/scoreEditText"
         android:clickable="true"
         android:contentDescription="@string/imageName" />
+
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -184,10 +174,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/layoutSearchBar"
-        android:layout_toStartOf="@+id/scoreEditText"
         android:indeterminateOnly="true"
         android:visibility="gone" />
-
 
     <LinearLayout
         android:id="@+id/layoutFullscreenOut"
