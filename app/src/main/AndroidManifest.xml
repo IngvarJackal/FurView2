@@ -27,7 +27,6 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:parentActivityName=".InitialScreenActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden" >
             <meta-data
@@ -55,7 +54,6 @@
         <activity
             android:name=".UI.ManualProxyActivity"
             android:label="@string/title_activity_manual_proxy"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Dialog.MinWidth">
             <intent-filter>
                 <action android:name="ru.furry.furview2.ManualProxyActivity" />
@@ -64,7 +62,6 @@
         </activity>
         <activity
             android:name=".UI.HelpScreenActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             android:label="@string/title_help_screen">
             <intent-filter>
