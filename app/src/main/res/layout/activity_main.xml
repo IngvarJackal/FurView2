@@ -100,32 +100,6 @@
                 android:clickable="true"
                 android:scaleType="centerCrop" />
 
-            <ru.furry.furview2.UI.DataImageView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/imageView5"
-                android:layout_weight="1"
-                android:layout_marginLeft="2sp"
-                android:layout_marginTop="0sp"
-                android:layout_marginRight="5sp"
-                android:layout_marginBottom="5sp"
-                android:clickable="true"
-                android:visibility="gone"
-                android:scaleType="centerCrop" />
-
-            <ru.furry.furview2.UI.DataImageView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/imageView6"
-                android:layout_weight="1"
-                android:layout_marginLeft="2sp"
-                android:layout_marginTop="0sp"
-                android:layout_marginRight="5sp"
-                android:layout_marginBottom="5sp"
-                android:clickable="true"
-                android:visibility="gone"
-                android:scaleType="centerCrop" />
-
         </LinearLayout>
 
         <LinearLayout
