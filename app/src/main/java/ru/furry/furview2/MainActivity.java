@@ -2,6 +2,7 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
@@ -176,11 +177,12 @@ public class MainActivity extends AppCompatActivity {
 
     EditText mSearchField;
     ImageButton mSearchButton;
-    DataImageView mImageView1, mImageView2, mImageView3, mImageView4;
+    DataImageView mImageView1, mImageView2, mImageView3, mImageView4, mImageView5, mImageView6;
     List<ImageViewAware> imageViewListeners;
     List<DataImageView> imageViews;
     ToggleButton sfwButton;
     LinearLayout picturesLayout;
+    LinearLayout mPicturesLayoutRow2;
     RelativeLayout mRelativeLayout;
 
     BlockUnblockUI blocking;
@@ -194,7 +196,65 @@ public class MainActivity extends AppCompatActivity {
     Driver driver;
     Drivers driverEnum;
 
+    int orientation;
+
     private AsyncCounter procCounter = new AsyncCounter(0, 1);
+
+    private void portraitOrientation() {
+        mImageView3 = (DataImageView) findViewById(R.id.imageView3);
+        mImageView4 = (DataImageView) findViewById(R.id.imageView4);
+        mImageView5 = (DataImageView) findViewById(R.id.imageView5);
+        mImageView6 = (DataImageView) findViewById(R.id.imageView6);
+        mPicturesLayoutRow2.setVisibility(View.VISIBLE);
+        mImageView5.setVisibility(View.GONE);
+        mImageView6.setVisibility(View.GONE);
+        mImageView3.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 2));
+        mImageView4.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 2));
+        mImageView3.setImageDrawable(mImageView5.getDrawable());
+        mImageView4.setImageDrawable(mImageView6.getDrawable());
+    }
+
+    private void albomOrientation() {
+        mImageView3 = (DataImageView) findViewById(R.id.imageView3);
+        mImageView4 = (DataImageView) findViewById(R.id.imageView4);
+        mImageView5 = (DataImageView) findViewById(R.id.imageView5);
+        mImageView6 = (DataImageView) findViewById(R.id.imageView6);
+        mPicturesLayoutRow2.setVisibility(View.GONE);
+        mImageView5.setVisibility(View.VISIBLE);
+        mImageView6.setVisibility(View.VISIBLE);
+        mImageView1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        mImageView2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        mImageView3.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        mImageView4.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+
+        mImageView5.setImageDrawable(mImageView3.getDrawable());
+        mImageView6.setImageDrawable(mImageView4.getDrawable());
+
+        mImageView3 = (DataImageView) findViewById(R.id.imageView5);
+        mImageView4 = (DataImageView) findViewById(R.id.imageView6);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            portraitOrientation();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            albomOrientation();
+        }
+        imageViews = new ArrayList<>(Arrays.asList(
+                mImageView1,
+                mImageView2,
+                mImageView3,
+                mImageView4
+        ));
+        imageViewListeners = new ArrayList<>(Arrays.asList(
+                new ImageViewAware(mImageView1),
+                new ImageViewAware(mImageView2),
+                new ImageViewAware(mImageView3),
+                new ImageViewAware(mImageView4)
+        ));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        orientation = getResources().getConfiguration().orientation;
 
         JodaTimeAndroid.init(this);
 
@@ -244,6 +306,23 @@ public class MainActivity extends AppCompatActivity {
         mImageView2 = (DataImageView) findViewById(R.id.imageView2);
         mImageView3 = (DataImageView) findViewById(R.id.imageView3);
         mImageView4 = (DataImageView) findViewById(R.id.imageView4);
+        mImageView5 = (DataImageView) findViewById(R.id.imageView5);
+        mImageView6 = (DataImageView) findViewById(R.id.imageView6);
+        mPicturesLayoutRow2 = (LinearLayout) findViewById(R.id.picturesLayoutRow2);
+
+        switch (orientation) {
+            case Configuration.ORIENTATION_PORTRAIT:
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                mImageView3 = (DataImageView) findViewById(R.id.imageView5);
+                mImageView4 = (DataImageView) findViewById(R.id.imageView6);
+                mPicturesLayoutRow2.setVisibility(View.GONE);
+                mImageView1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                mImageView2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                mImageView3.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                mImageView4.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                break;
+        }
 
         imageViews = new ArrayList<>(Arrays.asList(
                 mImageView1,
@@ -278,6 +357,8 @@ public class MainActivity extends AppCompatActivity {
         mImageView2.setOnClickListener(mImageButtonClickListener);
         mImageView3.setOnClickListener(mImageButtonClickListener);
         mImageView4.setOnClickListener(mImageButtonClickListener);
+        mImageView5.setOnClickListener(mImageButtonClickListener);
+        mImageView6.setOnClickListener(mImageButtonClickListener);
 
         mImageButtonSwitchListener = new OnSwipeAncClickTouchListener(getApplicationContext()) {
             private int SWIPE_VELOCITY_THRESHOLD = 0;
@@ -322,6 +403,8 @@ public class MainActivity extends AppCompatActivity {
         mImageView2.setOnTouchListener(mImageButtonSwitchListener);
         mImageView3.setOnTouchListener(mImageButtonSwitchListener);
         mImageView4.setOnTouchListener(mImageButtonSwitchListener);
+        mImageView5.setOnTouchListener(mImageButtonSwitchListener);
+        mImageView6.setOnTouchListener(mImageButtonSwitchListener);
 
         Log.d("fgsfds", "storage: " + permanentStorage);
 

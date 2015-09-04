@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -141,6 +142,8 @@ public class InitialScreenActivity extends AppCompatActivity {
         MainActivity.searchQuery = mSearchQuery;
         //intent.putExtra("SearchQuery", mSearchQuery);
         intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
+        GlobalData global = ((GlobalData)getApplicationContext());
+        global.setOrientation(Configuration.ORIENTATION_PORTRAIT);
         startActivity(intent);
     }
 

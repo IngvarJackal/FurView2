@@ -28,6 +28,7 @@
             android:label="@string/app_name"
             android:parentActivityName=".InitialScreenActivity"
             android:theme="@style/AppTheme"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

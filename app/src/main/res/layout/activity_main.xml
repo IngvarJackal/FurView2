@@ -63,7 +63,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:id="@+id/picturesLayout"
-
+        android:weightSum="2"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_below="@+id/searchField">
@@ -72,15 +72,15 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:weightSum="1"
-            android:id="@+id/linearLayout"
+            android:weightSum="4"
+            android:id="@+id/picturesLayoutRow1"
             android:layout_weight="1">
 
             <ru.furry.furview2.UI.DataImageView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/imageView1"
-                android:layout_weight="0.50"
+                android:layout_weight="2"
                 android:layout_marginLeft="2sp"
                 android:layout_marginTop="0sp"
                 android:layout_marginRight="5sp"
@@ -92,12 +92,38 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/imageView2"
-                android:layout_weight="0.50"
+                android:layout_weight="2"
                 android:layout_marginLeft="2sp"
                 android:layout_marginTop="0sp"
                 android:layout_marginRight="5sp"
                 android:layout_marginBottom="5sp"
                 android:clickable="true"
+                android:scaleType="centerCrop" />
+
+            <ru.furry.furview2.UI.DataImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView5"
+                android:layout_weight="1"
+                android:layout_marginLeft="2sp"
+                android:layout_marginTop="0sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:clickable="true"
+                android:visibility="gone"
+                android:scaleType="centerCrop" />
+
+            <ru.furry.furview2.UI.DataImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/imageView6"
+                android:layout_weight="1"
+                android:layout_marginLeft="2sp"
+                android:layout_marginTop="0sp"
+                android:layout_marginRight="5sp"
+                android:layout_marginBottom="5sp"
+                android:clickable="true"
+                android:visibility="gone"
                 android:scaleType="centerCrop" />
 
         </LinearLayout>
@@ -106,15 +132,15 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:weightSum="1"
-            android:id="@+id/linearLayout2"
+            android:weightSum="4"
+            android:id="@+id/picturesLayoutRow2"
             android:layout_weight="1">
 
             <ru.furry.furview2.UI.DataImageView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/imageView3"
-                android:layout_weight="0.50"
+                android:layout_weight="2"
                 android:layout_marginLeft="2sp"
                 android:layout_marginTop="0sp"
                 android:layout_marginRight="5sp"
@@ -126,7 +152,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/imageView4"
-                android:layout_weight="0.50"
+                android:layout_weight="2"
                 android:layout_marginLeft="2sp"
                 android:layout_marginTop="0sp"
                 android:layout_marginRight="5sp"
