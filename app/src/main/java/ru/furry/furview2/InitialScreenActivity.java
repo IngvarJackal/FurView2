@@ -59,15 +59,18 @@ public class InitialScreenActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d("fgsfds", "save =" + mSearchFieldInitial.getText().toString());
         outState.putString("SearchText", mSearchFieldInitial.getText().toString());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Log.d("fgsfds", "restore =" + savedInstanceState.getString("SearchText"));
-        mSearchFieldInitial.setText(savedInstanceState.getString("SearchText",MainActivity.searchQuery));
+        String savedText = savedInstanceState.getString("SearchText");
+        if ("".equals(savedText)) {
+            mSearchFieldInitial.setText(MainActivity.searchQuery);
+        } else {
+            mSearchFieldInitial.setText(savedText);
+        }
     }
 
     @Override
@@ -137,7 +140,7 @@ public class InitialScreenActivity extends AppCompatActivity {
             uilConfig = new ImageLoaderConfiguration.Builder(this)
                     .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
                             //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                    //.diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
+                            //.diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
                     .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 200 * 1024 * 1024))
                     .imageDownloader(new ProxiedBaseImageDownloader(this))
                     .threadPoolSize(1)
@@ -149,13 +152,12 @@ public class InitialScreenActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(uilConfig);
     }
 
-    private void startSearch()
-    {
+    private void startSearch() {
         Intent intent = new Intent("ru.furry.furview2.MainActivity");
         String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
         MainActivity.searchQuery = mSearchQuery;
         intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
-        GlobalData global = ((GlobalData)getApplicationContext());
+        GlobalData global = ((GlobalData) getApplicationContext());
         global.setOrientationFlag(true);
         startActivity(intent);
     }
