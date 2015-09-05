@@ -505,7 +505,9 @@ public class MainActivity extends AppCompatActivity {
             clearImage(i);
         }
 
-        if (cursor <= NUM_OF_PICS) {
+        Log.d("fgsfds", "cursor " + cursor);
+
+        if (cursor == 0) {
             cursor = -1;
         }
 
