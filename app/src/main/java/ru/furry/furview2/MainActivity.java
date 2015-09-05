@@ -365,25 +365,25 @@ public class MainActivity extends AppCompatActivity {
         mSearchField.setOnEditorActionListener(mOnSearchFieldListener);
 
         if (global.getOrientationFlag()) {
-            searchDriver();
-            global.setOrientationFlag(false);
+            searchDriver();     //if activity created first time
+            global.setOrientationFlag(false);   //set true in InitialScreen
         } else {    //if activity created after changing orientation
-            if (cursor > 3) cursor = cursor - 4;
-            else cursor = -1;
+            if (cursor > 3) {
+                cursor = cursor - 4;
+            } else {
+                cursor = -1;
+            }
             int i = 0;
             while (i < NUM_OF_PICS) {
                 if (i < remoteImagesIterator.currentSize()) {
                     setPicture(i, remoteImagesIterator.next());
                 } else {
-                    //if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        clearImage(i);
-                    //}
+                    clearImage(i);  //if images loaded less than NUM_OF_PICS
                 }
                 i++;
             }
         }
     }
-
 
 
     private void startSearch() {
