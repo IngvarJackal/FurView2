@@ -16,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -63,6 +62,7 @@ public class DownloadingActivity extends AppCompatActivity {
 
     boolean blocked = false;
     AtomicInteger currentSavedPic = new AtomicInteger(0);
+    AtomicInteger remoteImagesNumber = new AtomicInteger(0);
 
     //for save and restore settings
     public static final String APP_PREFERENCES = "settings";
@@ -84,6 +84,7 @@ public class DownloadingActivity extends AppCompatActivity {
         database = new FurryDatabase(this);
 
         searchField = (EditText) findViewById(R.id.searchField);
+        searchField.setText(MainActivity.searchQuery);
         searchField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -172,6 +173,7 @@ public class DownloadingActivity extends AppCompatActivity {
         massDownloadingProgressBar.setMax(numOfPics);
         massDownloadingProgressBar.setProgress(0);
         currentSavedPic.set(0);
+        remoteImagesNumber.set(0);
         progressLayout(false);
         if (numOfPics > 0) {
             if (drivers.size() * numOfPics <= MAX_NUM_OF_PICS)
@@ -212,6 +214,17 @@ public class DownloadingActivity extends AppCompatActivity {
 
     private void unblockUI_() {
         Log.d("fgsfds", "UI unblocked");
+    }
+
+    private void unblockUI2() {
+        Log.d("fgsfds", "UI totally unblocked: " + currentSavedPic.get() + "/" + remoteImagesNumber.get());
+        progressLayout(true);
+        massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
+        counterTextEdit.setText(getResources().getString(R.string.images_downloaded) + " " + Integer.toString(currentSavedPic.get()));
+        if (currentSavedPic.get() + 1 >= remoteImagesNumber.get()) {
+            blocking.unblockUIall();
+            blocked = false;
+        }
     }
 
     private void blockUI_() {
@@ -264,13 +277,7 @@ public class DownloadingActivity extends AppCompatActivity {
 
                                 @Override
                                 public void unblockUI() {
-                                    progressLayout(true);
-                                    massDownloadingProgressBar.setProgress(currentSavedPic.incrementAndGet());
-                                    counterTextEdit.setText(getResources().getString(R.string.images_downloaded) + " " + Integer.toString(currentSavedPic.get()));
-                                    if (currentSavedPic.get() == numOfPics) {
-                                        blocking.unblockUIall();
-                                        blocked = false;
-                                    }
+                                    unblockUI2();
                                 }
 
                                 @Override
@@ -303,14 +310,18 @@ public class DownloadingActivity extends AppCompatActivity {
                             } else {
                                 if (c == 0) {
                                     Log.d("fgsfds", "Running " + syncCounter.blocking.get() + " threads");
-                                    if (syncCounter.blocking.decrementAndGet() == 0) {
+                                    if (syncCounter.blocking.decrementAndGet() <= 0) {
                                         unblockUI_();
+                                        currentSavedPic.decrementAndGet();
+                                        unblockUI2();
                                     }
                                 } else {
+                                    remoteImagesNumber.addAndGet(Math.min(remoteImages.size(), numOfPics));
                                     driverInstance.downloadFurImage(remoteImages.subList(0, Math.min(remoteImages.size(), numOfPics)), Collections.nCopies(remoteImages.size(), imagesHandler));
                                 }
                             }
                         } else {
+                            remoteImagesNumber.addAndGet(numOfPics);
                             driverInstance.downloadFurImage(remoteImages.subList(0, numOfPics), Collections.nCopies(remoteImages.size(), imagesHandler));
                         }
                     }
@@ -517,6 +528,7 @@ public class DownloadingActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putBoolean(APP_PREFERENCES_SWF, MainActivity.swf);
         editor.apply();
+        MainActivity.searchQuery = searchField.getText().toString();
     }
 
 }
