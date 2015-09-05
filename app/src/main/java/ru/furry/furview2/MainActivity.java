@@ -2,6 +2,7 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -59,6 +60,34 @@ public class MainActivity extends AppCompatActivity {
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
     public static AtomicInteger shownImages = new AtomicInteger(0);
+    public ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler;
+
+    public class BlockingOrientationHandler implements ru.furry.furview2.system.BlockingOrientationHandler{
+        private boolean locked;
+
+        @Override
+        public void setLocked(boolean locked) {
+            this.locked = locked;
+        }
+
+        @Override
+        public boolean getLocked() {
+            return locked;
+        }
+
+        @Override
+        public void lockOrientation(){
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        @Override
+        public void unlockOrientation(){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+
+    }
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -240,8 +269,9 @@ public class MainActivity extends AppCompatActivity {
 
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
 
+        blockingOrientationHandler = new BlockingOrientationHandler();
         mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
-        blocking = new BlockUnblockUI(mRelativeLayout, uiBlockedProbressBar);
+        blocking = new BlockUnblockUI(mRelativeLayout, uiBlockedProbressBar, blockingOrientationHandler);
 
         mSearchField = (EditText) findViewById(R.id.searchField);
         mSearchButton = (ImageButton) findViewById(R.id.searchButton);
@@ -469,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void redrawImages() {
 
-        for (int i= 0; i < NUM_OF_PICS; i++) {
+        for (int i = 0; i < NUM_OF_PICS; i++) {
             clearImage(i);
         }
 

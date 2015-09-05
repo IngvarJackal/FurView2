@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -51,6 +52,7 @@ import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.BlockUnblockUI;
+import ru.furry.furview2.system.BlockingOrientationHandler;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -97,6 +99,7 @@ public class FullscreenActivity extends AppCompatActivity {
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
+    ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler;
 
     private boolean inFulscreenMode;
 
@@ -299,6 +302,33 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
+    public class BlockingOrientationHandler implements ru.furry.furview2.system.BlockingOrientationHandler{
+        private boolean locked;
+
+        @Override
+        public void setLocked(boolean locked) {
+            this.locked = locked;
+        }
+
+        @Override
+        public boolean getLocked() {
+            return locked;
+        }
+
+        @Override
+        public void lockOrientation(){
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        @Override
+        public void unlockOrientation(){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         CurrentOrientation = getResources().getConfiguration().orientation;
@@ -343,7 +373,9 @@ public class FullscreenActivity extends AppCompatActivity {
             mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
             mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
 
-            blocking = new BlockUnblockUI(mRelativeLayout);
+            blockingOrientationHandler = new BlockingOrientationHandler();
+            blocking = new BlockUnblockUI(mRelativeLayout,blockingOrientationHandler);
+
 
             fIndex = getIntent().getIntExtra("imageIndex", 0);
             fImage = MainActivity.downloadedImages.get(fIndex);
