@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -53,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = true;
-    public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
+    //public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
+    public static RemoteImagesIterator remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
@@ -173,6 +175,10 @@ public class MainActivity extends AppCompatActivity {
         public RemoteFurImage previous() {
             return downloadedRemoteImages.get(--cursor);
         }
+
+        public int currentSize() {
+            return downloadedRemoteImages.size();
+        }
     }
 
     EditText mSearchField;
@@ -209,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
         orientation = getResources().getConfiguration().orientation;
-        global = ((GlobalData)getApplicationContext());
+        global = ((GlobalData) getApplicationContext());
 
         JodaTimeAndroid.init(this);
 
@@ -358,8 +364,27 @@ public class MainActivity extends AppCompatActivity {
         mSearchButton.setOnClickListener(mOnSearchButtonListener);
         mSearchField.setOnEditorActionListener(mOnSearchFieldListener);
 
-        searchDriver();
+        if (global.getOrientationFlag()) {
+            searchDriver();
+            global.setOrientationFlag(false);
+        } else {    //if activity created after changing orientation
+            if (cursor > 3) cursor = cursor - 4;
+            else cursor = -1;
+            int i = 0;
+            while (i < NUM_OF_PICS) {
+                if (i < remoteImagesIterator.currentSize()) {
+                    setPicture(i, remoteImagesIterator.next());
+                } else {
+                    //if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        clearImage(i);
+                    //}
+                }
+                i++;
+            }
+        }
     }
+
+
 
     private void startSearch() {
         searchQuery = mSearchField.getText().toString();
@@ -446,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
     private void clearImage(int index) {
         Log.d("fgsfds", "Clearing image " + index);
         //imageViews.get(index).setImageResource(android.R.color.transparent);
-        imageViews.get(index).setVisibility(View.GONE);
+        imageViews.get(index).setVisibility(View.INVISIBLE);
     }
 
     public void hideSoftKeyboard(Activity activity) {

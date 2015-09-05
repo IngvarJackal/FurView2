@@ -140,10 +140,9 @@ public class InitialScreenActivity extends AppCompatActivity {
         Intent intent = new Intent("ru.furry.furview2.MainActivity");
         String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
         MainActivity.searchQuery = mSearchQuery;
-        //intent.putExtra("SearchQuery", mSearchQuery);
         intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
         GlobalData global = ((GlobalData)getApplicationContext());
-        global.setOrientation(Configuration.ORIENTATION_PORTRAIT);
+        global.setOrientationFlag(true);
         startActivity(intent);
     }
 
