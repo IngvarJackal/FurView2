@@ -13,7 +13,6 @@
         <activity
             android:name=".InitialScreenActivity"
             android:label="@string/title_activity_initial_screen"
-            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>

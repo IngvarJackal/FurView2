@@ -57,6 +57,23 @@ public class InitialScreenActivity extends AppCompatActivity {
     public static boolean isStarted = false;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("SearchText", mSearchFieldInitial.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String savedText = savedInstanceState.getString("SearchText");
+        if ("".equals(savedText)) {
+            mSearchFieldInitial.setText(MainActivity.searchQuery);
+        } else {
+            mSearchFieldInitial.setText(savedText);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
@@ -135,13 +152,12 @@ public class InitialScreenActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(uilConfig);
     }
 
-    private void startSearch()
-    {
+    private void startSearch() {
         Intent intent = new Intent("ru.furry.furview2.MainActivity");
         String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
         MainActivity.searchQuery = mSearchQuery;
         intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
-        GlobalData global = ((GlobalData)getApplicationContext());
+        GlobalData global = ((GlobalData) getApplicationContext());
         global.setOrientationFlag(true);
         startActivity(intent);
     }
@@ -174,7 +190,6 @@ public class InitialScreenActivity extends AppCompatActivity {
             sfwButton.setBackgroundColor(0xff63ec4f);
         else
             sfwButton.setBackgroundColor(0xccb3b3b3);
-        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     @Override
