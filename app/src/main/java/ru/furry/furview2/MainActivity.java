@@ -477,14 +477,6 @@ public class MainActivity extends AppCompatActivity {
             cursor = -1;
         }
 
-        int i = 0;
-
-        while (i < NUM_OF_PICS && remoteImagesIterator.hasPrevious()) {
-            i++;
-            remoteImagesIterator.previous();
-        }
-        Log.d("fgsfds", "redraw index = " + i);
-
         procCounter.reset();
         remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
     }
@@ -496,6 +488,13 @@ public class MainActivity extends AppCompatActivity {
         if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
             searchDriver();
         } else {
+            int i = 0;
+            while (i < NUM_OF_PICS && remoteImagesIterator.hasPrevious()) {
+                i++;
+                remoteImagesIterator.previous();
+            }
+            Log.d("fgsfds", "redraw index = " + i);
+
             redrawImages();
         }
     }
