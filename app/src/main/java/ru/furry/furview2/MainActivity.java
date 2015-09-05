@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void lockOrientation(){
+            Log.d("fgsfds", "lockOrientation");
             if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             } else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void unlockOrientation(){
+            Log.d("fgsfds", "unlockOrientation");
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
 

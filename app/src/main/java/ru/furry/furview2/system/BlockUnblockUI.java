@@ -34,7 +34,7 @@ public class BlockUnblockUI {
     }
 
     public BlockUnblockUI(RelativeLayout incomingRelativeLayout, ProgressBar progressBar, ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler) {
-
+        this.blockingOrientationHandler = blockingOrientationHandler;
         init(incomingRelativeLayout, progressBar);
     }
 
