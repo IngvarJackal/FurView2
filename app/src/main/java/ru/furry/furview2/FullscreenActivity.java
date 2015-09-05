@@ -4,31 +4,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -38,8 +31,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ViewScaleType;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.imageaware.ViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.L;
 
@@ -47,9 +38,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,7 +58,8 @@ import ru.furry.furview2.system.Utils;
 public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final int LEN_OF_TAGS_ROW = 5;
+    private static final int LEN_OF_TAGS_ROW = 4;
+    private static final int TAG_TEXT_LENGTH = 12;
 
     SubsamplingScaleImageView mPictureImageView;
     ScrollView mScrollVew;
@@ -238,19 +228,55 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
 
+    private class TagTextView extends TextView {
+        CharSequence trueContent;
+
+        public TagTextView(Context context, CharSequence incomingContetn) {
+            super(context);
+            this.trueContent = incomingContetn;
+        }
+
+        public TagTextView(Context context) {
+            super(context);
+        }
+
+        public void setTrueContent(CharSequence incomingContetn) {
+            this.trueContent = incomingContetn;
+        }
+
+        public CharSequence getTrueContent() {
+            return trueContent;
+        }
+
+        @Override
+        public CharSequence getText() {
+            return trueContent;
+        }
+
+        @Override
+        public void setText(CharSequence text, BufferType type) {
+            this.trueContent = text;
+            if (text.length() > TAG_TEXT_LENGTH) {
+                text = text.subSequence(0, TAG_TEXT_LENGTH - 3) + "...";
+            }
+            super.setText(text, type);
+        }
+    }
+
     class Labelled6Row {
-        public List<TextView> items = new ArrayList<>();
+        public List<TagTextView> items = new ArrayList<>();
 
         public Labelled6Row(TableLayout table, Context context) {
             LinearLayout linLay = new LinearLayout(context);
             linLay.setOrientation(LinearLayout.HORIZONTAL);
-            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1));
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
             for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
-                TextView t = new TextView(context);
+                TagTextView t = new TagTextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
+                t.setLines(1);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                 int padding = (int) (1.5 * getResources().getDisplayMetrics().density + 0.5f);
                 t.setPadding(padding, 0, padding, 0);
@@ -272,8 +298,8 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!InitialScreen.isStarted) {
-            Intent intent = new Intent("ru.furry.furview2.InitialScreen");
+        if (!InitialScreenActivity.isStarted) {
+            Intent intent = new Intent("ru.furry.furview2.InitialScreenActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // won't work on 10 API
             startActivity(intent);
             finish();
@@ -347,14 +373,14 @@ public class FullscreenActivity extends AppCompatActivity {
                 @Override
                 public boolean onLongClick(View v) {
                     TextView textView = (TextView) v;
-                    mTagsEditText.setText(mTagsEditText.getText() + " " + textView.getText());
+                    mTagsEditText.setText(textView.getText() + " " + mTagsEditText.getText());
                     return true;
                 }
             };
 
             for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
                 for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
-                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
+                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)), TextView.BufferType.NORMAL);
                     tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
                     tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
                 }
@@ -608,7 +634,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         switch (id) {
             case (R.id.action_searchelp): {
-                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("helptextId", driverEnum.searchHelpId);
                 startActivity(intent);
                 return true;

@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id) {
             case (R.id.action_searchelp): {
-                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("helptextId", driverEnum.searchHelpId);
                 startActivity(intent);
                 return true;

@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -121,7 +122,8 @@ public class DownloadingActivity extends AppCompatActivity {
             }
         });
 
-        aBuilder = new AlertDialog.Builder(this);
+        //aBuilder = new AlertDialog.Builder(this); //default dialog theme
+        aBuilder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Holo_Dialog_MinWidth));
         aBuilder.setTitle(R.string.too_many_pics);
         aBuilder.setMessage(R.string.too_many_pics_body);
 
@@ -482,7 +484,8 @@ public class DownloadingActivity extends AppCompatActivity {
     }
 
     private void openQuitDialog() {
-        AlertDialog.Builder quitDialog = new AlertDialog.Builder(this);
+        //AlertDialog.Builder quitDialog = new AlertDialog.Builder(this); // default dialog theme
+        AlertDialog.Builder quitDialog = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Holo_Dialog_MinWidth));
         quitDialog.setTitle(getString(R.string.warning));
         quitDialog.setMessage(getString(R.string.massDownloadExit));
 
