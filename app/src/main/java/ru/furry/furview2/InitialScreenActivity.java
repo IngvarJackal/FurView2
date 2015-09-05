@@ -121,10 +121,10 @@ public class InitialScreenActivity extends AppCompatActivity {
         File reserveStorage = null;
         try {
             uilConfig = new ImageLoaderConfiguration.Builder(this)
-                    .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                            //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                    //.diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
-                    .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 200 * 1024 * 1024))
+                    //.memoryCache(new LruMemoryCache(50 * 1024 * 1024))
+                    .memoryCache(new LruMemoryCache(5 * 1024 * 1024))
+                    //.diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 200 * 1024 * 1024))
+                    .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 15 * 1024 * 1024))
                     .imageDownloader(new ProxiedBaseImageDownloader(this))
                     .threadPoolSize(1)
                     .threadPriority(Thread.MIN_PRIORITY)

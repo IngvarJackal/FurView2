@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = true;
-    //public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
     public static RemoteImagesIterator remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
@@ -174,10 +173,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public RemoteFurImage previous() {
             return downloadedRemoteImages.get(--cursor);
-        }
-
-        public int currentSize() {
-            return downloadedRemoteImages.size();
         }
     }
 
@@ -374,14 +369,7 @@ public class MainActivity extends AppCompatActivity {
                 cursor = -1;
             }
             int i = 0;
-            while (i < NUM_OF_PICS) {
-                if (i < remoteImagesIterator.currentSize()) {
-                    setPicture(i, remoteImagesIterator.next());
-                } else {
-                    clearImage(i);  //if images loaded less than NUM_OF_PICS
-                }
-                i++;
-            }
+            redrawImages();
         }
     }
 
@@ -480,15 +468,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void redrawImages() {
+
+        for (int i= 0; i < NUM_OF_PICS; i++) {
+            clearImage(i);
+        }
+
+        if (cursor <= NUM_OF_PICS) {
+            cursor = -1;
+        }
+
         int i = 0;
+
         while (i < NUM_OF_PICS && remoteImagesIterator.hasPrevious()) {
             i++;
             remoteImagesIterator.previous();
         }
         Log.d("fgsfds", "redraw index = " + i);
-        if (i == NUM_OF_PICS) {
-            remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
-        }
+
+        procCounter.reset();
+        remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
     }
 
     @Override
