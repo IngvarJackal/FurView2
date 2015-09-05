@@ -57,6 +57,20 @@ public class InitialScreenActivity extends AppCompatActivity {
     public static boolean isStarted = false;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d("fgsfds", "save =" + mSearchFieldInitial.getText().toString());
+        outState.putString("SearchText", mSearchFieldInitial.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d("fgsfds", "restore =" + savedInstanceState.getString("SearchText"));
+        mSearchFieldInitial.setText(savedInstanceState.getString("SearchText",MainActivity.searchQuery));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
@@ -174,7 +188,6 @@ public class InitialScreenActivity extends AppCompatActivity {
             sfwButton.setBackgroundColor(0xff63ec4f);
         else
             sfwButton.setBackgroundColor(0xccb3b3b3);
-        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     @Override
