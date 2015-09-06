@@ -2,7 +2,10 @@ package ru.furry.furview2;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -52,11 +55,41 @@ public class MainActivity extends AppCompatActivity {
     public static String searchQuery = "";
     private static String previousQuery = null;
     public static boolean swf = true;
-    public static ListlikeIterator<RemoteFurImage> remoteImagesIterator;
+    public static RemoteImagesIterator remoteImagesIterator;
     public static List<FurImage> downloadedImages = new ArrayList<>();
     public List<FurImage> currtenlyDownloadedImages = (List<FurImage>) Utils.createAndFillList(NUM_OF_PICS, null);
     public static int cursor = -1;
     public static AtomicInteger shownImages = new AtomicInteger(0);
+    public ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler;
+
+    public class BlockingOrientationHandler implements ru.furry.furview2.system.BlockingOrientationHandler{
+        private boolean locked;
+
+        @Override
+        public void setLocked(boolean locked) {
+            this.locked = locked;
+        }
+
+        @Override
+        public boolean getLocked() {
+            return locked;
+        }
+
+        @Override
+        public void lockOrientation(){
+            Log.d("fgsfds", "lockOrientation");
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        @Override
+        public void unlockOrientation(){
+            Log.d("fgsfds", "unlockOrientation");
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+
+    }
 
     private AsyncHandlerUI<Boolean> remoteImagesIteratorHandler = new AsyncHandlerUI<Boolean>() {
         @Override
@@ -190,19 +223,28 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener mImageButtonClickListener;
     View.OnClickListener mOnSearchButtonListener;
     TextView.OnEditorActionListener mOnSearchFieldListener;
+    GlobalData global;
 
     Driver driver;
     Drivers driverEnum;
+
+    int orientation;
 
     private AsyncCounter procCounter = new AsyncCounter(0, 1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getSupportActionBar().hide();
+        }
+
+        orientation = getResources().getConfiguration().orientation;
+        global = ((GlobalData) getApplicationContext());
 
         JodaTimeAndroid.init(this);
 
@@ -232,8 +274,9 @@ public class MainActivity extends AppCompatActivity {
 
         picturesLayout = (LinearLayout) findViewById(R.id.picturesLayout);
 
+        blockingOrientationHandler = new BlockingOrientationHandler();
         mRelativeLayout = (RelativeLayout) findViewById(R.id.mainScreenLayout);
-        blocking = new BlockUnblockUI(mRelativeLayout, uiBlockedProbressBar);
+        blocking = new BlockUnblockUI(mRelativeLayout, uiBlockedProbressBar, blockingOrientationHandler);
 
         mSearchField = (EditText) findViewById(R.id.searchField);
         mSearchButton = (ImageButton) findViewById(R.id.searchButton);
@@ -351,8 +394,20 @@ public class MainActivity extends AppCompatActivity {
         mSearchButton.setOnClickListener(mOnSearchButtonListener);
         mSearchField.setOnEditorActionListener(mOnSearchFieldListener);
 
-        searchDriver();
+        if (global.getOrientationFlag()) {
+            searchDriver();     //if activity created first time
+            global.setOrientationFlag(false);   //set true in InitialScreen
+        } else {    //if activity created after changing orientation
+            if (cursor > 3) {
+                cursor = cursor - 4;
+            } else {
+                cursor = -1;
+            }
+            int i = 0;
+            redrawImages();
+        }
     }
+
 
     private void startSearch() {
         searchQuery = mSearchField.getText().toString();
@@ -439,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
     private void clearImage(int index) {
         Log.d("fgsfds", "Clearing image " + index);
         //imageViews.get(index).setImageResource(android.R.color.transparent);
-        imageViews.get(index).setVisibility(View.GONE);
+        imageViews.get(index).setVisibility(View.INVISIBLE);
     }
 
     public void hideSoftKeyboard(Activity activity) {
@@ -448,15 +503,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void redrawImages() {
-        int i = 0;
-        while (i < NUM_OF_PICS && remoteImagesIterator.hasPrevious()) {
-            i++;
-            remoteImagesIterator.previous();
+
+        for (int i = 0; i < NUM_OF_PICS; i++) {
+            clearImage(i);
         }
-        Log.d("fgsfds", "redraw index = " + i);
-        if (i == NUM_OF_PICS) {
-            remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
+
+        Log.d("fgsfds", "cursor " + cursor);
+
+        if (cursor == 0) {
+            cursor = -1;
         }
+
+        procCounter.reset();
+        remoteImagesIterator.asyncLoad(remoteImagesIteratorHandler);
     }
 
     @Override
@@ -466,6 +525,13 @@ public class MainActivity extends AppCompatActivity {
         if (!MainActivity.searchQuery.equals(MainActivity.previousQuery)) {
             searchDriver();
         } else {
+            int i = 0;
+            while (i < NUM_OF_PICS && remoteImagesIterator.hasPrevious()) {
+                i++;
+                remoteImagesIterator.previous();
+            }
+            Log.d("fgsfds", "redraw index = " + i);
+
             redrawImages();
         }
     }
@@ -489,7 +555,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id) {
             case (R.id.action_searchelp): {
-                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("helptextId", driverEnum.searchHelpId);
                 startActivity(intent);
                 return true;

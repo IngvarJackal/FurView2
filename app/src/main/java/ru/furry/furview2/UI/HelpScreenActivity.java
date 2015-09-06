@@ -9,10 +9,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import ru.furry.furview2.InitialScreen;
+import ru.furry.furview2.InitialScreenActivity;
 import ru.furry.furview2.R;
 
-public class HelpScreen extends AppCompatActivity {
+public class HelpScreenActivity extends AppCompatActivity {
 
     Button closeButton;
     TextView helpTextView;
@@ -20,8 +20,8 @@ public class HelpScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!InitialScreen.isStarted) {
-            Intent intent = new Intent("ru.furry.furview2.InitialScreen");
+        if (!InitialScreenActivity.isStarted) {
+            Intent intent = new Intent("ru.furry.furview2.InitialScreenActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // won't work on 10 API
             startActivity(intent);
             finish();

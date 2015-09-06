@@ -3,32 +3,27 @@ package ru.furry.furview2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -38,8 +33,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ViewScaleType;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.imageaware.ViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.L;
 
@@ -47,9 +40,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,6 +52,7 @@ import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.BlockUnblockUI;
+import ru.furry.furview2.system.BlockingOrientationHandler;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -69,20 +61,24 @@ import ru.furry.furview2.system.Utils;
 public class FullscreenActivity extends AppCompatActivity {
 
     private static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private static final int LEN_OF_TAGS_ROW = 5;
+    private static final int LEN_OF_TAGS_ROW_PORT = 4;
+    private static final int TAG_TEXT_LENGTH_PORT = 12;
+    private static final int LEN_OF_TAGS_ROW_LAND = 8;
+    private static final int TAG_TEXT_LENGTH_LAND = 12;
 
+    int tag_text_lenght;
+    int len_of_tags_row;
     SubsamplingScaleImageView mPictureImageView;
-    ScrollView mScrollVew;
+    ScrollView mScrollDescriptionText;
     TableLayout mTagsTable;
-    Button mTagsButton;
     Button mDescriptionButton;
     ProgressBar mProgress;
-    ImageButton mRatingImageButton;
     EditText mScoreEditText;
     EditText mArtistEditText;
-    EditText mDateEditText;
+    TextView mDateTextView;
     EditText mTagsEditText;
     TextView mDescriptionText;
+    TextView mDescriptionLabel;
     ImageButton mSearchButton;
     ImageButton mButtonSaveDelInDB;
     ProgressBar mButtonSaveDelInDBProgress;
@@ -97,12 +93,13 @@ public class FullscreenActivity extends AppCompatActivity {
     BlockUnblockUI blocking;
     LinearLayout mLayoutSearchBar;
     LinearLayout mLayoutInfoBar;
-    LinearLayout mLayoutTagBar;
     LinearLayout mLayoutFullscreenOut;
+    int CurrentOrientation;
 
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
+    ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler;
 
     private boolean inFulscreenMode;
 
@@ -238,19 +235,55 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
 
+    private class TagTextView extends TextView {
+        CharSequence trueContent;
+
+        public TagTextView(Context context, CharSequence incomingContetn) {
+            super(context);
+            this.trueContent = incomingContetn;
+        }
+
+        public TagTextView(Context context) {
+            super(context);
+        }
+
+        public void setTrueContent(CharSequence incomingContetn) {
+            this.trueContent = incomingContetn;
+        }
+
+        public CharSequence getTrueContent() {
+            return trueContent;
+        }
+
+        @Override
+        public CharSequence getText() {
+            return trueContent;
+        }
+
+        @Override
+        public void setText(CharSequence text, BufferType type) {
+            this.trueContent = text;
+            if (text.length() > tag_text_lenght) {
+                text = text.subSequence(0, tag_text_lenght - 3) + "...";
+            }
+            super.setText(text, type);
+        }
+    }
+
     class Labelled6Row {
-        public List<TextView> items = new ArrayList<>();
+        public List<TagTextView> items = new ArrayList<>();
 
         public Labelled6Row(TableLayout table, Context context) {
             LinearLayout linLay = new LinearLayout(context);
             linLay.setOrientation(LinearLayout.HORIZONTAL);
-            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+            linLay.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1));
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
-            for (int i = 0; i < LEN_OF_TAGS_ROW; i++) {
-                TextView t = new TextView(context);
+            for (int i = 0; i < len_of_tags_row; i++) {
+                TagTextView t = new TagTextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
+                t.setLines(1);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                 int padding = (int) (1.5 * getResources().getDisplayMetrics().density + 0.5f);
                 t.setPadding(padding, 0, padding, 0);
@@ -269,11 +302,48 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
+    public class BlockingOrientationHandler implements ru.furry.furview2.system.BlockingOrientationHandler{
+        private boolean locked;
+
+        @Override
+        public void setLocked(boolean locked) {
+            this.locked = locked;
+        }
+
+        @Override
+        public boolean getLocked() {
+            return locked;
+        }
+
+        @Override
+        public void lockOrientation(){
+            Log.d("fgsfds", "lockOrientation");
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        @Override
+        public void unlockOrientation(){
+            Log.d("fgsfds", "unlockOrientation");
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        CurrentOrientation = getResources().getConfiguration().orientation;
+        if (CurrentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+            tag_text_lenght = TAG_TEXT_LENGTH_PORT;
+            len_of_tags_row = LEN_OF_TAGS_ROW_PORT;
+        } else {
+            tag_text_lenght = TAG_TEXT_LENGTH_LAND;
+            len_of_tags_row = LEN_OF_TAGS_ROW_LAND;
+        }
         super.onCreate(savedInstanceState);
-        if (!InitialScreen.isStarted) {
-            Intent intent = new Intent("ru.furry.furview2.InitialScreen");
+        if (!InitialScreenActivity.isStarted) {
+            Intent intent = new Intent("ru.furry.furview2.InitialScreenActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP); // won't work on 10 API
             startActivity(intent);
             finish();
@@ -284,19 +354,15 @@ public class FullscreenActivity extends AppCompatActivity {
 
             Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
             mPictureImageView = (SubsamplingScaleImageView) findViewById(R.id.picImgView);
-            mScrollVew = (ScrollView) findViewById(R.id.scrollView);
             mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
-            mTagsButton = (Button) findViewById(R.id.tagsButton);
             mDescriptionButton = (Button) findViewById(R.id.descriptionButton);
             mProgress = (ProgressBar) findViewById(R.id.progressBar);
-            mRatingImageButton = (ImageButton) findViewById(R.id.ratingImageButton);
             mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
             mArtistEditText = (EditText) findViewById(R.id.artistEditText);
-            mDateEditText = (EditText) findViewById(R.id.dateEditText);
+            mDateTextView = (TextView) findViewById(R.id.dateEditText);
             mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
+            mDescriptionLabel = (TextView) findViewById(R.id.descriptionLabel);
             mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
             mButtonSaveDelInDB = (ImageButton) findViewById(R.id.buttonSaveDelInDB);
             mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
@@ -304,12 +370,14 @@ public class FullscreenActivity extends AppCompatActivity {
             mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
             mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
             mDescriptionText = (TextView) findViewById(R.id.descriptionText);
+            mScrollDescriptionText = (ScrollView) findViewById(R.id.scrollDescriptionText);
             mLayoutSearchBar = (LinearLayout) findViewById(R.id.layoutSearchBar);
             mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
-            mLayoutTagBar = (LinearLayout) findViewById(R.id.layoutTagBar);
             mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
 
-            blocking = new BlockUnblockUI(mRelativeLayout);
+            blockingOrientationHandler = new BlockingOrientationHandler();
+            blocking = new BlockUnblockUI(mRelativeLayout,blockingOrientationHandler);
+
 
             fIndex = getIntent().getIntExtra("imageIndex", 0);
             fImage = MainActivity.downloadedImages.get(fIndex);
@@ -347,14 +415,14 @@ public class FullscreenActivity extends AppCompatActivity {
                 @Override
                 public boolean onLongClick(View v) {
                     TextView textView = (TextView) v;
-                    mTagsEditText.setText(mTagsEditText.getText() + " " + textView.getText());
+                    mTagsEditText.setText(textView.getText() + " " + mTagsEditText.getText());
                     return true;
                 }
             };
 
-            for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / LEN_OF_TAGS_ROW); row++) {
-                for (int column = 0; (column < LEN_OF_TAGS_ROW) && (row * LEN_OF_TAGS_ROW + column < fImage.getTags().size()); column++) {
-                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * LEN_OF_TAGS_ROW + column)));
+            for (int row = 0; row < Math.ceil(fImage.getTags().size() * 1.0 / len_of_tags_row); row++) {
+                for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < fImage.getTags().size()); column++) {
+                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * len_of_tags_row + column)), TextView.BufferType.NORMAL);
                     tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
                     tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
                 }
@@ -362,28 +430,29 @@ public class FullscreenActivity extends AppCompatActivity {
 
             switch (fImage.getRating()) {
                 case SAFE:
-                    mRatingImageButton.setBackgroundColor(0xCC31c128);
+                    mScoreEditText.setBackgroundColor(0xCC31c128);
                     break;
                 case QUESTIONABLE:
-                    mRatingImageButton.setBackgroundColor(0xCCe07b0a);
+                    mScoreEditText.setBackgroundColor(0xCCe07b0a);
                     break;
                 case EXPLICIT:
-                    mRatingImageButton.setBackgroundColor(0xCCe01d0a);
+                    mScoreEditText.setBackgroundColor(0xCCe01d0a);
                     break;
                 case NA:
-                    mRatingImageButton.setBackgroundColor(0xCCa2b6b5);
+                    mScoreEditText.setBackgroundColor(0xCCa2b6b5);
                     break;
             }
 
             mTagsEditText.setText(MainActivity.searchQuery);
             mScoreEditText.setText(Integer.toString(fImage.getScore()));
             mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
-            mDateEditText.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
+            mDateTextView.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
+            //mDescriptionText.setText(fImage.getDescription());
 
             if (!fImage.getDescription().equals("")) {
-                mDescriptionText.setText(getString(R.string.descriptionLabel) + " " + fImage.getDescription());
-                mDescriptionButton.setEnabled(true);
-                blocking.addViewToBlock(mDescriptionButton);
+                mDescriptionText.setText(fImage.getDescription());
+            } else {
+                mDescriptionLabel.setVisibility(View.GONE);
             }
 
             mFullscreenButton.setOnClickListener(new View.OnClickListener() {
@@ -400,25 +469,14 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             });
 
-            mTagsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mTagsTable.isShown()) {
-                        mTagsTable.setVisibility(View.GONE);
-                    } else {
-                        mTagsTable.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-
             mDescriptionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mDescriptionText.isShown()) {
-                        mDescriptionText.setVisibility(View.GONE);
+                    if (mScrollDescriptionText.isShown()) {
+                        mScrollDescriptionText.setVisibility(View.GONE);
                         mPictureImageView.setVisibility(View.VISIBLE);
                     } else {
-                        mDescriptionText.setVisibility(View.VISIBLE);
+                        mScrollDescriptionText.setVisibility(View.VISIBLE);
                         mPictureImageView.setVisibility(View.GONE);
                     }
                 }
@@ -508,24 +566,24 @@ public class FullscreenActivity extends AppCompatActivity {
     private void fullIn() {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_dark));
         inFulscreenMode = true;
-        mRatingImageButton.setVisibility(View.GONE);
         mLayoutSearchBar.setVisibility(View.GONE);
-        mLayoutInfoBar.setVisibility(View.GONE);
-        mLayoutTagBar.setVisibility(View.GONE);
+        mScoreEditText.setVisibility(View.GONE);
+        mArtistEditText.setVisibility(View.GONE);
+
         mDescriptionButton.setVisibility(View.GONE);
         mLayoutFullscreenOut.setVisibility(View.VISIBLE);
 
-        mDescriptionText.setVisibility(View.GONE);
+        mScrollDescriptionText.setVisibility(View.GONE);
         mPictureImageView.setVisibility(View.VISIBLE);
     }
 
     private void fullOut() {
         mRelativeLayout.setBackgroundColor(getResources().getColor(R.color.background_floating_material_light));
         inFulscreenMode = false;
-        mRatingImageButton.setVisibility(View.VISIBLE);
         mLayoutSearchBar.setVisibility(View.VISIBLE);
-        mLayoutInfoBar.setVisibility(View.VISIBLE);
-        mLayoutTagBar.setVisibility(View.VISIBLE);
+        mScoreEditText.setVisibility(View.VISIBLE);
+        mArtistEditText.setVisibility(View.VISIBLE);
+
         mDescriptionButton.setVisibility(View.VISIBLE);
         mLayoutFullscreenOut.setVisibility(View.GONE);
     }
@@ -608,7 +666,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         switch (id) {
             case (R.id.action_searchelp): {
-                Intent intent = new Intent("ru.furry.furview2.HelpScreen");
+                Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("helptextId", driverEnum.searchHelpId);
                 startActivity(intent);
                 return true;

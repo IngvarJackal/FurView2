@@ -13,14 +13,13 @@
 
     <string name="use_proxy">Использовать прокси</string>
     <string name="imageName">Рисунок</string>
-    <string name="tags">Тэги</string>
     <string name="no_connect_proxy">Проверьте подключение к Интернету</string>
     <string name="yes_connect_proxy">Прокси найден</string>
     <string name="disable_proxy">Прокси отключён</string>
-    <string name="searching_proxy">Поиск прокси...</string>
+    <string name="searching_proxy">Поиск прокси…</string>
     <string name="proxy_not_changed">Не удалось сменить прокси</string>
-    <string name="setting_proxy">Настройка прокси...</string>
-    <string name="checking_proxy">Проверка прокси...</string>
+    <string name="setting_proxy">Настройка прокси…</string>
+    <string name="checking_proxy">Проверка прокси…</string>
     <string name="not_good_proxy">Подходящего прокси не найдено</string>
     <string name="yes_list_proxies">Список прокси получен</string>
     <string name="success_set_manual_proxy">"Установлен прокси: "</string>
@@ -81,10 +80,14 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="no">Нет</string>
     <string name="no_zero">Необходимо заполнить поле числа картинок ненулевым значением</string>
     <string name="images_downloaded">Изображений скачано:</string>
+    <string name="tagsLabel">Тэги:</string>
+    <string name="tags">Тэги</string>
     <string name="descriptionLabel">Описание:</string>
     <string name="description">Описание</string>
+    <string name="info">Инфо</string>
     <string name="warning">Внимание</string>
     <string name="massDownloadExit">При выходе изображения будут докачиваться в фоновом режиме. В это время работа с базой данных приложения будет невозможна. Выйти?</string>
     <string name="at_least_one_source">Хотя бы один элемент должен быть выделен.</string>
+    <string name="dateOfLoading">Изображение загружено:</string>
 
 </resources>

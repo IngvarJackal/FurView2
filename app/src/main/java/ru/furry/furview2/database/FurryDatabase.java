@@ -218,6 +218,8 @@ public class FurryDatabase {
         for (String tag : tags) {
             if (tag.contains("rating:")) {
                 specTags.rating = tag;
+            } else if (tag.contains("order:")) {
+                specTags.order = tag;
             } else if (tag.startsWith("-")) {
                 not.add(tag.substring(1));
             } else if (tag.startsWith("~")) {
@@ -315,10 +317,16 @@ public class FurryDatabase {
 //                sqlQuery.append("?)) ");
             }
             sqlQuery.append("group by i.imageId ");
-            sqlQuery.append("having count (t.tagId) = ").append(and.size());
+            sqlQuery.append("having count (t.tagId) = " ).append(and.size());
         } else {
-            sqlQuery.append("group by i.imageId");
+            sqlQuery.append("group by i.imageId " );
         }
+
+        // SPECIAL TAGS2
+        if (specTags != null && specTags.order.startsWith("order:rand")) {
+            sqlQuery.append("order by random()");
+        }
+
 
         return new Utils.Tuple<>(sqlQuery.toString(), arguments.toArray(new String[arguments.size()]));
     }
