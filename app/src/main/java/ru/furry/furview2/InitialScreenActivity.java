@@ -88,9 +88,13 @@ public class InitialScreenActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        MainActivity.permanentStorage = getApplicationContext().getExternalFilesDir(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
-                .getAbsolutePath();
+        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
+            MainActivity.permanentStorage = getApplicationContext().getExternalFilesDir(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
+                    .getAbsolutePath();
+        } else {
+            MainActivity.permanentStorage = getApplicationContext().getFilesDir().getAbsolutePath();
+        }
 
         //Initial settings
         mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
@@ -140,8 +144,6 @@ public class InitialScreenActivity extends AppCompatActivity {
         File permanentStorage = new File(getApplicationContext().getExternalFilesDir(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath())
                 .getAbsolutePath() + "/cache");
-        // TODO: set internal storage for cache
-        File reserveStorage = null;
         try {
             uilConfig = new ImageLoaderConfiguration.Builder(this)
                     //.memoryCache(new LruMemoryCache(50 * 1024 * 1024))
@@ -149,7 +151,7 @@ public class InitialScreenActivity extends AppCompatActivity {
                     //.diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 200 * 1024 * 1024))
                     .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 15 * 1024 * 1024))
                     .imageDownloader(new ProxiedBaseImageDownloader(this))
-                    .threadPoolSize(1)
+                    .threadPoolSize(6)
                     .threadPriority(Thread.MIN_PRIORITY)
                     .build();
         } catch (IOException e) {

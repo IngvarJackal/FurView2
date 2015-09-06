@@ -18,6 +18,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,6 +56,11 @@ public class Utils {
         public Tuple(X x, Y y) {
             this.x = x;
             this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "[" + x + ", " + y + "]";
         }
     }
 
@@ -209,5 +215,20 @@ public class Utils {
         Object[] nulls = new Object[size];
         Arrays.fill(nulls, value);
         return Arrays.asList(nulls);
+    }
+
+    public static String joinQueryArgs(String sqlQuery, String[] args) {
+        List<String> args2 = new ArrayList<>(Arrays.asList(args));
+        StringBuilder result = new StringBuilder(sqlQuery.length());
+        //Log.d("fgsfds", sqlQuery + " " + args2);
+        for (char c : sqlQuery.toCharArray()) {
+            if (c != '?')
+                result.append(c);
+            else {
+                result.append(args2.get(0));
+                args2.remove(0);
+            }
+        }
+        return result.toString();
     }
 }

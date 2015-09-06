@@ -18,11 +18,13 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.furry.furview2.database.FurryDatabase;
+import ru.furry.furview2.database.FurryDatabaseUtils;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.images.Rating;
@@ -36,6 +38,8 @@ import static ru.furry.furview2.drivers.DriverUtils.checkPathStructureForImages;
 public class DriverDB extends Driver {
 
     private FurryDatabase furryDatabase;
+    private FurryDatabaseUtils databaseUtils;
+
     private boolean isSfw;
     private final static ImageLoader imageLoader = ImageLoader.getInstance();
     private final static Pattern md5Pattern = Pattern.compile("md5:([1234567890abcdef]+)");
@@ -50,6 +54,7 @@ public class DriverDB extends Driver {
         this.permanentStorage = permanentStorage;
         checkPathStructureForImages(permanentStorage);
         furryDatabase = new FurryDatabase(context);
+        databaseUtils = new FurryDatabaseUtils(furryDatabase);
     }
 
     @Override
@@ -74,10 +79,18 @@ public class DriverDB extends Driver {
 
                 @Override
                 public void retrieve(List<? extends FurImage> images) {
-                    if (isSfw && !images.isEmpty() && images.get(1).getRating() == Rating.SAFE) {
-                        remoteImagesHandler.retrieve(images);
+                    List<FurImage> filteredImages = new ArrayList<>(images.size());
+                    for (FurImage image : images) {
+                        if (Collections.disjoint(image.getTags(), databaseUtils.getAliasedBlacklist(databaseUtils.getBlacklist()))) {
+                            filteredImages.add(image);
+                        }
+                    }
+                    if (!filteredImages.isEmpty()) {
+                        if (isSfw && filteredImages.get(1).getRating() == Rating.SAFE) {
+                            remoteImagesHandler.retrieve(filteredImages);
+                        }
                     } else {
-                        remoteImagesHandler.retrieve(images);
+                        remoteImagesHandler.retrieve(filteredImages);
                     }
                 }
             });
@@ -97,7 +110,13 @@ public class DriverDB extends Driver {
 
                 @Override
                 public void retrieve(List<? extends FurImage> images) {
-                    remoteImagesHandler.retrieve(images);
+                    List<FurImage> filteredImages = new ArrayList<>(images.size());
+                    for (FurImage image : images) {
+                        if (Collections.disjoint(image.getTags(), databaseUtils.getAliasedBlacklist(databaseUtils.getBlacklist()))) {
+                            filteredImages.add(image);
+                        }
+                    }
+                    remoteImagesHandler.retrieve(filteredImages);
                 }
             });
         }
