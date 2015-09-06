@@ -3,6 +3,7 @@ package ru.furry.furview2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -56,9 +57,32 @@ public class InitialScreenActivity extends AppCompatActivity {
     public static boolean isStarted = false;
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("SearchText", mSearchFieldInitial.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String savedText = savedInstanceState.getString("SearchText");
+        if ("".equals(savedText)) {
+            mSearchFieldInitial.setText(MainActivity.searchQuery);
+        } else {
+            mSearchFieldInitial.setText(savedText);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial_screen);
+
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            getSupportActionBar().hide();
+        }
+
         context = getApplicationContext();
         isStarted = true;
 
@@ -120,10 +144,10 @@ public class InitialScreenActivity extends AppCompatActivity {
         File reserveStorage = null;
         try {
             uilConfig = new ImageLoaderConfiguration.Builder(this)
-                    .memoryCache(new LruMemoryCache(50 * 1024 * 1024))
-                            //.diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                    //.diskCache(new LimitedAgeDiskCache(permanentStorage, reserveStorage, 60*60*24)) // TODO: change 1 day from hardcoded into system constant
-                    .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 200 * 1024 * 1024))
+                    //.memoryCache(new LruMemoryCache(50 * 1024 * 1024))
+                    .memoryCache(new LruMemoryCache(5 * 1024 * 1024))
+                    //.diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 200 * 1024 * 1024))
+                    .diskCache(new LruDiskCache(permanentStorage, new Md5FileNameGenerator(), 15 * 1024 * 1024))
                     .imageDownloader(new ProxiedBaseImageDownloader(this))
                     .threadPoolSize(1)
                     .threadPriority(Thread.MIN_PRIORITY)
@@ -134,13 +158,13 @@ public class InitialScreenActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(uilConfig);
     }
 
-    private void startSearch()
-    {
+    private void startSearch() {
         Intent intent = new Intent("ru.furry.furview2.MainActivity");
         String mSearchQuery = String.valueOf(mSearchFieldInitial.getText());
         MainActivity.searchQuery = mSearchQuery;
-        //intent.putExtra("SearchQuery", mSearchQuery);
         intent.putExtra("driver", mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString());
+        GlobalData global = ((GlobalData) getApplicationContext());
+        global.setOrientationFlag(true);
         startActivity(intent);
     }
 
@@ -172,7 +196,6 @@ public class InitialScreenActivity extends AppCompatActivity {
             sfwButton.setBackgroundColor(0xff63ec4f);
         else
             sfwButton.setBackgroundColor(0xccb3b3b3);
-        mSearchFieldInitial.setText(MainActivity.searchQuery);
     }
 
     @Override

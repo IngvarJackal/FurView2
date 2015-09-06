@@ -9,11 +9,15 @@ import android.widget.RelativeLayout;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ru.furry.furview2.FullscreenActivity;
+import ru.furry.furview2.MainActivity;
+
 public class BlockUnblockUI {
 
     private AtomicInteger counterTheads = new AtomicInteger(0);
     private ArrayList<View> views = new ArrayList<View>();
     private ProgressBar progressBar;
+    private ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler;
 
 
     public BlockUnblockUI(RelativeLayout incomingRelativeLayout, ProgressBar progressBar) {
@@ -22,6 +26,16 @@ public class BlockUnblockUI {
 
     public BlockUnblockUI(RelativeLayout incomingRelativeLayout) {
         init(incomingRelativeLayout);
+    }
+
+    public BlockUnblockUI(RelativeLayout incomingRelativeLayout, ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler) {
+        this.blockingOrientationHandler = blockingOrientationHandler;
+        init(incomingRelativeLayout);
+    }
+
+    public BlockUnblockUI(RelativeLayout incomingRelativeLayout, ProgressBar progressBar, ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler) {
+        this.blockingOrientationHandler = blockingOrientationHandler;
+        init(incomingRelativeLayout, progressBar);
     }
 
     private void init(RelativeLayout incomingRelativeLayout) {
@@ -74,6 +88,10 @@ public class BlockUnblockUI {
             views.get(i).setEnabled(false);
         }
         counterTheads.set(counterTheads.incrementAndGet());
+        if (blockingOrientationHandler != null && !blockingOrientationHandler.getLocked()) {
+            blockingOrientationHandler.lockOrientation();
+            blockingOrientationHandler.setLocked(true);
+        }
         Log.d("fgsfds", "Lock UI! counterTheads after locking =" + counterTheads.get());
     }
 
@@ -90,6 +108,10 @@ public class BlockUnblockUI {
             if (progressBar != null) {
                 progressBar.setVisibility(View.GONE);
             }
+            if (blockingOrientationHandler != null) {
+                blockingOrientationHandler.unlockOrientation();
+                blockingOrientationHandler.setLocked(false);
+            }
             Log.d("fgsfds", "Unblock UI! counterTheads after unlocking =" + counterTheads.get());
         }
     }
@@ -98,12 +120,20 @@ public class BlockUnblockUI {
         for (int i = 0; i < views.size(); i++) {
             views.get(i).setEnabled(false);
         }
+        if (blockingOrientationHandler != null && !blockingOrientationHandler.getLocked()) {
+            blockingOrientationHandler.lockOrientation();
+            blockingOrientationHandler.setLocked(true);
+        }
     }
 
     public void unblockUIall() {
-            for (int i = 0; i < views.size(); i++) {
-                views.get(i).setEnabled(true);
-            }
+        for (int i = 0; i < views.size(); i++) {
+            views.get(i).setEnabled(true);
+        }
+        if (blockingOrientationHandler != null) {
+            blockingOrientationHandler.unlockOrientation();
+            blockingOrientationHandler.setLocked(false);
+        }
     }
 
     public void addViewToBlock(View v) {
@@ -114,5 +144,9 @@ public class BlockUnblockUI {
     public void delViewFromBlock(View v) {
         //manual remove view from ArrayList "views"
         views.remove(v);
+    }
+
+    public boolean getStatus() {
+        return (!(counterTheads.get() > 0));
     }
 }

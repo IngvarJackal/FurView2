@@ -6,17 +6,27 @@ import android.os.Environment;
 
 public class GlobalData extends Application {
     private static String appPath;
+    private static boolean orientationFlag;
 
     public String getState(){
         return appPath;
     }
+
     public void setState(String s){
         appPath = s;
+    }
+
+    public boolean getOrientationFlag() {
+        return orientationFlag;
+    }
+
+    public void setOrientationFlag(boolean orientationFlag) {
+        GlobalData.orientationFlag = orientationFlag;
     }
 }
 
     /*
     *   //Example of use:
-    *   GlobalData appPath = ((GlobalData)getApplicationContext());
-    *   String s = appPath.getState();
+    *   GlobalData global = ((GlobalData)getApplicationContext());
+    *   String s = global.getState();
     */
