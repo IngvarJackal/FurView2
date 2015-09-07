@@ -89,5 +89,9 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="massDownloadExit">При выходе изображения будут докачиваться в фоновом режиме. В это время работа с базой данных приложения будет невозможна. Выйти?</string>
     <string name="at_least_one_source">Хотя бы один элемент должен быть выделен.</string>
     <string name="dateOfLoading">Изображение загружено:</string>
+    <string name="title_activity_black_list">BlackListActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_blacklist">Чёрный список</string>
 
 </resources>

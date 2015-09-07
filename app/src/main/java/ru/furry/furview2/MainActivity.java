@@ -560,6 +560,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             }
+            case (R.id.action_blacklist): {
+                startActivity(new Intent("ru.furry.furview2.BlackListActivity"));
+                return true;
+            }
             case (R.id.action_downloading): {
                 Intent intent = new Intent("ru.furry.furview2.DownloadingActivity");
                 intent.putExtra("drivername", driverEnum.drivername);

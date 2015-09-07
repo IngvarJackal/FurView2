@@ -255,6 +255,11 @@ public class InitialScreenActivity extends AppCompatActivity {
                 Log.d("fgsfds", "Initial menu: " + item.getTitle());
                 return true;
             }
+            case (R.id.action_blacklist): {
+                Log.d("fgsfds", "Initial menu: " + item.getTitle());
+                startActivity(new Intent("ru.furry.furview2.BlackListActivity"));
+                return true;
+            }
             case (R.id.sub_proxy_menu_1): {
                 ConnectionManager.proxyType = ProxyTypes.antizapret;
                 setCheckingProxyMenu();
