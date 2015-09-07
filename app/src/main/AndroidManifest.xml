@@ -82,7 +82,7 @@
         <activity
             android:name=".BlackListActivity"
             android:theme="@style/AppTheme"
-            android:label="@string/title_activity_black_list" >
+            android:label="@string/blacklist_of_tags" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.BlackListActivity" />
                 <category android:name="android.intent.category.DEFAULT" />

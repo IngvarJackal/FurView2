@@ -35,13 +35,24 @@
             android:layout_height="wrap_content"
             android:text="@string/add_button"
             android:id="@+id/addToBlackListButton" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/clear_blacklist"
+            android:id="@+id/clearBlacklistButton"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:enabled="false" />
     </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="@string/label_blacklist"
+        android:text="@string/label_blacklist2"
         android:id="@+id/textView3"
         android:layout_below="@+id/linearLayout2"
         android:layout_alignParentLeft="true"
@@ -56,7 +67,7 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="5dp"
         android:id="@+id/scrollView"
-        android:layout_above="@+id/clearBlacklistButton">
+        android:layout_alignParentBottom="true">
         <TableLayout
             android:id="@+id/tagsTableLayout"
             android:layout_width="fill_parent"
@@ -64,19 +75,6 @@
             android:gravity="center"
             android:visibility="visible" />
     </ScrollView>
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/clear_blacklist"
-        android:id="@+id/clearBlacklistButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:enabled="false"
-        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>

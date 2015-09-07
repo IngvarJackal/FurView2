@@ -89,11 +89,19 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="massDownloadExit">При выходе изображения будут докачиваться в фоновом режиме. В это время работа с базой данных приложения будет невозможна. Выйти?</string>
     <string name="at_least_one_source">Хотя бы один элемент должен быть выделен.</string>
     <string name="dateOfLoading">Изображение загружено:</string>
-    <string name="title_activity_black_list">Чёрный список тегов</string>
 
+    <string name="blacklist_of_tags">Чёрный список тегов</string>
     <string name="action_blacklist">Чёрный список</string>
     <string name="add_button">Добавить</string>
     <string name="add_to_blacklist_list">Добавить в чёрный список</string>
     <string name="label_blacklist">Список нежелательных тегов\n (Долгое касание для удаления из списка)</string>
+    <string name="label_blacklist2">Список нежелательных тегов (Долгое касание для удаления из списка)</string>
+    <string name="need_input_tag">Введите тег</string>
+    <string name="need_input_tag_blacklist">Неверно введён тег. Тег должен состоять из непрерывной строки символов. Слова разделяются символом "_" Пример: red_pokemon </string>
+    <string name="to_blacklist_button">В чёрный список</string>
+    <string name="add_to_search">Поиск по тегам</string>
+    <string name="clear_blacklist">Очистить список</string>
+    <string name="tags_is_added_to_blacklist">Выбранные теги добавлены в чёрный список</string>
+
 
 </resources>

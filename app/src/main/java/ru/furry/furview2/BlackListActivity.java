@@ -3,16 +3,22 @@ package ru.furry.furview2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +40,11 @@ public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
     int tag_text_lenght;
     int len_of_tags_row;
 
-    TextView mAddingBlackTagField;
-    TextView mAddToBlackListButton;
+    EditText mAddingBlackTagField;
+    Button mAddToBlackListButton;
+    Button mClearBlacklist;
     TableLayout mTagsTable;
+
 
     FurryDatabase database;
     FurryDatabaseUtils furryDatabaseUtils;
@@ -63,24 +71,70 @@ public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
         } else {
             setContentView(R.layout.activity_black_list);
 
-            mAddingBlackTagField = (TextView) findViewById(R.id.addingBlackTagField);
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                getSupportActionBar().hide();
+            }
+
+            mAddingBlackTagField = (EditText) findViewById(R.id.addingBlackTagField);
             mAddToBlackListButton = (Button) findViewById(R.id.addToBlackListButton);
+            mClearBlacklist = (Button) findViewById(R.id.clearBlacklistButton);
             mTagsTable = (TableLayout) findViewById(R.id.tagsTableLayout);
 
             database = new FurryDatabase(getApplicationContext());
-
             furryDatabaseUtils = new FurryDatabaseUtils(database);
 
-            View.OnClickListener addtagToBlackList = new View.OnClickListener() {
+            mClearBlacklist.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    List<String> blacklist = furryDatabaseUtils.getBlacklist();
+                    for (int i=0;i<blacklist.size();i++){
+                        furryDatabaseUtils.removeBlackTag(blacklist.get(i));
+                    }
+                    refreshTagTable();
+                }
+            });
+
+            mAddToBlackListButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String tag = mAddingBlackTagField.getText().toString();
-                    furryDatabaseUtils.addBlackTag(tag);
-                    //TODO Add tag to Black list
+                    if (!"".equals(tag) && !tag.contains(" ")) {
+                        furryDatabaseUtils.addBlackTag(tag);
+                        refreshTagTable();
+                    } else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.need_input_tag_blacklist), Toast.LENGTH_SHORT).show();
+                    }
                     refreshTagTable();
                 }
-            };
-            mAddToBlackListButton.setOnClickListener(addtagToBlackList);
+            });
+
+            mAddingBlackTagField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    String tag = mAddingBlackTagField.getText().toString();
+                    if (!"".equals(tag) && !tag.contains(" ")) {
+                        furryDatabaseUtils.addBlackTag(tag);
+                        refreshTagTable();
+                        mAddingBlackTagField.setText("");
+                    } else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.need_input_tag_blacklist), Toast.LENGTH_SHORT).show();
+                    }
+                    InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mAddingBlackTagField.getWindowToken(), 0);
+                    return true;
+                }
+            });
+
+            //attempt select text when click on EditText
+            /*
+            mAddingBlackTagField.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditText editText = (EditText) v;
+                    editText.selectAll();
+                }
+            });
+            */
 
             delTagFromBlackList = new View.OnLongClickListener() {
                 @Override
@@ -109,7 +163,8 @@ public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
                 TextView t = new TextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
-                t.setLines(1);
+                //t.setLines(1);    //set single line
+                t.setTextColor(Color.BLACK);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                 int padding = (int) (1.5 * getResources().getDisplayMetrics().density + 0.5f);
                 t.setPadding(padding, 0, padding, 0);
@@ -128,28 +183,37 @@ public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
         }
     }
 
-    private void refreshTagTable(){
-        List<String> blacklist;
-        blacklist = furryDatabaseUtils.getBlacklist();
+    private void refreshTagTable() {
+        List<String> blacklist = furryDatabaseUtils.getBlacklist();
 
         mTagsTable.removeAllViewsInLayout();
+        Log.d("fgsfds","blacklist.size() = " +blacklist.size());
 
-        ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
-            @Override
-            public void ensureCapacity(int index) {
-                if (entries.size() <= index) {
-                    for (int i = 0; i < ((index - entries.size()) * 3 / 2 + 1); i++) {
-                        entries.add(creator.getDefaultValue(mTagsTable, getApplicationContext()));
+        if (blacklist.size() > 0) {
+            mTagsTable.setVisibility(View.VISIBLE);
+            mClearBlacklist.setEnabled(true);
+
+            ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
+                @Override
+                public void ensureCapacity(int index) {
+                    if (entries.size() <= index) {
+                        for (int i = 0; i < ((index - entries.size()) * 3 / 2 + 1); i++) {
+                            entries.add(creator.getDefaultValue(mTagsTable, getApplicationContext()));
+                        }
                     }
                 }
-            }
-        };
+            };
 
-        for (int row = 0; row < Math.ceil(blacklist.size() * 1.0 / len_of_tags_row); row++) {
-            for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < blacklist.size()); column++) {
-                tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(blacklist.get(row * len_of_tags_row + column)), TextView.BufferType.NORMAL);
-                tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(delTagFromBlackList);
+            for (int row = 0; row < Math.ceil(blacklist.size() * 1.0 / len_of_tags_row); row++) {
+                for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < blacklist.size()); column++) {
+                    tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(blacklist.get(row * len_of_tags_row + column)), TextView.BufferType.NORMAL);
+                    tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(delTagFromBlackList);
+                }
             }
+        }
+        else {
+            mTagsTable.setVisibility(View.GONE);
+            mClearBlacklist.setEnabled(false);
         }
     }
 

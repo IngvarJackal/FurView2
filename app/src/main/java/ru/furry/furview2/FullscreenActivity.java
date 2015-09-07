@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -47,6 +49,7 @@ import java.util.List;
 
 import ru.furry.furview2.UI.OnSwipeAncClickTouchListener;
 import ru.furry.furview2.database.FurryDatabase;
+import ru.furry.furview2.database.FurryDatabaseUtils;
 import ru.furry.furview2.drivers.Driver;
 import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
@@ -84,7 +87,10 @@ public class FullscreenActivity extends AppCompatActivity {
     ProgressBar mButtonSaveDelInDBProgress;
     ImageButton mFullscreenButton;
     ImageButton mFullscreenButton2;
+    Button mAddToSearchFullscreenButton;
+    Button mAddToBlacklistFullscreenButton;
     FurryDatabase database;
+    FurryDatabaseUtils furryDatabaseUtils;
     FurImage fImage;
     Driver driver;
     Drivers driverEnum;
@@ -96,6 +102,7 @@ public class FullscreenActivity extends AppCompatActivity {
     LinearLayout mLayoutFullscreenOut;
     int CurrentOrientation;
 
+    private List<String> selectedTags;
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
@@ -284,6 +291,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
                 t.setLines(1);
+                t.setTextColor(Color.BLACK);
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
                 int padding = (int) (1.5 * getResources().getDisplayMetrics().density + 0.5f);
                 t.setPadding(padding, 0, padding, 0);
@@ -302,7 +310,7 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     }
 
-    public class BlockingOrientationHandler implements ru.furry.furview2.system.BlockingOrientationHandler{
+    public class BlockingOrientationHandler implements ru.furry.furview2.system.BlockingOrientationHandler {
         private boolean locked;
 
         @Override
@@ -316,15 +324,15 @@ public class FullscreenActivity extends AppCompatActivity {
         }
 
         @Override
-        public void lockOrientation(){
+        public void lockOrientation() {
             Log.d("fgsfds", "lockOrientation");
-            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             } else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
 
         @Override
-        public void unlockOrientation(){
+        public void unlockOrientation() {
             Log.d("fgsfds", "unlockOrientation");
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         }
@@ -368,6 +376,8 @@ public class FullscreenActivity extends AppCompatActivity {
             mButtonSaveDelInDBProgress = (ProgressBar) findViewById(R.id.saveImageButtonProgressBar);
             mFullscreenButton = (ImageButton) findViewById(R.id.fullscreenButton);
             mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
+            mAddToSearchFullscreenButton = (Button) findViewById(R.id.addToSearchFullscreenButton);
+            mAddToBlacklistFullscreenButton = (Button) findViewById(R.id.addToBlacklistFullscreenButton);
             mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
             mDescriptionText = (TextView) findViewById(R.id.descriptionText);
             mScrollDescriptionText = (ScrollView) findViewById(R.id.scrollDescriptionText);
@@ -376,8 +386,32 @@ public class FullscreenActivity extends AppCompatActivity {
             mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
 
             blockingOrientationHandler = new BlockingOrientationHandler();
-            blocking = new BlockUnblockUI(mRelativeLayout,blockingOrientationHandler);
+            blocking = new BlockUnblockUI(mRelativeLayout, blockingOrientationHandler);
 
+            database = new FurryDatabase(getApplicationContext());
+            selectedTags = new ArrayList<>();
+            furryDatabaseUtils = new FurryDatabaseUtils(database);
+
+            mAddToBlacklistFullscreenButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    for (int i = 0; i < selectedTags.size(); i++) {
+                        furryDatabaseUtils.addBlackTag(selectedTags.get(i));
+                    }
+                    Toast.makeText(getApplicationContext(),getString(R.string.tags_is_added_to_blacklist),Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            mAddToSearchFullscreenButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mTagsEditText.setText("");
+                    for (int i = 0; i < selectedTags.size(); i++) {
+                        mTagsEditText.setText(selectedTags.get(i) + " " + mTagsEditText.getText());
+                    }
+                    mTagsEditText.setText(mTagsEditText.getText().toString().trim());
+                }
+            });
 
             fIndex = getIntent().getIntExtra("imageIndex", 0);
             fImage = MainActivity.downloadedImages.get(fIndex);
@@ -389,8 +423,6 @@ public class FullscreenActivity extends AppCompatActivity {
             }
             driver.setSfw(MainActivity.swf);
             driver.init(MainActivity.permanentStorage, getApplicationContext());
-
-            database = new FurryDatabase(getApplicationContext());
 
             ExtendableWDef<Labelled6Row> tagsLinesHandler = new ExtendableWDef<Labelled6Row>(new Labelled6RowCreator()) {
                 @Override
@@ -411,11 +443,24 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             };
 
-            View.OnLongClickListener addTagToSearch = new View.OnLongClickListener() {
+            final View.OnLongClickListener selectTag = new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     TextView textView = (TextView) v;
-                    mTagsEditText.setText(textView.getText() + " " + mTagsEditText.getText());
+                    if (selectedTags.contains(textView.getText().toString())) {
+                        selectedTags.remove(textView.getText().toString());
+                        textView.setTextColor(Color.BLACK);
+                    } else {
+                        selectedTags.add(textView.getText().toString());
+                        textView.setTextColor(Color.RED);
+                    }
+                    if (selectedTags.size() > 0) {
+                        mAddToSearchFullscreenButton.setEnabled(true);
+                        mAddToBlacklistFullscreenButton.setEnabled(true);
+                    } else {
+                        mAddToSearchFullscreenButton.setEnabled(false);
+                        mAddToBlacklistFullscreenButton.setEnabled(false);
+                    }
                     return true;
                 }
             };
@@ -424,7 +469,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < fImage.getTags().size()); column++) {
                     tagsLinesHandler.get(row).items.get(column).setText(Utils.unescapeUnicode(fImage.getTags().get(row * len_of_tags_row + column)), TextView.BufferType.NORMAL);
                     tagsLinesHandler.get(row).items.get(column).setOnClickListener(setTagToSearch);
-                    tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(addTagToSearch);
+                    tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(selectTag);
                 }
             }
 
