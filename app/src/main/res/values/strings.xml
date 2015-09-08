@@ -68,6 +68,14 @@ Search for posts that are rated safe, questionable, or explicit. rating:s, ratin
 For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     ]]></string>
     <string name="local_search_help">hi!</string>
+    <string name="blacklist_help">
+Чёрный список тегов представляет собой набор запрещённых тегов. Изображения содержащие данные теги не будут показаны при поиске.
+\n\n
+<b>Удаление тегов из списка:</b>\n
+Чтобы удалить тег из чёрного списка коснитесь его долгим нажатием. Спустя 2 секунды тег будет удалён.\n\n
+<b>Очистка списка:</b>\n
+Чтобы очистить чёрный список выберете в меню пункт "Очистить список".
+    </string>
     <string name="title_downloading_screen">Массовая загрузка</string>
     <string name="download">Скачать</string>
     <string name="imageboard_name">имиджборда</string>
@@ -102,6 +110,7 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="add_to_search">Поиск по тегам</string>
     <string name="clear_blacklist">Очистить список</string>
     <string name="tags_is_added_to_blacklist">Выбранные теги добавлены в чёрный список</string>
+    <string name="title_activity_aliases">Алиасы</string>
 
 
 </resources>

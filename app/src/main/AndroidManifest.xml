@@ -18,6 +18,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="ru.furry.furview2.InitialScreenActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -31,8 +32,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".InitialScreenActivity" />
+
             <intent-filter>
                 <action android:name="ru.furry.furview2.MainActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -45,8 +48,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.furry.furview2.MainActivity" />
+
             <intent-filter>
                 <action android:name="ru.furry.furview2.fullscreen" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -66,6 +71,7 @@
             android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.HelpScreenActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -76,15 +82,24 @@
             android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.DownloadingActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".BlackListActivity"
-            android:theme="@style/AppTheme"
-            android:label="@string/blacklist_of_tags" >
+            android:label="@string/blacklist_of_tags"
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.BlackListActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AliasesActivity"
+            android:label="@string/title_activity_aliases" >
+            <intent-filter>
+                <action android:name="ru.furry.furview2.Aliases" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

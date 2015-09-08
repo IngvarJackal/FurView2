@@ -36,16 +36,6 @@
             android:text="@string/add_button"
             android:id="@+id/addToBlackListButton" />
 
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/clear_blacklist"
-            android:id="@+id/clearBlacklistButton"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:enabled="false" />
     </LinearLayout>
 
     <TextView

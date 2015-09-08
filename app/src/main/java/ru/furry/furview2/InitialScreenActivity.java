@@ -287,6 +287,7 @@ public class InitialScreenActivity extends AppCompatActivity {
             case (R.id.action_searchelp): {
                 Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("helptextId", Drivers.getDriver(mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString()).searchHelpId);
+                intent.putExtra("source","InitialActivity");
                 startActivity(intent);
                 return true;
             }

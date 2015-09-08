@@ -56,27 +56,13 @@
         android:layout_alignParentStart="true"
         android:layout_marginTop="5dp"
         android:id="@+id/scrollView"
-        android:layout_above="@+id/clearBlacklistButton">
+        android:layout_alignParentBottom="true">
         <TableLayout
             android:id="@+id/tagsTableLayout"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:visibility="visible" />
     </ScrollView>
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/clear_blacklist"
-        android:id="@+id/clearBlacklistButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:enabled="false"
-        android:layout_alignParentEnd="true" />
-
 
 </RelativeLayout>
