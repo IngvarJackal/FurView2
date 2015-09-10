@@ -323,7 +323,7 @@ public class FurryDatabase {
         }
 
         // SPECIAL TAGS2
-        if (specTags != null && specTags.order.startsWith("order:rand")) {
+        if (specTags.order != null && specTags.order.startsWith("order:rand")) {
             sqlQuery.append("order by random()");
         }
 
