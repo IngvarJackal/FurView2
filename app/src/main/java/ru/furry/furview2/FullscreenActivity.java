@@ -413,6 +413,8 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             });
 
+//TODO need new button "Add aliases"
+
             fIndex = getIntent().getIntExtra("imageIndex", 0);
             fImage = MainActivity.downloadedImages.get(fIndex);
             driverEnum = Drivers.getDriver(getIntent().getStringExtra("driver"));

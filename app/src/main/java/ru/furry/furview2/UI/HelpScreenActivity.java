@@ -47,7 +47,10 @@ public class HelpScreenActivity extends AppCompatActivity {
 
             if (source.equals("BlackListActivity")) {
                 helpTextView.setText(getResources().getString(R.string.blacklist_help));
-                //helpTextView.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+
+            if (source.equals("AliasesActivity")) {
+                helpTextView.setText(getResources().getString(R.string.aliases_help));
             }
         }
     }

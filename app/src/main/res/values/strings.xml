@@ -36,7 +36,7 @@
     <string name="manual_port">8080</string>
     <string name="button_set_proxy">Установить прокси</string>
     <string name="search_button_content_description">Поиск</string>
-    <string name="action_searchelp">Помощь</string>
+    <string name="action_search_help">Помощь</string>
     <string name="close_text">Закрыть</string>
     <string name="title_help_screen">Помощь</string>
 
@@ -76,6 +76,10 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
 <b>Очистка списка:</b>\n
 Чтобы очистить чёрный список выберете в меню пункт "Очистить список".
     </string>
+    <string name="aliases_help">
+Алиасы тегов дают возможность задавать псевдоним для существующих тэгов.\n\n
+К примеру можно задать соответствие тегов tricky_crow и fast_swallow алиасу bird.
+    </string>
     <string name="title_downloading_screen">Массовая загрузка</string>
     <string name="download">Скачать</string>
     <string name="imageboard_name">имиджборда</string>
@@ -111,6 +115,10 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="clear_blacklist">Очистить список</string>
     <string name="tags_is_added_to_blacklist">Выбранные теги добавлены в чёрный список</string>
     <string name="title_activity_aliases">Алиасы</string>
+    <string name="add_link">Связать</string>
+    <string name="tag">Тег</string>
+    <string name="action_alias">Алиас</string>
+    <string name="need_input_alias">Введите тег и алиас к нему. Тег не должен быть содержать пробелов.</string>
 
 
 </resources>

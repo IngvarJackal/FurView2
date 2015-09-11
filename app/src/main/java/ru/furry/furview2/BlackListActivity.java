@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -32,14 +32,11 @@ import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
 
 
-public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
+public class BlackListActivity  extends AppCompatActivity {
 
     private static final int LEN_OF_TAGS_ROW_PORT = 4;
-    private static final int TAG_TEXT_LENGTH_PORT = 12;
     private static final int LEN_OF_TAGS_ROW_LAND = 8;
-    private static final int TAG_TEXT_LENGTH_LAND = 12;
 
-    int tag_text_lenght;
     int len_of_tags_row;
 
     EditText mAddingBlackTagField;
@@ -55,10 +52,8 @@ public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
     protected void onCreate(Bundle savedInstanceState) {
 
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            tag_text_lenght = TAG_TEXT_LENGTH_PORT;
             len_of_tags_row = LEN_OF_TAGS_ROW_PORT;
         } else {
-            tag_text_lenght = TAG_TEXT_LENGTH_LAND;
             len_of_tags_row = LEN_OF_TAGS_ROW_LAND;
         }
 
@@ -112,8 +107,10 @@ public class BlackListActivity extends ActionBarActivity { //is need ActionBar?
                     } else {
                         Toast.makeText(getApplicationContext(), getString(R.string.need_input_tag_blacklist), Toast.LENGTH_SHORT).show();
                     }
+                    //hide keyboard
                     InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(mAddingBlackTagField.getWindowToken(), 0);
+                    mAddingBlackTagField.clearFocus();
                     return true;
                 }
             });

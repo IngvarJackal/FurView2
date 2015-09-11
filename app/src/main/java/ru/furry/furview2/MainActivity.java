@@ -570,6 +570,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             }
+            case (R.id.action_aliases): {
+                startActivity(new Intent("ru.furry.furview2.Aliases"));
+                return true;
+            }
             case R.id.action_settings:
                 return true;
             default:
