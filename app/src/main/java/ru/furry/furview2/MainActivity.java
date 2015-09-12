@@ -1,13 +1,13 @@
 package ru.furry.furview2;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -232,6 +232,10 @@ public class MainActivity extends AppCompatActivity {
 
     private AsyncCounter procCounter = new AsyncCounter(0, 1);
 
+    public static final String APP_PREFERENCES = "settings";
+    public static final String APP_PREFERENCES_NOT_FIRST_START = "not_first_start";
+    private SharedPreferences mSettings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -245,6 +249,9 @@ public class MainActivity extends AppCompatActivity {
 
         orientation = getResources().getConfiguration().orientation;
         global = ((GlobalData) getApplicationContext());
+
+        //Initial settings
+        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
         JodaTimeAndroid.init(this);
 
@@ -405,6 +412,13 @@ public class MainActivity extends AppCompatActivity {
             }
             int i = 0;
             redrawImages();
+        }
+
+        if (!mSettings.contains(APP_PREFERENCES_NOT_FIRST_START)) {
+            SharedPreferences.Editor editor = mSettings.edit();
+            editor.putBoolean(APP_PREFERENCES_NOT_FIRST_START, true);
+            editor.apply();
+            Log.d("fgsfds", "In SharedPreferences set ");
         }
     }
 

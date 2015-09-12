@@ -79,8 +79,10 @@ public class SetAliasesFullscreenActivity extends AppCompatActivity {
         mAddLinkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAliasSetAliasesFullscreen.getText().toString().length() > 0) {
-                    Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(mTagSetAliasesFullscreen.getText().toString(), mAliasSetAliasesFullscreen.getText().toString());
+                String tag = mTagSetAliasesFullscreen.getText().toString();
+                String alias = mAliasSetAliasesFullscreen.getText().toString().trim();
+                if (alias.length() > 0 && !tag.equals(alias)) {
+                    Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(tag, alias);
                     furryDatabaseUtils.addAlias(tuple);
                     mAliasSetAliasesFullscreen.clearFocus();
                     nextAlias();
@@ -98,8 +100,10 @@ public class SetAliasesFullscreenActivity extends AppCompatActivity {
         mAliasSetAliasesFullscreen.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (mAliasSetAliasesFullscreen.getText().toString().length() > 0) {
-                    Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(mTagSetAliasesFullscreen.getText().toString(), mAliasSetAliasesFullscreen.getText().toString());
+                String tag = mTagSetAliasesFullscreen.getText().toString();
+                String alias = mAliasSetAliasesFullscreen.getText().toString().trim();
+                if (alias.length() > 0 && !tag.equals(alias)) {
+                    Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(tag, alias);
                     furryDatabaseUtils.addAlias(tuple);
                     mAliasSetAliasesFullscreen.clearFocus();
                     nextAlias();

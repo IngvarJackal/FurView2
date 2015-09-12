@@ -36,7 +36,7 @@ import ru.furry.furview2.system.Utils;
 
 public class AliasesActivity extends AppCompatActivity {
 
-    private static final int LEN_OF_TAGS_ROW_PORT = 2;
+    private static final int LEN_OF_TAGS_ROW_PORT = 3;
     private static final int LEN_OF_TAGS_ROW_LAND = 5;
 
     int len_of_tags_row;
@@ -81,10 +81,10 @@ public class AliasesActivity extends AppCompatActivity {
             mAddAliasButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String tag = mEditTextAddAliasTag.getText().toString();
-                    String alias = mEditTextAddAliasAlias.getText().toString();
+                    String tag = mEditTextAddAliasTag.getText().toString().trim();
+                    String alias = mEditTextAddAliasAlias.getText().toString().trim();
                     Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(tag, alias);
-                    if (!"".equals(tag) && !tag.contains(" ") && !"".equals(alias)) {
+                    if (!"".equals(tag) && !tag.contains(" ") && alias.length() > 0 && !tag.equals(alias)) {
                         furryDatabaseUtils.addAlias(tuple);
                         //cleat editTextes
                         mEditTextAddAliasTag.setText("");
@@ -112,10 +112,10 @@ public class AliasesActivity extends AppCompatActivity {
             mEditTextAddAliasAlias.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    String tag = mEditTextAddAliasTag.getText().toString();
-                    String alias = mEditTextAddAliasAlias.getText().toString();
-                    Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(tag,alias);
-                    if (!"".equals(tag) && !tag.contains(" ") && !"".equals(alias)) {
+                    String tag = mEditTextAddAliasTag.getText().toString().trim();
+                    String alias = mEditTextAddAliasAlias.getText().toString().trim();
+                    Utils.Tuple<String, String> tuple = new Utils.Tuple<String, String>(tag, alias);
+                    if (!"".equals(tag) && !tag.contains(" ") && alias.length() > 0 && !tag.equals(alias)) {
                         furryDatabaseUtils.addAlias(tuple);
                         //cleat editTextes
                         mEditTextAddAliasTag.setText("");
@@ -135,10 +135,13 @@ public class AliasesActivity extends AppCompatActivity {
             delAlias = new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    AliasTextView aliasTextView = (AliasTextView) v;
-                    Log.d("fgsfds","Remove Alias "+aliasTextView.tagAlias.toString());
+                    TextView textView = (TextView) v;
+                    int pos = textView.getText().toString().indexOf(" ");
+                    String tag = textView.getText().toString().substring(0, pos);
+                    String alias = textView.getText().toString().substring(pos + 3);
+                    Utils.Tuple<String, String> tuple = new Utils.Tuple<>(tag, alias);
 //TODO working after restart...
-                    furryDatabaseUtils.removeAlias(aliasTextView.tagAlias);
+                    furryDatabaseUtils.removeAlias(tuple);
                     refreshAliasTable();
                     return true;
                 }
@@ -148,30 +151,8 @@ public class AliasesActivity extends AppCompatActivity {
         }
     }
 
-    private class AliasTextView extends TextView {
-        Utils.Tuple<String,String> tagAlias;
-
-        public AliasTextView(Context context, String tag, String alias) {
-            super(context);
-            tagAlias = new Utils.Tuple<>(tag,alias);
-        }
-
-        public AliasTextView(Context context) {
-            super(context);
-        }
-
-        public Utils.Tuple<String,String> getTagAlias() {
-            return tagAlias;
-        }
-
-        public void setTagAlias(String tag, String alias) {
-            tagAlias = new Utils.Tuple<>(tag,alias);
-            super.setText(tag + " = " + alias);
-        }
-    }
-
     class LabelledXRow {
-        public List<AliasTextView> items = new ArrayList<>();
+        public List<TextView> items = new ArrayList<>();
 
         public LabelledXRow(TableLayout table, Context context) {
             LinearLayout linLay = new LinearLayout(context);
@@ -180,7 +161,7 @@ public class AliasesActivity extends AppCompatActivity {
             TableRow row = new TableRow(context);
             row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT, 1));
             for (int i = 0; i < len_of_tags_row; i++) {
-                AliasTextView t = new AliasTextView(context);
+                TextView t = new TextView(context);
                 t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
                 t.setGravity(Gravity.CENTER);
                 //t.setLines(1);    //set single line
@@ -203,16 +184,16 @@ public class AliasesActivity extends AppCompatActivity {
         }
     }
 
-//TODO need test for performance. Too long when we have a many aliases! (First time is 6187 aliases 12.09.2005)
+    //TODO need test for performance. Too long when we have a many aliases! (First time is 6187 aliases 12.09.2005)
     private void refreshAliasTable() {
         int size = furryDatabaseUtils.getAliases().size();
 
         mAliasesTable.removeAllViewsInLayout(); //clear previous table with aliases
-        Log.d("fgsfds", "aliaseslist.size() = " + size);
+        Log.d("fgsfds", "Aliases in DB = " + size);
 
         if (size > 0) {
             mAliasesTable.setVisibility(View.VISIBLE);
-            ExtendableWDef<LabelledXRow> tagsLinesHandler = new ExtendableWDef<LabelledXRow>(new Labelled6RowCreator()) {
+            ExtendableWDef<LabelledXRow> aliasLinesHandler = new ExtendableWDef<LabelledXRow>(new Labelled6RowCreator()) {
                 @Override
                 public void ensureCapacity(int index) {
                     if (entries.size() <= index) {
@@ -225,10 +206,11 @@ public class AliasesActivity extends AppCompatActivity {
 
             for (int row = 0; row < Math.ceil(size * 1.0 / len_of_tags_row); row++) {
                 for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < size); column++) {
-                    String tag = furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).x;
-                    String alias = furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y;
-                    tagsLinesHandler.get(row).items.get(column).setTagAlias(tag,alias);
-                    tagsLinesHandler.get(row).items.get(column).setOnLongClickListener(delAlias);
+                    aliasLinesHandler.get(row).items.get(column).setText(
+                            furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).x +
+                                    " = " +
+                            furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
+                    aliasLinesHandler.get(row).items.get(column).setOnLongClickListener(delAlias);
                 }
             }
         } else {
@@ -245,9 +227,9 @@ public class AliasesActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuItem_clear_blacklist = menu.findItem(R.id.action_aliases_clear);
-        if (furryDatabaseUtils.getAliases().size()>0){
+        if (furryDatabaseUtils.getAliases().size() > 0) {
             menuItem_clear_blacklist.setEnabled(true);
-        }else{
+        } else {
             menuItem_clear_blacklist.setEnabled(false);
         }
         return true;
@@ -258,7 +240,7 @@ public class AliasesActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_aliases_clear: {
-                List<Utils.Tuple<String,String>> aliasesList = furryDatabaseUtils.getAliases();
+                List<Utils.Tuple<String, String>> aliasesList = furryDatabaseUtils.getAliases();
                 for (int i = 0; i < aliasesList.size(); i++) {
 //TODO this is slow... need another method
                     furryDatabaseUtils.removeAlias(aliasesList.get(i));
