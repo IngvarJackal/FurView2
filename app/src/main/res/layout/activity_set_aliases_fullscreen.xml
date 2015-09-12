@@ -33,6 +33,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
                 android:enabled="false"
                 android:id="@+id/tagSetAliasesFullscreen" />
         </LinearLayout>
@@ -53,6 +54,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
                 android:id="@+id/aliasSetAliasesFullscreen" />
 
             <TextView

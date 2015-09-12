@@ -123,6 +123,7 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="another_aliases">Имеющиеся</string>
     <string name="skip">Пропустить</string>
     <string name="cancel">Отмена</string>
+    <string name="need_input_alias_fullscreen">Не введён алиас к тегу.</string>
 
 
 </resources>
