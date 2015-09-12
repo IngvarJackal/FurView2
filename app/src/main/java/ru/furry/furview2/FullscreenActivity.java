@@ -89,6 +89,7 @@ public class FullscreenActivity extends AppCompatActivity {
     ImageButton mFullscreenButton2;
     Button mAddToSearchFullscreenButton;
     Button mAddToBlacklistFullscreenButton;
+    Button mAddToAliasesFullscreenButton;
     FurryDatabase database;
     FurryDatabaseUtils furryDatabaseUtils;
     FurImage fImage;
@@ -102,7 +103,7 @@ public class FullscreenActivity extends AppCompatActivity {
     LinearLayout mLayoutFullscreenOut;
     int CurrentOrientation;
 
-    private List<String> selectedTags;
+    private ArrayList<String> selectedTags;
     public static final String APP_PREFERENCES = "settings";
     public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
@@ -378,6 +379,7 @@ public class FullscreenActivity extends AppCompatActivity {
             mFullscreenButton2 = (ImageButton) findViewById(R.id.fullscreenButton2);
             mAddToSearchFullscreenButton = (Button) findViewById(R.id.addToSearchFullscreenButton);
             mAddToBlacklistFullscreenButton = (Button) findViewById(R.id.addToBlacklistFullscreenButton);
+            mAddToAliasesFullscreenButton = (Button) findViewById(R.id.addToAliasesFullscreenButton);
             mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
             mDescriptionText = (TextView) findViewById(R.id.descriptionText);
             mScrollDescriptionText = (ScrollView) findViewById(R.id.scrollDescriptionText);
@@ -414,6 +416,14 @@ public class FullscreenActivity extends AppCompatActivity {
             });
 
 //TODO need new button "Add aliases"
+            mAddToAliasesFullscreenButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent("ru.furry.furview2.SetAliasesFullscreenActivity");
+                    intent.putStringArrayListExtra("selectedTags",selectedTags);
+                    startActivity(intent);
+                }
+            });
 
             fIndex = getIntent().getIntExtra("imageIndex", 0);
             fImage = MainActivity.downloadedImages.get(fIndex);
@@ -459,9 +469,11 @@ public class FullscreenActivity extends AppCompatActivity {
                     if (selectedTags.size() > 0) {
                         mAddToSearchFullscreenButton.setEnabled(true);
                         mAddToBlacklistFullscreenButton.setEnabled(true);
+                        mAddToAliasesFullscreenButton.setEnabled(true);
                     } else {
                         mAddToSearchFullscreenButton.setEnabled(false);
                         mAddToBlacklistFullscreenButton.setEnabled(false);
+                        mAddToAliasesFullscreenButton.setEnabled(false);
                     }
                     return true;
                 }

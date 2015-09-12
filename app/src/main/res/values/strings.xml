@@ -119,6 +119,10 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="tag">Тег</string>
     <string name="action_alias">Алиас</string>
     <string name="need_input_alias">Введите тег и алиас к нему. Тег не должен быть содержать пробелов.</string>
+    <string name="alias">Алиас</string>
+    <string name="another_aliases">Имеющиеся</string>
+    <string name="skip">Пропустить</string>
+    <string name="cancel">Отмена</string>
 
 
 </resources>

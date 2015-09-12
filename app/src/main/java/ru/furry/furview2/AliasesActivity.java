@@ -166,7 +166,7 @@ public class AliasesActivity extends AppCompatActivity {
 
         public void setTagAlias(String tag, String alias) {
             tagAlias = new Utils.Tuple<>(tag,alias);
-            super.setText(tag + " <-> " + alias);
+            super.setText(tag + " = " + alias);
         }
     }
 

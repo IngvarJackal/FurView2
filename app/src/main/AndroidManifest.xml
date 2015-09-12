@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.furry.furview2">
+    package="ru.furry.furview2" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -9,15 +9,16 @@
         android:name=".GlobalData"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name">
+        android:label="@string/app_name" >
         <activity
             android:name=".InitialScreenActivity"
             android:label="@string/title_activity_initial_screen"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="ru.furry.furview2.InitialScreenActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -27,12 +28,14 @@
             android:label="@string/app_name"
             android:parentActivityName=".InitialScreenActivity"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".InitialScreenActivity" />
+
             <intent-filter>
                 <action android:name="ru.furry.furview2.MainActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -41,19 +44,21 @@
             android:label="@string/title_activity_fullscreen"
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ru.furry.furview2.MainActivity" />
+
             <intent-filter>
                 <action android:name="ru.furry.furview2.fullscreen" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".UI.ManualProxyActivity"
             android:label="@string/title_activity_manual_proxy"
-            android:theme="@style/Theme.AppCompat.Dialog.MinWidth">
+            android:theme="@style/Theme.AppCompat.Dialog.MinWidth" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.ManualProxyActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -62,7 +67,7 @@
         <activity
             android:name=".UI.HelpScreenActivity"
             android:label="@string/title_help_screen"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.HelpScreenActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -72,7 +77,7 @@
             android:name=".DownloadingActivity"
             android:label="@string/title_downloading_screen"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.DownloadingActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -81,7 +86,7 @@
         <activity
             android:name=".BlackListActivity"
             android:label="@string/blacklist_of_tags"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.BlackListActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -90,9 +95,18 @@
         <activity
             android:name=".AliasesActivity"
             android:label="@string/title_activity_aliases"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme" >
             <intent-filter>
                 <action android:name="ru.furry.furview2.Aliases" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SetAliasesFullscreenActivity"
+            android:label="@string/title_activity_aliases"
+            android:theme="@style/Theme.AppCompat.Dialog.MinWidth" >
+            <intent-filter>
+                <action android:name="ru.furry.furview2.SetAliasesFullscreenActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

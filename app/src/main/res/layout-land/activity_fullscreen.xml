@@ -147,7 +147,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/add_to_search"
                     android:enabled="false"
-                    android:id="@+id/addToSearchFullscreenButton" />
+                    android:id="@+id/addToSearchFullscreenButton"
+                    android:textSize="12sp" />
 
                 <Button
                     style="?android:attr/buttonStyleSmall"
@@ -155,7 +156,17 @@
                     android:layout_height="wrap_content"
                     android:text="@string/to_blacklist_button"
                     android:enabled="false"
-                    android:id="@+id/addToBlacklistFullscreenButton" />
+                    android:id="@+id/addToBlacklistFullscreenButton"
+                    android:textSize="12sp" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/alias"
+                    android:id="@+id/addToAliasesFullscreenButton"
+                    android:textSize="12sp"
+                    android:enabled="false" />
             </LinearLayout>
 
             <TextView
