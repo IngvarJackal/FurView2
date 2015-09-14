@@ -1,8 +1,6 @@
 package ru.furry.furview2;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -10,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -20,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -45,12 +43,15 @@ public class AliasesActivity extends AppCompatActivity {
     EditText mEditTextAddAliasTag;
     EditText mEditTextAddAliasAlias;
     TableLayout mAliasesTable;
+    ScrollView msvAlias;
+
 
     FurryDatabase database;
     FurryDatabaseUtils furryDatabaseUtils;
     View.OnLongClickListener delAlias;
 
-    AlertDialog.Builder aBuilder;
+
+    int offset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class AliasesActivity extends AppCompatActivity {
             mEditTextAddAliasAlias = (EditText) findViewById(R.id.editTextAddAliasAlias);
             mAddAliasButton = (Button) findViewById(R.id.addAliasButton);
             mAliasesTable = (TableLayout) findViewById(R.id.aliasesTableLayout);
+            msvAlias = (ScrollView) findViewById(R.id.svAlias);
 
             database = new FurryDatabase(getApplicationContext());
             furryDatabaseUtils = new FurryDatabaseUtils(database);
@@ -100,6 +102,11 @@ public class AliasesActivity extends AppCompatActivity {
                 }
             });
 
+/*
+            //for scrollView with autuadding aliases http://stackoverflow.com/questions/7609253/how-to-get-last-scroll-view-position-scrollview
+            Log.d("fgsfds", "current scrollView = " + msvAlias.getScrollY());
+            Log.d("fgsfds", "getMaxScrollAmount scrollView = " + msvAlias.getMaxScrollAmount());
+*/
             mEditTextAddAliasTag.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -186,10 +193,15 @@ public class AliasesActivity extends AppCompatActivity {
 
     //TODO need test for performance. Too long when we have a many aliases! (First time is 6187 aliases 12.09.2005)
     private void refreshAliasTable() {
-        int size = furryDatabaseUtils.getAliases().size();
+        //int sizeAll = furryDatabaseUtils.getAliases().size();     //don't use. May be replace as "count * ..." in FurryDatabaseUtils
+
+        offset = 6187; //
+        List<Utils.Tuple<String, String>> aliasesList = furryDatabaseUtils.getPortionAliases(offset, 30); //users aliases
+        int size = aliasesList.size();
 
         mAliasesTable.removeAllViewsInLayout(); //clear previous table with aliases
-        Log.d("fgsfds", "Aliases in DB = " + size);
+        //Log.d("fgsfds", "Aliases in DB = " + sizeAll);
+        Log.d("fgsfds", "Portion of aliases = " + size);
 
         if (size > 0) {
             mAliasesTable.setVisibility(View.VISIBLE);
@@ -207,9 +219,11 @@ public class AliasesActivity extends AppCompatActivity {
             for (int row = 0; row < Math.ceil(size * 1.0 / len_of_tags_row); row++) {
                 for (int column = 0; (column < len_of_tags_row) && (row * len_of_tags_row + column < size); column++) {
                     aliasLinesHandler.get(row).items.get(column).setText(
-                            furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).x +
+                            //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).x +
+                            aliasesList.get(row * len_of_tags_row + column).x +
                                     " = " +
-                            furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
+                                    //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
+                                    aliasesList.get(row * len_of_tags_row + column).y);
                     aliasLinesHandler.get(row).items.get(column).setOnLongClickListener(delAlias);
                 }
             }
