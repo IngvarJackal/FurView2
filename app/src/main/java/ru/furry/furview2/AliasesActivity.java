@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -36,29 +37,54 @@ public class AliasesActivity extends AppCompatActivity {
 
     private static final int LEN_OF_TAGS_ROW_PORT = 3;
     private static final int LEN_OF_TAGS_ROW_LAND = 5;
-
     int len_of_tags_row;
 
     Button mAddAliasButton;
     EditText mEditTextAddAliasTag;
     EditText mEditTextAddAliasAlias;
     TableLayout mAliasesTable;
-    ScrollView msvAlias;
+    //ScrollView msvAlias;
+    Button mPrevPageButtonAliases;
+    Button mNextPageButtonAliases;
+    SeekBar mSeekBarAliases;
+    EditText mETNumberOfPage;
 
 
     FurryDatabase database;
     FurryDatabaseUtils furryDatabaseUtils;
     View.OnLongClickListener delAlias;
 
+    private static final int ALIASES_ON_PAGE_PORT = 25; //25
+    private static final int ALIASES_ON_PAGE_LAND = 25; //30
+    int aliases_on_page;
 
-    int offset;
+    int offset = 0;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putInt("offset", offset);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        offset = savedInstanceState.getInt("offset");
+        int page = offset/aliases_on_page;
+        mSeekBarAliases.setProgress(page);
+        mETNumberOfPage.setText(Integer.toString(page));
+        refreshAliasTable();
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d("fgsfds","offset after savedInstanceState ="+offset);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             len_of_tags_row = LEN_OF_TAGS_ROW_PORT;
+            aliases_on_page = ALIASES_ON_PAGE_PORT;
         } else {
             len_of_tags_row = LEN_OF_TAGS_ROW_LAND;
+            aliases_on_page = ALIASES_ON_PAGE_LAND;
         }
 
         super.onCreate(savedInstanceState);
@@ -75,10 +101,48 @@ public class AliasesActivity extends AppCompatActivity {
             mEditTextAddAliasAlias = (EditText) findViewById(R.id.editTextAddAliasAlias);
             mAddAliasButton = (Button) findViewById(R.id.addAliasButton);
             mAliasesTable = (TableLayout) findViewById(R.id.aliasesTableLayout);
-            msvAlias = (ScrollView) findViewById(R.id.svAlias);
+            //msvAlias = (ScrollView) findViewById(R.id.svAlias);
+            mPrevPageButtonAliases = (Button) findViewById(R.id.prevPageButtonAliases);
+            mNextPageButtonAliases = (Button) findViewById(R.id.nextPageButtonAliases);
+            mSeekBarAliases = (SeekBar) findViewById(R.id.seekBarAliases);
+            mETNumberOfPage = (EditText) findViewById(R.id.editTextNumberOfPage);
 
             database = new FurryDatabase(getApplicationContext());
             furryDatabaseUtils = new FurryDatabaseUtils(database);
+
+            Log.d("fgsfds", "count elements in DB = " + furryDatabaseUtils.countElements());
+            int maxProgress = furryDatabaseUtils.countElements()/aliases_on_page;
+            mSeekBarAliases.setMax(maxProgress);
+            Log.d("fgsfds", "maxProgress = " + maxProgress);
+            int progress = offset / aliases_on_page;
+            Log.d("fgsfds", "progress in first time = " + progress);
+            mETNumberOfPage.setText(Integer.toString(progress));
+
+            mPrevPageButtonAliases.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (offset < aliases_on_page) {
+                        offset = 0;
+                    } else {
+                        offset = offset - aliases_on_page;
+                    }
+                    int progress = offset / aliases_on_page;
+                    mETNumberOfPage.setText(Integer.toString(progress));
+                    mSeekBarAliases.setProgress(progress);
+                    refreshAliasTable();
+                }
+            });
+
+            mNextPageButtonAliases.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    offset = offset + aliases_on_page;
+                    int progress = offset / aliases_on_page;
+                    mETNumberOfPage.setText(Integer.toString(progress));
+                    mSeekBarAliases.setProgress(progress);
+                    refreshAliasTable();
+                }
+            });
 
             mAddAliasButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -102,8 +166,43 @@ public class AliasesActivity extends AppCompatActivity {
                 }
             });
 
+            mETNumberOfPage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    TextView view = (TextView) v;
+                    int page = Integer.valueOf(view.getText().toString());
+                    mSeekBarAliases.setProgress(page);
+                    offset = page * aliases_on_page;
+                    refreshAliasTable();
+                    view.clearFocus();
+                    //hide keyboard
+                    InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mETNumberOfPage.getWindowToken(), 0);
+                    return true;
+                }
+            });
+
+            mSeekBarAliases.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                int lastPosition;
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    mETNumberOfPage.setText(Integer.toString(progress));
+                    lastPosition = progress * aliases_on_page;
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    offset = lastPosition;
+                    refreshAliasTable();
+                }
+            });
 /*
-            //for scrollView with autuadding aliases http://stackoverflow.com/questions/7609253/how-to-get-last-scroll-view-position-scrollview
+            //for scrollView with autoadding aliases http://stackoverflow.com/questions/7609253/how-to-get-last-scroll-view-position-scrollview
             Log.d("fgsfds", "current scrollView = " + msvAlias.getScrollY());
             Log.d("fgsfds", "getMaxScrollAmount scrollView = " + msvAlias.getMaxScrollAmount());
 */
@@ -193,15 +292,17 @@ public class AliasesActivity extends AppCompatActivity {
 
     //TODO need test for performance. Too long when we have a many aliases! (First time is 6187 aliases 12.09.2005)
     private void refreshAliasTable() {
+        Log.d("fgsfds", "Call refreshAliasTable() ...");
         //int sizeAll = furryDatabaseUtils.getAliases().size();     //don't use. May be replace as "count * ..." in FurryDatabaseUtils
 
-        offset = 6187; //
-        List<Utils.Tuple<String, String>> aliasesList = furryDatabaseUtils.getPortionAliases(offset, 30); //users aliases
+        Log.d("fgsfds", "Portion of alias = " + aliases_on_page);
+        Log.d("fgsfds", "offset = " + offset);
+
+        List<Utils.Tuple<String, String>> aliasesList = furryDatabaseUtils.getPortionAliases(offset, aliases_on_page); //users aliases
         int size = aliasesList.size();
 
         mAliasesTable.removeAllViewsInLayout(); //clear previous table with aliases
         //Log.d("fgsfds", "Aliases in DB = " + sizeAll);
-        Log.d("fgsfds", "Portion of aliases = " + size);
 
         if (size > 0) {
             mAliasesTable.setVisibility(View.VISIBLE);
@@ -222,14 +323,15 @@ public class AliasesActivity extends AppCompatActivity {
                             //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).x +
                             aliasesList.get(row * len_of_tags_row + column).x +
                                     " = " +
-                                    //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
-                                    aliasesList.get(row * len_of_tags_row + column).y);
+                            //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
+                            aliasesList.get(row * len_of_tags_row + column).y);
                     aliasLinesHandler.get(row).items.get(column).setOnLongClickListener(delAlias);
                 }
             }
         } else {
             mAliasesTable.setVisibility(View.GONE);
         }
+        Log.d("fgsfds", "aliasesList.get(0).toString() = " + aliasesList.get(0).toString());
     }
 
     @Override

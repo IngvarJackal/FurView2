@@ -45,18 +45,59 @@
 
     </LinearLayout>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/svAlias"
-        android:layout_below="@+id/AliasesAddLayout"
+    <TableLayout
+        android:id="@+id/aliasesTableLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="visible"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-        <TableLayout
-            android:id="@+id/aliasesTableLayout"
-            android:layout_width="fill_parent"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/AliasesAddLayout"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/seekLayout" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:gravity="center_vertical"
+        android:id="@+id/seekLayout">
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:visibility="visible" />
-    </ScrollView>
+            android:text="&lt;"
+            android:id="@+id/prevPageButtonAliases" />
+
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBarAliases"
+            android:layout_weight="9"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editTextNumberOfPage"
+            android:hint="№"
+            android:numeric="integer"
+            android:singleLine="true"
+            android:inputType="numberSigned"
+            android:maxLength="4" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=">"
+            android:id="@+id/nextPageButtonAliases"/>
+
+    </LinearLayout>
+
 </RelativeLayout>

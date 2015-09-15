@@ -60,7 +60,16 @@ public class FurryDatabaseUtils {
                     cursor.getString(cursor.getColumnIndex("b"))));
         }
         this.aliases = new ArrayList<>(aliases);
+        cursor.close();
         return aliases;
+    }
+
+    public int countElements() {
+        int count=0;
+        Cursor cursor = database.getWritableDatabase().rawQuery("select * from aliases",null);
+        count=cursor.getCount();
+        cursor.close();
+        return count;
     }
 
 
