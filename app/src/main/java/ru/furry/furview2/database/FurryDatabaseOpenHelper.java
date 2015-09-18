@@ -57,8 +57,6 @@ public class FurryDatabaseOpenHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
-
-
     }
 
     protected static void initDatabase(SQLiteDatabase sqLiteDatabase) {

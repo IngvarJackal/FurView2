@@ -49,30 +49,6 @@ public class FurryDatabaseUtils {
         return aliases;
     }
 
-    public List<Utils.Tuple<String, String>> getPortionAliases(int offset, int maxResult) {
-        if (this.aliases != null)
-            return new ArrayList<>(this.aliases);
-        List<Utils.Tuple<String, String>> aliases = new ArrayList<>();
-        Cursor cursor = database.getWritableDatabase().rawQuery("select * from aliases " + "limit ?,?",
-                new String[]{String.valueOf(offset),String.valueOf(maxResult)});
-        while (cursor.moveToNext()) {
-            aliases.add(new Utils.Tuple<>(cursor.getString(cursor.getColumnIndex("a")),
-                    cursor.getString(cursor.getColumnIndex("b"))));
-        }
-        this.aliases = new ArrayList<>(aliases);
-        cursor.close();
-        return aliases;
-    }
-
-    public int countElements() {
-        int count=0;
-        Cursor cursor = database.getWritableDatabase().rawQuery("select * from aliases",null);
-        count=cursor.getCount();
-        cursor.close();
-        return count;
-    }
-
-
     public void addBlackTag(String blackTag) {
         ContentValues values = new ContentValues(1);
         values.put("tag", blackTag);

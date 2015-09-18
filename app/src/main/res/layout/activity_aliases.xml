@@ -86,7 +86,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextNumberOfPage"
             android:hint="№"
-            android:numeric="integer"
             android:singleLine="true"
             android:inputType="numberSigned"
             android:maxLength="4" />

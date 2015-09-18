@@ -54,10 +54,9 @@ public class AliasesActivity extends AppCompatActivity {
     FurryDatabaseUtils furryDatabaseUtils;
     View.OnLongClickListener delAlias;
 
-    private static final int ALIASES_ON_PAGE_PORT = 25; //25
-    private static final int ALIASES_ON_PAGE_LAND = 25; //30
+    private static final int ALIASES_ON_PAGE_PORT = 21; //25
+    private static final int ALIASES_ON_PAGE_LAND = 20; //30
     int aliases_on_page;
-
     int offset = 0;
 
     @Override
@@ -68,13 +67,13 @@ public class AliasesActivity extends AppCompatActivity {
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         offset = savedInstanceState.getInt("offset");
-        int page = offset/aliases_on_page;
+        int page = offset / aliases_on_page;
         mSeekBarAliases.setProgress(page);
         mETNumberOfPage.setText(Integer.toString(page));
         refreshAliasTable();
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.d("fgsfds","offset after savedInstanceState ="+offset);
+        Log.d("fgsfds", "offset after savedInstanceState =" + offset);
     }
 
     @Override
@@ -110,8 +109,8 @@ public class AliasesActivity extends AppCompatActivity {
             database = new FurryDatabase(getApplicationContext());
             furryDatabaseUtils = new FurryDatabaseUtils(database);
 
-            Log.d("fgsfds", "count elements in DB = " + furryDatabaseUtils.countElements());
-            int maxProgress = furryDatabaseUtils.countElements()/aliases_on_page;
+            Log.d("fgsfds", "count elements in DB = " + furryDatabaseUtils.getAliases().size());
+            int maxProgress = furryDatabaseUtils.getAliases().size() / aliases_on_page;
             mSeekBarAliases.setMax(maxProgress);
             Log.d("fgsfds", "maxProgress = " + maxProgress);
             int progress = offset / aliases_on_page;
@@ -171,19 +170,25 @@ public class AliasesActivity extends AppCompatActivity {
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     TextView view = (TextView) v;
                     int page = Integer.valueOf(view.getText().toString());
-                    mSeekBarAliases.setProgress(page);
-                    offset = page * aliases_on_page;
-                    refreshAliasTable();
-                    view.clearFocus();
-                    //hide keyboard
-                    InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(mETNumberOfPage.getWindowToken(), 0);
+                    int max_pages = furryDatabaseUtils.getAliases().size() / aliases_on_page;
+                    if (page <= max_pages) {
+                        mSeekBarAliases.setProgress(page);
+                        offset = page * aliases_on_page;
+                        refreshAliasTable();
+                        view.clearFocus();
+                        //hide keyboard
+                        InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mETNumberOfPage.getWindowToken(), 0);
+                    }else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.too_much_number_aliases)+max_pages, Toast.LENGTH_SHORT).show();
+                    }
                     return true;
                 }
             });
 
             mSeekBarAliases.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 int lastPosition;
+
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     mETNumberOfPage.setText(Integer.toString(progress));
@@ -246,6 +251,7 @@ public class AliasesActivity extends AppCompatActivity {
                     String tag = textView.getText().toString().substring(0, pos);
                     String alias = textView.getText().toString().substring(pos + 3);
                     Utils.Tuple<String, String> tuple = new Utils.Tuple<>(tag, alias);
+                    Log.d("fgsfds","Delete alias tuple "+tuple.toString());
 //TODO working after restart...
                     furryDatabaseUtils.removeAlias(tuple);
                     refreshAliasTable();
@@ -290,19 +296,19 @@ public class AliasesActivity extends AppCompatActivity {
         }
     }
 
-    //TODO need test for performance. Too long when we have a many aliases! (First time is 6187 aliases 12.09.2005)
     private void refreshAliasTable() {
         Log.d("fgsfds", "Call refreshAliasTable() ...");
-        //int sizeAll = furryDatabaseUtils.getAliases().size();     //don't use. May be replace as "count * ..." in FurryDatabaseUtils
 
-        Log.d("fgsfds", "Portion of alias = " + aliases_on_page);
-        Log.d("fgsfds", "offset = " + offset);
-
-        List<Utils.Tuple<String, String>> aliasesList = furryDatabaseUtils.getPortionAliases(offset, aliases_on_page); //users aliases
+        List<Utils.Tuple<String, String>> aliasesList = new ArrayList<>();
+        for (int i = offset; i < offset + aliases_on_page && i < furryDatabaseUtils.getAliases().size(); i++) {
+            aliasesList.add(furryDatabaseUtils.getAliases().get(i));
+        }
         int size = aliasesList.size();
 
+        Log.d("fgsfds", "Aliases on page = " + size);
+        Log.d("fgsfds", "Offset = " + offset);
+
         mAliasesTable.removeAllViewsInLayout(); //clear previous table with aliases
-        //Log.d("fgsfds", "Aliases in DB = " + sizeAll);
 
         if (size > 0) {
             mAliasesTable.setVisibility(View.VISIBLE);
@@ -323,15 +329,14 @@ public class AliasesActivity extends AppCompatActivity {
                             //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).x +
                             aliasesList.get(row * len_of_tags_row + column).x +
                                     " = " +
-                            //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
-                            aliasesList.get(row * len_of_tags_row + column).y);
+                                    //furryDatabaseUtils.getAliases().get(row * len_of_tags_row + column).y);
+                                    aliasesList.get(row * len_of_tags_row + column).y);
                     aliasLinesHandler.get(row).items.get(column).setOnLongClickListener(delAlias);
                 }
             }
         } else {
             mAliasesTable.setVisibility(View.GONE);
         }
-        Log.d("fgsfds", "aliasesList.get(0).toString() = " + aliasesList.get(0).toString());
     }
 
     @Override
@@ -341,29 +346,9 @@ public class AliasesActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuItem_clear_blacklist = menu.findItem(R.id.action_aliases_clear);
-        if (furryDatabaseUtils.getAliases().size() > 0) {
-            menuItem_clear_blacklist.setEnabled(true);
-        } else {
-            menuItem_clear_blacklist.setEnabled(false);
-        }
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_aliases_clear: {
-                List<Utils.Tuple<String, String>> aliasesList = furryDatabaseUtils.getAliases();
-                for (int i = 0; i < aliasesList.size(); i++) {
-//TODO this is slow... need another method
-                    furryDatabaseUtils.removeAlias(aliasesList.get(i));
-                }
-                refreshAliasTable();
-                return true;
-            }
             case R.id.action_aliases_help:
                 Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("source", "AliasesActivity");

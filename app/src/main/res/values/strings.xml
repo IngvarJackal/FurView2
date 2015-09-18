@@ -124,6 +124,7 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="skip">Пропустить</string>
     <string name="cancel">Отмена</string>
     <string name="need_input_alias_fullscreen">Не введён алиас к тегу.</string>
+    <string name="too_much_number_aliases">"Слишком большое число. Максимальное количество страниц: "</string>
 
 
 </resources>
