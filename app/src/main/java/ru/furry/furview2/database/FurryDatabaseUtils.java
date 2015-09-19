@@ -27,7 +27,7 @@ public class FurryDatabaseUtils {
         values.put("b", alias.y);
         database.getWritableDatabase().insert("aliases", null, values);
         if (this.aliases != null && !this.aliases.contains(alias))
-            this.aliases.add(alias);
+            this.aliases.add(0, alias);
     }
 
     public void removeAlias(Utils.Tuple<String, String> alias) {
@@ -40,7 +40,7 @@ public class FurryDatabaseUtils {
         if (this.aliases != null)
             return new ArrayList<>(this.aliases);
         List<Utils.Tuple<String, String>> aliases = new ArrayList<>();
-        Cursor cursor = database.getWritableDatabase().query("aliases", new String[]{"a", "b"}, null, null, null, null, null);
+        Cursor cursor = database.getWritableDatabase().query("aliases", new String[]{"a", "b"}, null, null, null, null, "aliasId desc", null);
         while (cursor.moveToNext()) {
             aliases.add(new Utils.Tuple<>(cursor.getString(cursor.getColumnIndex("a")),
                     cursor.getString(cursor.getColumnIndex("b"))));
@@ -82,7 +82,7 @@ public class FurryDatabaseUtils {
             return new ArrayList<>(aliasedBTags.get(bTag));
         } else {
             ArrayList<String> tags = new ArrayList<>();
-            Cursor cursor = database.getWritableDatabase().query("aliases", new String[]{"b"}, "a = ?", new String[] {bTag}, null, null, null);
+            Cursor cursor = database.getWritableDatabase().query("aliases", new String[]{"b"}, "a = ?", new String[]{bTag}, null, null, null);
             while (cursor.moveToNext()) {
                 tags.add(cursor.getString(cursor.getColumnIndex("b")));
             }

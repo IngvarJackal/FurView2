@@ -62,6 +62,17 @@ public class Utils {
         public String toString() {
             return "[" + x + ", " + y + "]";
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
+            Tuple<X, Y> other = (Tuple<X, Y>) obj;
+            if (!x.equals(other.x)) return false;
+            if (!y.equals(other.y)) return false;
+            return true;
+        }
     }
 
     public static void printError(Exception e) {
