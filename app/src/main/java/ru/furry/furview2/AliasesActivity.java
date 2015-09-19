@@ -55,7 +55,7 @@ public class AliasesActivity extends AppCompatActivity {
     View.OnLongClickListener delAlias;
 
     private static final int ALIASES_ON_PAGE_PORT = 21; //25
-    private static final int ALIASES_ON_PAGE_LAND = 20; //30
+    private static final int ALIASES_ON_PAGE_LAND = 25; //30
     int aliases_on_page;
     int offset = 0;
 
@@ -95,6 +95,10 @@ public class AliasesActivity extends AppCompatActivity {
             finish();
         } else {
             setContentView(R.layout.activity_aliases);
+
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                getSupportActionBar().hide();
+            }
 
             mEditTextAddAliasTag = (EditText) findViewById(R.id.editTextAddAliasTag);
             mEditTextAddAliasAlias = (EditText) findViewById(R.id.editTextAddAliasAlias);
