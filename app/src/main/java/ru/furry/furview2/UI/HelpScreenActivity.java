@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ public class HelpScreenActivity extends AppCompatActivity {
 
     Button closeButton;
     TextView helpTextView;
+    String source;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +37,21 @@ public class HelpScreenActivity extends AppCompatActivity {
                 }
             });
 
+            source = getIntent().getStringExtra("source");
             helpTextView = (TextView) findViewById(R.id.helpTextView);
-            helpTextView.setText(Html.fromHtml(getApplicationContext().getResources().getString(getIntent().getIntExtra("helptextId", 0))));
-            helpTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+            if (source.equals("InitialActivity")) {
+                helpTextView.setText(Html.fromHtml(getApplicationContext().getResources().getString(getIntent().getIntExtra("helptextId", 0))));
+                helpTextView.setMovementMethod(LinkMovementMethod.getInstance());
+            }
+
+            if (source.equals("BlackListActivity")) {
+                helpTextView.setText(getResources().getString(R.string.blacklist_help));
+            }
+
+            if (source.equals("AliasesActivity")) {
+                helpTextView.setText(getResources().getString(R.string.aliases_help));
+            }
         }
     }
 }

@@ -36,7 +36,7 @@
     <string name="manual_port">8080</string>
     <string name="button_set_proxy">Установить прокси</string>
     <string name="search_button_content_description">Поиск</string>
-    <string name="action_searchelp">Помощь</string>
+    <string name="action_search_help">Помощь</string>
     <string name="close_text">Закрыть</string>
     <string name="title_help_screen">Помощь</string>
 
@@ -68,6 +68,18 @@ Search for posts that are rated safe, questionable, or explicit. rating:s, ratin
 For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     ]]></string>
     <string name="local_search_help">hi!</string>
+    <string name="blacklist_help">
+Чёрный список тегов представляет собой набор запрещённых тегов. Изображения содержащие данные теги не будут показаны при поиске.
+\n\n
+<b>Удаление тегов из списка:</b>\n
+Чтобы удалить тег из чёрного списка коснитесь его долгим нажатием. Спустя 2 секунды тег будет удалён.\n\n
+<b>Очистка списка:</b>\n
+Чтобы очистить чёрный список выберете в меню пункт "Очистить список".
+    </string>
+    <string name="aliases_help">
+Алиасы тегов дают возможность задавать псевдоним для существующих тэгов.\n\n
+К примеру можно задать соответствие тегов tricky_crow и fast_swallow алиасу bird.
+    </string>
     <string name="title_downloading_screen">Массовая загрузка</string>
     <string name="download">Скачать</string>
     <string name="imageboard_name">имиджборда</string>
@@ -89,5 +101,30 @@ For additional help visit <a href=\"https://e621.net/help/cheatsheet\">link</a>
     <string name="massDownloadExit">При выходе изображения будут докачиваться в фоновом режиме. В это время работа с базой данных приложения будет невозможна. Выйти?</string>
     <string name="at_least_one_source">Хотя бы один элемент должен быть выделен.</string>
     <string name="dateOfLoading">Изображение загружено:</string>
+
+    <string name="blacklist_of_tags">Чёрный список тегов</string>
+    <string name="action_blacklist">Чёрный список</string>
+    <string name="add_button">Добавить</string>
+    <string name="add_to_blacklist_list">Добавить в чёрный список</string>
+    <string name="label_blacklist">Список нежелательных тегов\n (Долгое касание для удаления из списка)</string>
+    <string name="label_blacklist2">Список нежелательных тегов (Долгое касание для удаления из списка)</string>
+    <string name="need_input_tag">Введите тег</string>
+    <string name="need_input_tag_blacklist">Неверно введён тег. Тег должен состоять из непрерывной строки символов. Слова разделяются символом "_" Пример: red_pokemon </string>
+    <string name="to_blacklist_button">В чёрный список</string>
+    <string name="add_to_search">Поиск по тегам</string>
+    <string name="clear_blacklist">Очистить список</string>
+    <string name="tags_is_added_to_blacklist">Выбранные теги добавлены в чёрный список</string>
+    <string name="title_activity_aliases">Алиасы</string>
+    <string name="add_link">Связать</string>
+    <string name="tag">Тег</string>
+    <string name="action_alias">Алиас</string>
+    <string name="need_input_alias">Введите тег и алиас к нему. Тег не должен содержать пробелов.</string>
+    <string name="alias">Алиас</string>
+    <string name="another_aliases">Имеющиеся</string>
+    <string name="skip">Пропустить</string>
+    <string name="cancel">Отмена</string>
+    <string name="need_input_alias_fullscreen">Не введён алиас к тегу.</string>
+    <string name="too_much_number_aliases">"Слишком большое число. Максимальное количество страниц: "</string>
+
 
 </resources>

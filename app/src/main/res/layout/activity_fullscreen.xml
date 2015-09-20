@@ -140,6 +140,41 @@
                 android:gravity="center"
                 android:visibility="visible" />
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/tagActionLayout"
+                android:gravity="center">
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_to_search"
+                    android:enabled="false"
+                    android:id="@+id/addToSearchFullscreenButton"
+                    android:textSize="12sp" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/to_blacklist_button"
+                    android:enabled="false"
+                    android:id="@+id/addToBlacklistFullscreenButton"
+                    android:textSize="12sp" />
+
+                <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/alias"
+                    android:enabled="false"
+                    android:id="@+id/addToAliasesFullscreenButton"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/descriptionLabel"
                 android:layout_width="wrap_content"
@@ -184,7 +219,8 @@
         android:visibility="visible"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:indeterminate="false" />
 
 
     <LinearLayout

@@ -51,6 +51,7 @@ public class InitialScreenActivity extends AppCompatActivity {
     public static final String APP_PREFERENCES_MANUAL_ADDRESS = "manual_proxy_adress";
     public static final String APP_PREFERENCES_MANUAL_PORT = "manual_proxy_port";
     public static final String APP_PREFERENCES_SWF = "swf";
+    public static final String APP_PREFERENCES_NOT_FIRST_START = "not_first_start";
     private SharedPreferences mSettings;
     private static final int REQUEST_CODE = 0;
 
@@ -229,6 +230,8 @@ public class InitialScreenActivity extends AppCompatActivity {
         SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_3));
         SubMenuProxy.add(menu.findItem(R.id.sub_proxy_menu_4));
         setCheckingProxyMenu();
+        menu.findItem(R.id.action_blacklist).setEnabled(mSettings.getBoolean(APP_PREFERENCES_NOT_FIRST_START,false));
+        menu.findItem(R.id.action_aliases).setEnabled(mSettings.getBoolean(APP_PREFERENCES_NOT_FIRST_START,false));
         return true;
     }
 
@@ -253,6 +256,16 @@ public class InitialScreenActivity extends AppCompatActivity {
         switch (id) {
             case (R.id.action_settings): {
                 Log.d("fgsfds", "Initial menu: " + item.getTitle());
+                return true;
+            }
+            case (R.id.action_blacklist): {
+                Log.d("fgsfds", "Initial menu: " + item.getTitle());
+                startActivity(new Intent("ru.furry.furview2.BlackListActivity"));
+                return true;
+            }
+            case (R.id.action_aliases): {
+                Log.d("fgsfds", "Initial menu: " + item.getTitle());
+                startActivity(new Intent("ru.furry.furview2.Aliases"));
                 return true;
             }
             case (R.id.sub_proxy_menu_1): {
@@ -282,6 +295,7 @@ public class InitialScreenActivity extends AppCompatActivity {
             case (R.id.action_searchelp): {
                 Intent intent = new Intent("ru.furry.furview2.HelpScreenActivity");
                 intent.putExtra("helptextId", Drivers.getDriver(mDriversList.getItemAtPosition(mDriversList.getCheckedItemPosition()).toString()).searchHelpId);
+                intent.putExtra("source","InitialActivity");
                 startActivity(intent);
                 return true;
             }

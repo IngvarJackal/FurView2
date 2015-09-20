@@ -3,6 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
     <item
+        android:id="@+id/action_downloading"
+        android:orderInCategory="100"
+        android:title="@string/action_downloading"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_blacklist"
+        android:orderInCategory="100"
+        android:title="@string/action_blacklist"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_aliases"
+        android:orderInCategory="100"
+        android:title="@string/title_activity_aliases"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
@@ -10,11 +25,6 @@
     <item
         android:id="@+id/action_searchelp"
         android:orderInCategory="100"
-        android:title="@string/action_searchelp"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_downloading"
-        android:orderInCategory="100"
-        android:title="@string/action_downloading"
+        android:title="@string/action_search_help"
         app:showAsAction="never" />
 </menu>
