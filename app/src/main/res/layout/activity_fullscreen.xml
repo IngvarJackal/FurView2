@@ -99,7 +99,7 @@
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/scrollDescriptionText"
+        android:id="@+id/infoScrollView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -120,11 +120,27 @@
                 android:text="@string/dateOfLoading"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
+
             <TextView
                 android:id="@+id/dateEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <LinearLayout
+                android:id="@+id/sourcesLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/sourceLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView4"
@@ -141,37 +157,37 @@
                 android:visibility="visible" />
 
             <LinearLayout
-                android:orientation="horizontal"
+                android:id="@+id/tagActionLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/tagActionLayout"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/add_to_search"
-                    android:enabled="false"
                     android:id="@+id/addToSearchFullscreenButton"
-                    android:textSize="12sp" />
-
-                <Button
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/to_blacklist_button"
                     android:enabled="false"
+                    android:text="@string/add_to_search"
+                    android:textSize="12sp" />
+
+                <Button
                     android:id="@+id/addToBlacklistFullscreenButton"
-                    android:textSize="12sp" />
-
-                <Button
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/alias"
                     android:enabled="false"
+                    android:text="@string/to_blacklist_button"
+                    android:textSize="12sp" />
+
+                <Button
                     android:id="@+id/addToAliasesFullscreenButton"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:text="@string/alias"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -212,15 +228,15 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/layoutInfoBar"
+        android:indeterminate="false"
         android:indeterminateOnly="true"
-        android:visibility="visible"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:indeterminate="false" />
+        android:visibility="visible" />
 
 
     <LinearLayout

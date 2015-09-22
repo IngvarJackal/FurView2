@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -55,7 +56,6 @@ import ru.furry.furview2.drivers.Drivers;
 import ru.furry.furview2.images.FurImage;
 import ru.furry.furview2.system.AsyncHandlerUI;
 import ru.furry.furview2.system.BlockUnblockUI;
-import ru.furry.furview2.system.BlockingOrientationHandler;
 import ru.furry.furview2.system.DefaultCreator;
 import ru.furry.furview2.system.ExtendableWDef;
 import ru.furry.furview2.system.Utils;
@@ -72,7 +72,7 @@ public class FullscreenActivity extends AppCompatActivity {
     int tag_text_lenght;
     int len_of_tags_row;
     SubsamplingScaleImageView mPictureImageView;
-    ScrollView mScrollDescriptionText;
+    ScrollView mInfoScrollView;
     TableLayout mTagsTable;
     Button mDescriptionButton;
     ProgressBar mProgress;
@@ -82,6 +82,8 @@ public class FullscreenActivity extends AppCompatActivity {
     EditText mTagsEditText;
     TextView mDescriptionText;
     TextView mDescriptionLabel;
+    TextView mSourceLabel;
+    LinearLayout mSourcelayout;
     ImageButton mSearchButton;
     ImageButton mButtonSaveDelInDB;
     ProgressBar mButtonSaveDelInDBProgress;
@@ -104,8 +106,7 @@ public class FullscreenActivity extends AppCompatActivity {
     int CurrentOrientation;
 
     private ArrayList<String> selectedTags;
-    public static final String APP_PREFERENCES = "settings";
-    public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
+
     private SharedPreferences mSettings;
     ru.furry.furview2.system.BlockingOrientationHandler blockingOrientationHandler;
 
@@ -359,7 +360,7 @@ public class FullscreenActivity extends AppCompatActivity {
         } else {
             setContentView(R.layout.activity_fullscreen);
 
-            mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+            mSettings = getSharedPreferences(InitialScreenActivity.APP_PREFERENCES, Context.MODE_PRIVATE);
 
             Log.d("fgsfds", "Fulscreen cur. cursor = " + MainActivity.cursor);
 
@@ -370,6 +371,8 @@ public class FullscreenActivity extends AppCompatActivity {
             mScoreEditText = (EditText) findViewById(R.id.scoreEditText);
             mArtistEditText = (EditText) findViewById(R.id.artistEditText);
             mDateTextView = (TextView) findViewById(R.id.dateEditText);
+            mSourceLabel = (TextView) findViewById(R.id.sourceLabel);
+            mSourcelayout = (LinearLayout) findViewById(R.id.sourcesLayout);
             mTagsEditText = (EditText) findViewById(R.id.tagsEditText);
             mDescriptionLabel = (TextView) findViewById(R.id.descriptionLabel);
             mSearchButton = (ImageButton) findViewById(R.id.searchImageButton);
@@ -382,7 +385,7 @@ public class FullscreenActivity extends AppCompatActivity {
             mAddToAliasesFullscreenButton = (Button) findViewById(R.id.addToAliasesFullscreenButton);
             mRelativeLayout = (RelativeLayout) findViewById(R.id.fullscreenLayout);
             mDescriptionText = (TextView) findViewById(R.id.descriptionText);
-            mScrollDescriptionText = (ScrollView) findViewById(R.id.scrollDescriptionText);
+            mInfoScrollView = (ScrollView) findViewById(R.id.infoScrollView);
             mLayoutSearchBar = (LinearLayout) findViewById(R.id.layoutSearchBar);
             mLayoutInfoBar = (LinearLayout) findViewById(R.id.layoutInfoBar);
             mLayoutFullscreenOut = (LinearLayout) findViewById(R.id.layoutFullscreenOut);
@@ -394,16 +397,18 @@ public class FullscreenActivity extends AppCompatActivity {
             selectedTags = new ArrayList<>();
             furryDatabaseUtils = new FurryDatabaseUtils(database);
 
+            //button listener for adding tags to blacklist
             mAddToBlacklistFullscreenButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     for (int i = 0; i < selectedTags.size(); i++) {
                         furryDatabaseUtils.addBlackTag(selectedTags.get(i));
                     }
-                    Toast.makeText(getApplicationContext(),getString(R.string.tags_is_added_to_blacklist),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.tags_is_added_to_blacklist), Toast.LENGTH_SHORT).show();
                 }
             });
 
+            //button listener for adding tags to search field
             mAddToSearchFullscreenButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -415,12 +420,12 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             });
 
-//TODO need new button "Add aliases"
+            //button listener for adding aliases
             mAddToAliasesFullscreenButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent("ru.furry.furview2.SetAliasesFullscreenActivity");
-                    intent.putStringArrayListExtra("selectedTags",selectedTags);
+                    intent.putStringArrayListExtra("selectedTags", selectedTags);
                     startActivity(intent);
                 }
             });
@@ -506,8 +511,26 @@ public class FullscreenActivity extends AppCompatActivity {
             mScoreEditText.setText(Integer.toString(fImage.getScore()));
             mArtistEditText.setText(Utils.unescapeUnicode(Utils.joinList(fImage.getArtists(), ", ")));
             mDateTextView.setText(DATETIME_FORMAT.print(fImage.getDownloadedAt()));
-            //mDescriptionText.setText(fImage.getDescription());
 
+            //set sources in info Scrollview
+            if (fImage.getSources().size() == 1) {
+                mSourceLabel.setText(getResources().getString(R.string.source));
+                mSourceLabel.setVisibility(View.VISIBLE);
+            }
+            if (fImage.getSources().size() > 1) {
+                mSourceLabel.setText(getResources().getString(R.string.sources));
+                mSourceLabel.setVisibility(View.VISIBLE);
+            }
+            for (int i = 0; i < fImage.getSources().size(); i++) {
+                TextView t = new TextView(mSourcelayout.getContext());
+                t.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                t.setAutoLinkMask(Linkify.WEB_URLS);
+                t.setLinksClickable(true);
+                t.setText(fImage.getSources().get(i));
+                mSourcelayout.addView(t);
+            }
+
+            //set description in info Scrollview
             if (!fImage.getDescription().equals("")) {
                 mDescriptionText.setText(fImage.getDescription());
             } else {
@@ -531,11 +554,11 @@ public class FullscreenActivity extends AppCompatActivity {
             mDescriptionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mScrollDescriptionText.isShown()) {
-                        mScrollDescriptionText.setVisibility(View.GONE);
+                    if (mInfoScrollView.isShown()) {
+                        mInfoScrollView.setVisibility(View.GONE);
                         mPictureImageView.setVisibility(View.VISIBLE);
                     } else {
-                        mScrollDescriptionText.setVisibility(View.VISIBLE);
+                        mInfoScrollView.setVisibility(View.VISIBLE);
                         mPictureImageView.setVisibility(View.GONE);
                     }
                 }
@@ -569,7 +592,7 @@ public class FullscreenActivity extends AppCompatActivity {
             });
 
             //set first state not fullscreen
-            if (!mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
+            if (!mSettings.contains(InitialScreenActivity.APP_PREFERENCES_FULLSCREEN)) {
                 fullOut();
             }
 
@@ -604,8 +627,8 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         //Restore settings
-        if (mSettings.contains(APP_PREFERENCES_FULLSCREEN)) {
-            if (mSettings.getBoolean(APP_PREFERENCES_FULLSCREEN, false)) {
+        if (mSettings.contains(InitialScreenActivity.APP_PREFERENCES_FULLSCREEN)) {
+            if (mSettings.getBoolean(InitialScreenActivity.APP_PREFERENCES_FULLSCREEN, false)) {
                 fullIn();
             } else {
                 fullOut();
@@ -618,7 +641,7 @@ public class FullscreenActivity extends AppCompatActivity {
         super.onPause();
         // Store settings
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.putBoolean(APP_PREFERENCES_FULLSCREEN, inFulscreenMode);
+        editor.putBoolean(InitialScreenActivity.APP_PREFERENCES_FULLSCREEN, inFulscreenMode);
         editor.apply();
     }
 
@@ -632,7 +655,7 @@ public class FullscreenActivity extends AppCompatActivity {
         mDescriptionButton.setVisibility(View.GONE);
         mLayoutFullscreenOut.setVisibility(View.VISIBLE);
 
-        mScrollDescriptionText.setVisibility(View.GONE);
+        mInfoScrollView.setVisibility(View.GONE);
         mPictureImageView.setVisibility(View.VISIBLE);
     }
 

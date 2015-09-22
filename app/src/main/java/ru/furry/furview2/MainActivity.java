@@ -232,8 +232,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AsyncCounter procCounter = new AsyncCounter(0, 1);
 
-    public static final String APP_PREFERENCES = "settings";
-    public static final String APP_PREFERENCES_NOT_FIRST_START = "not_first_start";
     private SharedPreferences mSettings;
 
     @Override
@@ -251,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         global = ((GlobalData) getApplicationContext());
 
         //Initial settings
-        mSettings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        mSettings = getSharedPreferences(InitialScreenActivity.APP_PREFERENCES, Context.MODE_PRIVATE);
 
         JodaTimeAndroid.init(this);
 
@@ -414,9 +412,9 @@ public class MainActivity extends AppCompatActivity {
             redrawImages();
         }
 
-        if (!mSettings.contains(APP_PREFERENCES_NOT_FIRST_START)) {
+        if (!mSettings.contains(InitialScreenActivity.APP_PREFERENCES_NOT_FIRST_START)) {
             SharedPreferences.Editor editor = mSettings.edit();
-            editor.putBoolean(APP_PREFERENCES_NOT_FIRST_START, true);
+            editor.putBoolean(InitialScreenActivity.APP_PREFERENCES_NOT_FIRST_START, true);
             editor.apply();
             Log.d("fgsfds", "In SharedPreferences set ");
         }
