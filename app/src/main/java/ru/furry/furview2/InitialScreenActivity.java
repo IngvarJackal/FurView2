@@ -52,6 +52,7 @@ public class InitialScreenActivity extends AppCompatActivity {
     public static final String APP_PREFERENCES_MANUAL_PORT = "manual_proxy_port";
     public static final String APP_PREFERENCES_SWF = "swf";
     public static final String APP_PREFERENCES_NOT_FIRST_START = "not_first_start";
+    public static final String APP_PREFERENCES_FULLSCREEN = "setFullscreen";
     private SharedPreferences mSettings;
     private static final int REQUEST_CODE = 0;
 
